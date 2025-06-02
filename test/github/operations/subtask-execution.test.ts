@@ -69,10 +69,38 @@ describe("SubtaskExecutionManager", () => {
   test("should execute dependency graph correctly", async () => {
     const graph = {
       nodes: [
-        { id: "A", mode: "code", dependencies: [], description: "Task A", priority: 1, estimatedComplexity: 3 },
-        { id: "B", mode: "code", dependencies: ["A"], description: "Task B", priority: 2, estimatedComplexity: 3 },
-        { id: "C", mode: "code", dependencies: ["A"], description: "Task C", priority: 2, estimatedComplexity: 3 },
-        { id: "D", mode: "code", dependencies: ["B", "C"], description: "Task D", priority: 3, estimatedComplexity: 3 },
+        {
+          id: "A",
+          mode: "code",
+          dependencies: [],
+          description: "Task A",
+          priority: 1,
+          estimatedComplexity: 3,
+        },
+        {
+          id: "B",
+          mode: "code",
+          dependencies: ["A"],
+          description: "Task B",
+          priority: 2,
+          estimatedComplexity: 3,
+        },
+        {
+          id: "C",
+          mode: "code",
+          dependencies: ["A"],
+          description: "Task C",
+          priority: 2,
+          estimatedComplexity: 3,
+        },
+        {
+          id: "D",
+          mode: "code",
+          dependencies: ["B", "C"],
+          description: "Task D",
+          priority: 3,
+          estimatedComplexity: 3,
+        },
       ],
       edges: [
         { from: "A", to: "B", type: "sequential" },
@@ -107,7 +135,7 @@ describe("SubtaskExecutionManager", () => {
     };
 
     const progress = manager.monitorProgress(subtask.id);
-    
+
     expect(progress.taskId).toBe(subtask.id);
     expect(progress.status).toBe("pending");
   });
@@ -123,7 +151,7 @@ describe("SubtaskExecutionManager", () => {
     };
 
     const results = await manager.executeParallel([problematicSubtask]);
-    
+
     expect(results.length).toBe(1);
     expect(results[0].success).toBe(false);
     expect(results[0].error).toBeDefined();

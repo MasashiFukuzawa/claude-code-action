@@ -38,7 +38,10 @@ ${taskInfo.description}
     return content;
   }
 
-  async updateProgress(taskId: string, progress: ProgressUpdate): Promise<void> {
+  async updateProgress(
+    taskId: string,
+    progress: ProgressUpdate,
+  ): Promise<void> {
     const statusEmoji = this.getStatusEmoji(progress.status);
     const progressBar = this.createProgressBar(progress.percentComplete);
 

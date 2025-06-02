@@ -54,7 +54,7 @@ export class SubtaskExecutionManager {
     const executeNode = async (nodeId: string): Promise<TaskResult> => {
       // Check if already completed
       if (completed.has(nodeId)) {
-        return results.find(r => r.taskId === nodeId)!;
+        return results.find((r) => r.taskId === nodeId)!;
       }
 
       // Check if already executing
@@ -114,13 +114,21 @@ export class SubtaskExecutionManager {
       });
 
       // Simulate task execution for now - in real implementation, this would use Claude
-      await new Promise(resolve => setTimeout(resolve, 10)); // Minimal delay for simulation
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Minimal delay for simulation
 
       // For testing, we check if the mode is valid
-      const isValidMode = ['code', 'architect', 'debug', 'ask', 'orchestrator'].includes(subtask.mode);
-      
+      const isValidMode = [
+        "code",
+        "architect",
+        "debug",
+        "ask",
+        "orchestrator",
+      ].includes(subtask.mode);
+
       const success = isValidMode;
-      const output = success ? `Executed ${subtask.description}` : `Invalid mode: ${subtask.mode}`;
+      const output = success
+        ? `Executed ${subtask.description}`
+        : `Invalid mode: ${subtask.mode}`;
 
       // Notify completion
       this.notifyProgress({

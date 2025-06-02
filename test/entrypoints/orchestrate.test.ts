@@ -16,22 +16,24 @@ mock.module("../../src/github/operations/progress-tracker", () => ({
 
 mock.module("../../src/entrypoints/orchestrate", () => ({
   AutoOrchestrator: mock(() => ({
-    orchestrateTask: mock(() => Promise.resolve({
-      success: true,
-      taskId: "test-task",
-      subtaskResults: [
-        {
-          taskId: "subtask-1",
-          success: true,
-          output: "Test output",
-          duration: 30,
-          tokensUsed: 100,
-        },
-      ],
-      totalDuration: 45,
-      totalTokensUsed: 150,
-      summary: "Test orchestration completed",
-    })),
+    orchestrateTask: mock(() =>
+      Promise.resolve({
+        success: true,
+        taskId: "test-task",
+        subtaskResults: [
+          {
+            taskId: "subtask-1",
+            success: true,
+            output: "Test output",
+            duration: 30,
+            tokensUsed: 100,
+          },
+        ],
+        totalDuration: 45,
+        totalTokensUsed: 150,
+        summary: "Test orchestration completed",
+      }),
+    ),
   })),
 }));
 
@@ -72,7 +74,7 @@ describe("OrchestrationEntrypoint", () => {
       status: "completed" as const,
       percentComplete: 100,
     };
-    
+
     await entrypoint.updateProgress(progressUpdatePayload);
 
     // Progress update should be called
