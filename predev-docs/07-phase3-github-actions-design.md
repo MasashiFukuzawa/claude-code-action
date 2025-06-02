@@ -5,6 +5,7 @@
 GitHub Actions統合では、オーケストレーション機能をGitHub Actionsワークフローに組み込み、サブタスクの実行管理とプログレストラッキングを実装します。既存のGitHub Actionsインフラを拡張し、複雑なタスクの分解と並列/順次実行を可能にします。
 
 **📌 参考実装**: RooCode（RooCline）のオーケストレーション実装を参考にしてください：
+
 - GitHub: https://github.com/RooCodeInc/Roo-Code
 - UIthub: https://uithub.com/RooCodeInc/Roo-Code
 - DeepWiki: https://deepwiki.com/RooCodeInc/Roo-Code
@@ -113,7 +114,7 @@ classDiagram
 
 ```typescript
 // test/github/operations/orchestration-types.test.ts
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect } from "bun:test";
 import type {
   OrchestrationResult,
   ExecutionPlan,
@@ -122,26 +123,26 @@ import type {
   BoomerangRequest,
   BoomerangResult,
   ErrorRecoveryInfo,
-  ExecutionMetrics
-} from '../../../src/github/operations/orchestration-types';
+  ExecutionMetrics,
+} from "../../../src/github/operations/orchestration-types";
 
-describe('Orchestration Types', () => {
-  test('should define OrchestrationResult correctly', () => {
+describe("Orchestration Types", () => {
+  test("should define OrchestrationResult correctly", () => {
     const result: OrchestrationResult = {
       success: true,
-      taskId: 'main-task-1',
+      taskId: "main-task-1",
       subtaskResults: [
         {
-          taskId: 'subtask-1',
+          taskId: "subtask-1",
           success: true,
-          output: 'Component implemented',
+          output: "Component implemented",
           duration: 120,
-          tokensUsed: 1500
-        }
+          tokensUsed: 1500,
+        },
       ],
       totalDuration: 300,
       totalTokensUsed: 5000,
-      summary: 'All subtasks completed successfully'
+      summary: "All subtasks completed successfully",
     };
 
     expect(result.success).toBe(true);
@@ -149,85 +150,85 @@ describe('Orchestration Types', () => {
     expect(result.totalTokensUsed).toBe(5000);
   });
 
-  test('should define ExecutionPlan correctly', () => {
+  test("should define ExecutionPlan correctly", () => {
     const plan: ExecutionPlan = {
       phases: [
         {
-          phaseId: 'phase-1',
-          name: 'Initial Setup',
-          subtasks: ['subtask-1', 'subtask-2'],
-          executionType: 'parallel',
-          estimatedDuration: 60
-        }
+          phaseId: "phase-1",
+          name: "Initial Setup",
+          subtasks: ["subtask-1", "subtask-2"],
+          executionType: "parallel",
+          estimatedDuration: 60,
+        },
       ],
       dependencies: {
-        'subtask-3': ['subtask-1', 'subtask-2'],
-        'subtask-4': ['subtask-3']
+        "subtask-3": ["subtask-1", "subtask-2"],
+        "subtask-4": ["subtask-3"],
       },
       estimatedTotalDuration: 180,
-      criticalPath: ['subtask-1', 'subtask-3', 'subtask-4']
+      criticalPath: ["subtask-1", "subtask-3", "subtask-4"],
     };
 
     expect(plan.phases.length).toBe(1);
-    expect(plan.phases[0].executionType).toBe('parallel');
+    expect(plan.phases[0].executionType).toBe("parallel");
     expect(plan.criticalPath.length).toBe(3);
   });
 
-  test('should define ProgressUpdate correctly', () => {
+  test("should define ProgressUpdate correctly", () => {
     const progress: ProgressUpdate = {
-      taskId: 'subtask-1',
-      status: 'in_progress',
+      taskId: "subtask-1",
+      status: "in_progress",
       percentComplete: 75,
-      currentStep: 'Running tests',
+      currentStep: "Running tests",
       startTime: new Date(),
-      estimatedTimeRemaining: 30
+      estimatedTimeRemaining: 30,
     };
 
-    expect(progress.status).toBe('in_progress');
+    expect(progress.status).toBe("in_progress");
     expect(progress.percentComplete).toBe(75);
-    expect(progress.currentStep).toBe('Running tests');
+    expect(progress.currentStep).toBe("Running tests");
   });
 
-  test('should define BoomerangRequest correctly', () => {
+  test("should define BoomerangRequest correctly", () => {
     const request: BoomerangRequest = {
-      task: 'Refactor component X',
-      targetMode: 'code-refactor',
+      task: "Refactor component X",
+      targetMode: "code-refactor",
       returnContext: true,
-      preserveResults: false
+      preserveResults: false,
     };
-    expect(request.targetMode).toBe('code-refactor');
+    expect(request.targetMode).toBe("code-refactor");
     expect(request.preserveResults).toBe(false);
   });
 
-  test('should define BoomerangResult correctly', () => {
+  test("should define BoomerangResult correctly", () => {
     const result: BoomerangResult = {
       success: true,
-      delegatedMode: 'code-refactor',
-      result: 'Component X refactored successfully.',
+      delegatedMode: "code-refactor",
+      result: "Component X refactored successfully.",
       tokensUsed: 250,
-      duration: 60
+      duration: 60,
     };
     expect(result.success).toBe(true);
     expect(result.tokensUsed).toBe(250);
   });
 
-  test('should define ErrorRecoveryInfo correctly', () => {
+  test("should define ErrorRecoveryInfo correctly", () => {
     const recoveryInfo: ErrorRecoveryInfo = {
-      strategy: 'retry',
+      strategy: "retry",
       attempts: 3,
-      recoveredTasks: ['task-A'],
-      unrecoverableTasks: ['task-B']
+      recoveredTasks: ["task-A"],
+      unrecoverableTasks: ["task-B"],
     };
-    expect(recoveryInfo.strategy).toBe('retry');
+    expect(recoveryInfo.strategy).toBe("retry");
     expect(recoveryInfo.recoveredTasks.length).toBe(1);
   });
 
-  test('should define ExecutionMetrics correctly', () => {
+  test("should define ExecutionMetrics correctly", () => {
     const metrics: ExecutionMetrics = {
       startTime: new Date(),
       tokensUsed: 1200,
       subtasksCompleted: 3,
-      subtasksFailed: 0
+      subtasksFailed: 0,
     };
     // endTime, duration, parallelizationEfficiency はオプショナルなので、必須項目のみテスト
     expect(metrics.tokensUsed).toBe(1200);
@@ -239,7 +240,7 @@ describe('Orchestration Types', () => {
 #### 実装: src/github/operations/orchestration-types.ts
 
 ```typescript
-import type { TaskResult } from '../../tasks/types';
+import type { TaskResult } from "../../tasks/types";
 
 export interface OrchestrationResult {
   success: boolean;
@@ -266,13 +267,13 @@ export interface ExecutionPhase {
   phaseId: string;
   name: string;
   subtasks: string[];
-  executionType: 'parallel' | 'sequential';
+  executionType: "parallel" | "sequential";
   estimatedDuration: number;
 }
 
 export interface ProgressUpdate {
   taskId: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  status: "pending" | "in_progress" | "completed" | "failed";
   percentComplete: number;
   currentStep?: string;
   startTime?: Date;
@@ -307,7 +308,7 @@ export interface BoomerangResult {
 }
 
 export interface ErrorRecoveryInfo {
-  strategy: 'retry' | 'skip' | 'fallback';
+  strategy: "retry" | "skip" | "fallback";
   attempts: number;
   recoveredTasks: string[];
   unrecoverableTasks: string[];
@@ -330,34 +331,34 @@ export interface ExecutionMetrics {
 
 ```typescript
 // test/entrypoints/orchestrate.test.ts
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
-import { OrchestrationEntrypoint } from '../../src/entrypoints/orchestrate';
-import type { GitHubContext } from '../../src/github/context';
-import { ProgressTracker } from '../../src/github/operations/progress-tracker';
+import { describe, test, expect, beforeEach, mock } from "bun:test";
+import { OrchestrationEntrypoint } from "../../src/entrypoints/orchestrate";
+import type { GitHubContext } from "../../src/github/context";
+import { ProgressTracker } from "../../src/github/operations/progress-tracker";
 
-describe('OrchestrationEntrypoint', () => {
+describe("OrchestrationEntrypoint", () => {
   let entrypoint: OrchestrationEntrypoint;
   let mockContext: GitHubContext;
 
   beforeEach(() => {
     mockContext = {
-      eventType: 'issue_comment',
-      repository: { owner: 'test', name: 'repo' },
-      issue: { number: 1, title: 'Test Issue' },
-      comment: { id: 123, body: '/claude orchestrate complex task' }
+      eventType: "issue_comment",
+      repository: { owner: "test", name: "repo" },
+      issue: { number: 1, title: "Test Issue" },
+      comment: { id: 123, body: "/claude orchestrate complex task" },
     } as GitHubContext;
 
     entrypoint = new OrchestrationEntrypoint(mockContext);
   });
 
-  test('should prepare orchestration environment', async () => {
+  test("should prepare orchestration environment", async () => {
     await entrypoint.prepare();
 
     // Verify MCP server installation, mode system initialization, etc.
     expect(entrypoint.isReady()).toBe(true);
   });
 
-  test('should execute orchestration for complex task', async () => {
+  test("should execute orchestration for complex task", async () => {
     await entrypoint.prepare();
 
     const result = await entrypoint.execute();
@@ -366,30 +367,31 @@ describe('OrchestrationEntrypoint', () => {
     expect(result.subtaskResults.length).toBeGreaterThan(0);
   });
 
-  test('should update comment with progress', async () => {
+  test("should update comment with progress", async () => {
     const progressUpdatePayload = {
-      taskId: 'subtask-1',
-      status: 'completed' as const,
-      percentComplete: 100
+      taskId: "subtask-1",
+      status: "completed" as const,
+      percentComplete: 100,
     };
     await entrypoint.updateProgress(progressUpdatePayload);
 
-    const mockedProgressTrackerInstance = ProgressTracker.mock.results[0]?.value;
+    const mockedProgressTrackerInstance =
+      ProgressTracker.mock.results[0]?.value;
     if (mockedProgressTrackerInstance) {
       expect(mockedProgressTrackerInstance.updateProgress).toHaveBeenCalledWith(
         progressUpdatePayload.taskId,
-        progressUpdatePayload
+        progressUpdatePayload,
       );
     }
   });
 
-  test('should handle errors gracefully', async () => {
-    const error = new Error('Orchestration failed');
+  test("should handle errors gracefully", async () => {
+    const error = new Error("Orchestration failed");
 
     await entrypoint.handleError(error);
 
     // Should update comment with error message
-    expect(entrypoint.getLastComment()).toContain('Error');
+    expect(entrypoint.getLastComment()).toContain("Error");
   });
 });
 ```
@@ -397,14 +399,17 @@ describe('OrchestrationEntrypoint', () => {
 #### 実装: src/entrypoints/orchestrate.ts
 
 ```typescript
-import { GitHubContext } from '../github/context';
-import { TaskManager } from '../tasks/task-manager';
-import { TaskAnalyzer } from '../orchestration/task-analyzer';
-import { ContextOptimizer } from '../orchestration/context-optimizer';
-import { modeManager } from '../modes/mode-manager';
-import { SubtaskExecutionManager } from '../github/operations/subtask-execution';
-import { ProgressTracker } from '../github/operations/progress-tracker';
-import type { OrchestrationResult, ProgressUpdate } from '../github/operations/orchestration-types';
+import { GitHubContext } from "../github/context";
+import { TaskManager } from "../tasks/task-manager";
+import { TaskAnalyzer } from "../orchestration/task-analyzer";
+import { ContextOptimizer } from "../orchestration/context-optimizer";
+import { modeManager } from "../modes/mode-manager";
+import { SubtaskExecutionManager } from "../github/operations/subtask-execution";
+import { ProgressTracker } from "../github/operations/progress-tracker";
+import type {
+  OrchestrationResult,
+  ProgressUpdate,
+} from "../github/operations/orchestration-types";
 
 export class OrchestrationEntrypoint {
   private githubContext: GitHubContext;
@@ -428,9 +433,9 @@ export class OrchestrationEntrypoint {
       this.taskManager,
       new TaskAnalyzer(),
       new ContextOptimizer(),
-      modeManager // Note: When testing AutoOrchestrator, modeManager will need to be mocked
-                  // or a test-specific instance provided to control its behavior and
-                  // dependencies, especially for methods like getModeBySlug.
+      modeManager, // Note: When testing AutoOrchestrator, modeManager will need to be mocked
+      // or a test-specific instance provided to control its behavior and
+      // dependencies, especially for methods like getModeBySlug.
     );
 
     this.isInitialized = true;
@@ -438,7 +443,7 @@ export class OrchestrationEntrypoint {
 
   async execute(): Promise<OrchestrationResult> {
     if (!this.isInitialized) {
-      throw new Error('Orchestration not initialized. Call prepare() first.');
+      throw new Error("Orchestration not initialized. Call prepare() first.");
     }
 
     try {
@@ -491,19 +496,19 @@ export class OrchestrationEntrypoint {
   private extractTaskInfo(): TaskInfo {
     return {
       id: `task-${Date.now()}`,
-      title: this.githubContext.issue?.title || 'Task',
-      description: this.githubContext.issue?.body || '',
+      title: this.githubContext.issue?.title || "Task",
+      description: this.githubContext.issue?.body || "",
       issueNumber: this.githubContext.issue?.number || 0,
       repository: {
         owner: this.githubContext.repository.owner,
-        name: this.githubContext.repository.name
-      }
+        name: this.githubContext.repository.name,
+      },
     };
   }
 
   private extractTaskDescription(): string {
-    const issueBody = this.githubContext.issue?.body || '';
-    const commentBody = this.githubContext.comment?.body || '';
+    const issueBody = this.githubContext.issue?.body || "";
+    const commentBody = this.githubContext.comment?.body || "";
     return `${issueBody}\n\n${commentBody}`;
   }
 }
@@ -513,7 +518,7 @@ export class AutoOrchestrator {
     private taskManager: TaskManager,
     private taskAnalyzer: TaskAnalyzer,
     private contextOptimizer: ContextOptimizer,
-    private modeManager: typeof modeManager
+    private modeManager: typeof modeManager,
   ) {}
 
   async orchestrateTask(taskDescription: string): Promise<OrchestrationResult> {
@@ -533,16 +538,16 @@ export class AutoOrchestrator {
     const executionManager = new SubtaskExecutionManager();
     const results = await executionManager.executeDependencyGraph({
       nodes: subtasks,
-      edges: this.createDependencyEdges(executionPlan)
+      edges: this.createDependencyEdges(executionPlan),
     });
 
     return {
-      success: results.every(r => r.success),
+      success: results.every((r) => r.success),
       taskId: `main-${Date.now()}`,
       subtaskResults: results,
       totalDuration: Date.now() - startTime,
       totalTokensUsed: results.reduce((sum, r) => sum + (r.tokensUsed || 0), 0),
-      summary: this.generateSummary(results)
+      summary: this.generateSummary(results),
     };
   }
 
@@ -551,14 +556,18 @@ export class AutoOrchestrator {
     const executionManager = new SubtaskExecutionManager();
 
     // Group subtasks by dependencies
-    const independentTasks = subtasks.filter(t => t.dependencies.length === 0);
-    const dependentTasks = subtasks.filter(t => t.dependencies.length > 0);
+    const independentTasks = subtasks.filter(
+      (t) => t.dependencies.length === 0,
+    );
+    const dependentTasks = subtasks.filter((t) => t.dependencies.length > 0);
 
     // Execute independent tasks in parallel
-    const independentResults = await executionManager.executeParallel(independentTasks);
+    const independentResults =
+      await executionManager.executeParallel(independentTasks);
 
     // Execute dependent tasks sequentially
-    const dependentResults = await executionManager.executeSequential(dependentTasks);
+    const dependentResults =
+      await executionManager.executeSequential(dependentTasks);
 
     return [...independentResults, ...dependentResults];
   }
@@ -570,7 +579,7 @@ export class AutoOrchestrator {
       taskDescription: request.task,
       previousResults: [],
       globalContext: {},
-      maxTokens: 4000
+      maxTokens: 4000,
     });
 
     // Execute task in specified mode
@@ -581,7 +590,7 @@ export class AutoOrchestrator {
       success: true,
       output: result,
       duration: 0,
-      tokensUsed: 0
+      tokensUsed: 0,
     };
   }
 
@@ -594,7 +603,7 @@ export class AutoOrchestrator {
       phases,
       dependencies: this.extractDependencies(subtasks),
       estimatedTotalDuration: this.estimateTotalDuration(phases),
-      criticalPath
+      criticalPath,
     };
   }
 
@@ -615,35 +624,35 @@ export class AutoOrchestrator {
 
 ```typescript
 // test/github/operations/subtask-execution.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { SubtaskExecutionManager } from '../../../src/github/operations/subtask-execution';
-import type { SubTask } from '../../../src/orchestration/types';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { SubtaskExecutionManager } from "../../../src/github/operations/subtask-execution";
+import type { SubTask } from "../../../src/orchestration/types";
 
-describe('SubtaskExecutionManager', () => {
+describe("SubtaskExecutionManager", () => {
   let manager: SubtaskExecutionManager;
 
   beforeEach(() => {
     manager = new SubtaskExecutionManager();
   });
 
-  test('should execute independent subtasks in parallel', async () => {
+  test("should execute independent subtasks in parallel", async () => {
     const subtasks: SubTask[] = [
       {
-        id: 'subtask-1',
-        description: 'Task 1',
-        mode: 'code',
+        id: "subtask-1",
+        description: "Task 1",
+        mode: "code",
         priority: 1,
         dependencies: [],
-        estimatedComplexity: 3
+        estimatedComplexity: 3,
       },
       {
-        id: 'subtask-2',
-        description: 'Task 2',
-        mode: 'code',
+        id: "subtask-2",
+        description: "Task 2",
+        mode: "code",
         priority: 1,
         dependencies: [],
-        estimatedComplexity: 3
-      }
+        estimatedComplexity: 3,
+      },
     ];
 
     const startTime = Date.now();
@@ -651,76 +660,76 @@ describe('SubtaskExecutionManager', () => {
     const duration = Date.now() - startTime;
 
     expect(results.length).toBe(2);
-    expect(results.every(r => r.success)).toBe(true);
+    expect(results.every((r) => r.success)).toBe(true);
     // Parallel execution should be faster than sequential
     expect(duration).toBeLessThan(subtasks.length * 1000);
   });
 
-  test('should execute dependent subtasks sequentially', async () => {
+  test("should execute dependent subtasks sequentially", async () => {
     const subtasks: SubTask[] = [
       {
-        id: 'subtask-1',
-        description: 'Base task',
-        mode: 'code',
+        id: "subtask-1",
+        description: "Base task",
+        mode: "code",
         priority: 1,
         dependencies: [],
-        estimatedComplexity: 3
+        estimatedComplexity: 3,
       },
       {
-        id: 'subtask-2',
-        description: 'Dependent task',
-        mode: 'code',
+        id: "subtask-2",
+        description: "Dependent task",
+        mode: "code",
         priority: 2,
-        dependencies: ['subtask-1'],
-        estimatedComplexity: 3
-      }
+        dependencies: ["subtask-1"],
+        estimatedComplexity: 3,
+      },
     ];
 
     const results = await manager.executeSequential(subtasks);
 
     expect(results.length).toBe(2);
-    expect(results[0].taskId).toBe('subtask-1');
-    expect(results[1].taskId).toBe('subtask-2');
+    expect(results[0].taskId).toBe("subtask-1");
+    expect(results[1].taskId).toBe("subtask-2");
   });
 
-  test('should execute dependency graph correctly', async () => {
+  test("should execute dependency graph correctly", async () => {
     const graph = {
       nodes: [
-        { id: 'A', mode: 'code', dependencies: [] },
-        { id: 'B', mode: 'code', dependencies: ['A'] },
-        { id: 'C', mode: 'code', dependencies: ['A'] },
-        { id: 'D', mode: 'code', dependencies: ['B', 'C'] }
+        { id: "A", mode: "code", dependencies: [] },
+        { id: "B", mode: "code", dependencies: ["A"] },
+        { id: "C", mode: "code", dependencies: ["A"] },
+        { id: "D", mode: "code", dependencies: ["B", "C"] },
       ],
       edges: [
-        { from: 'A', to: 'B', type: 'sequential' },
-        { from: 'A', to: 'C', type: 'sequential' },
-        { from: 'B', to: 'D', type: 'sequential' },
-        { from: 'C', to: 'D', type: 'sequential' }
-      ]
+        { from: "A", to: "B", type: "sequential" },
+        { from: "A", to: "C", type: "sequential" },
+        { from: "B", to: "D", type: "sequential" },
+        { from: "C", to: "D", type: "sequential" },
+      ],
     };
 
     const results = await manager.executeDependencyGraph(graph);
 
     expect(results.length).toBe(4);
     // A should complete before B and C
-    const aIndex = results.findIndex(r => r.taskId === 'A');
-    const bIndex = results.findIndex(r => r.taskId === 'B');
-    const cIndex = results.findIndex(r => r.taskId === 'C');
-    const dIndex = results.findIndex(r => r.taskId === 'D');
+    const aIndex = results.findIndex((r) => r.taskId === "A");
+    const bIndex = results.findIndex((r) => r.taskId === "B");
+    const cIndex = results.findIndex((r) => r.taskId === "C");
+    const dIndex = results.findIndex((r) => r.taskId === "D");
 
     expect(aIndex).toBeLessThan(bIndex);
     expect(aIndex).toBeLessThan(cIndex);
     expect(dIndex).toBe(3); // D should be last
   });
 
-  test('should monitor progress during execution', async () => {
+  test("should monitor progress during execution", async () => {
     const subtask: SubTask = {
-      id: 'subtask-1',
-      description: 'Monitored task',
-      mode: 'code',
+      id: "subtask-1",
+      description: "Monitored task",
+      mode: "code",
       priority: 1,
       dependencies: [],
-      estimatedComplexity: 5
+      estimatedComplexity: 5,
     };
 
     let progressUpdates: ProgressUpdate[] = [];
@@ -731,8 +740,8 @@ describe('SubtaskExecutionManager', () => {
     await manager.executeParallel([subtask]);
 
     expect(progressUpdates.length).toBeGreaterThan(0);
-    expect(progressUpdates.some(u => u.status === 'in_progress')).toBe(true);
-    expect(progressUpdates.some(u => u.status === 'completed')).toBe(true);
+    expect(progressUpdates.some((u) => u.status === "in_progress")).toBe(true);
+    expect(progressUpdates.some((u) => u.status === "completed")).toBe(true);
   });
 });
 ```
@@ -740,10 +749,14 @@ describe('SubtaskExecutionManager', () => {
 #### 実装: src/github/operations/subtask-execution.ts
 
 ```typescript
-import type { SubTask, TaskResult, DependencyGraph } from '../../orchestration/types';
-import type { ProgressUpdate } from './orchestration-types';
-import { PromptExtension } from '../../create-prompt/prompt-extension';
-import { taskManager } from '../../tasks/task-manager';
+import type {
+  SubTask,
+  TaskResult,
+  DependencyGraph,
+} from "../../orchestration/types";
+import type { ProgressUpdate } from "./orchestration-types";
+import { PromptExtension } from "../../create-prompt/prompt-extension";
+import { taskManager } from "../../tasks/task-manager";
 
 export class SubtaskExecutionManager {
   private executionQueue: ExecutionQueue;
@@ -758,7 +771,7 @@ export class SubtaskExecutionManager {
   }
 
   async executeParallel(subtasks: SubTask[]): Promise<TaskResult[]> {
-    const promises = subtasks.map(subtask => this.executeSubtask(subtask));
+    const promises = subtasks.map((subtask) => this.executeSubtask(subtask));
     return Promise.all(promises);
   }
 
@@ -784,7 +797,7 @@ export class SubtaskExecutionManager {
     const executing = new Map<string, Promise<TaskResult>>();
 
     const executeNode = async (nodeId: string): Promise<TaskResult> => {
-      const node = graph.nodes.find(n => n.id === nodeId);
+      const node = graph.nodes.find((n) => n.id === nodeId);
       if (!node) throw new Error(`Node ${nodeId} not found`);
 
       // Wait for dependencies
@@ -810,8 +823,8 @@ export class SubtaskExecutionManager {
     };
 
     // Execute all nodes
-    const rootNodes = graph.nodes.filter(n => n.dependencies.length === 0);
-    await Promise.all(rootNodes.map(n => executeNode(n.id)));
+    const rootNodes = graph.nodes.filter((n) => n.dependencies.length === 0);
+    await Promise.all(rootNodes.map((n) => executeNode(n.id)));
 
     // Execute remaining nodes
     for (const node of graph.nodes) {
@@ -833,7 +846,7 @@ export class SubtaskExecutionManager {
       currentStep: this.getCurrentStep(task),
       startTime: task.createdAt,
       endTime: task.result ? task.updatedAt : undefined,
-      estimatedTimeRemaining: this.estimateTimeRemaining(task)
+      estimatedTimeRemaining: this.estimateTimeRemaining(task),
     };
   }
 
@@ -847,9 +860,9 @@ export class SubtaskExecutionManager {
     // Update progress: starting
     this.notifyProgress({
       taskId: subtask.id,
-      status: 'in_progress',
+      status: "in_progress",
       percentComplete: 0,
-      currentStep: 'Initializing'
+      currentStep: "Initializing",
     });
 
     try {
@@ -861,20 +874,23 @@ export class SubtaskExecutionManager {
           previousResults: this.getPreviousResults(subtask.dependencies),
           globalContext: {},
           modeSpecificContext: {},
-          maxTokens: 4000
-        }
+          maxTokens: 4000,
+        },
       });
 
       // Generate prompt
       const promptExtension = new PromptExtension();
-      const promptResult = promptExtension.createPromptForSubtask(subtask, task.context);
+      const promptResult = promptExtension.createPromptForSubtask(
+        subtask,
+        task.context,
+      );
 
       // Update progress: executing
       this.notifyProgress({
         taskId: subtask.id,
-        status: 'in_progress',
+        status: "in_progress",
         percentComplete: 50,
-        currentStep: 'Executing'
+        currentStep: "Executing",
       });
 
       // Execute (simulated - in real implementation, this would call Claude API)
@@ -886,7 +902,7 @@ export class SubtaskExecutionManager {
         success: true,
         output,
         duration: Date.now() - startTime,
-        tokensUsed: promptResult.metadata.tokensUsed
+        tokensUsed: promptResult.metadata.tokensUsed,
       };
 
       taskManager.updateTaskResult(task.id, result);
@@ -894,9 +910,9 @@ export class SubtaskExecutionManager {
       // Update progress: completed
       this.notifyProgress({
         taskId: subtask.id,
-        status: 'completed',
+        status: "completed",
         percentComplete: 100,
-        currentStep: 'Completed'
+        currentStep: "Completed",
       });
 
       return result;
@@ -904,38 +920,43 @@ export class SubtaskExecutionManager {
       // Update progress: failed
       this.notifyProgress({
         taskId: subtask.id,
-        status: 'failed',
+        status: "failed",
         percentComplete: 0,
-        currentStep: 'Failed'
+        currentStep: "Failed",
       });
 
       return {
         taskId: subtask.id,
         success: false,
         error: error.message,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
   }
 
   private getPreviousResults(dependencies: string[]): string[] {
-    return dependencies.map(depId => {
+    return dependencies.map((depId) => {
       const result = this.resultAggregator.getResult(depId);
       return result?.output || `Result from ${depId}`;
     });
   }
 
-  private async simulateExecution(prompt: string, subtask: SubTask): Promise<string> {
+  private async simulateExecution(
+    prompt: string,
+    subtask: SubTask,
+  ): Promise<string> {
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 500));
+    await new Promise((resolve) =>
+      setTimeout(resolve, 500 + Math.random() * 500),
+    );
 
     // Return simulated result based on mode
     switch (subtask.mode) {
-      case 'architect':
+      case "architect":
         return `Architecture design for: ${subtask.description}`;
-      case 'code':
+      case "code":
         return `Implementation completed for: ${subtask.description}`;
-      case 'debug':
+      case "debug":
         return `Debugging analysis for: ${subtask.description}`;
       default:
         return `Task completed: ${subtask.description}`;
@@ -943,22 +964,22 @@ export class SubtaskExecutionManager {
   }
 
   private notifyProgress(update: ProgressUpdate): void {
-    this.progressCallbacks.forEach(callback => callback(update));
+    this.progressCallbacks.forEach((callback) => callback(update));
   }
 
   private calculateProgress(task: any): number {
-    if (task.status === 'completed') return 100;
-    if (task.status === 'failed') return 0;
-    if (task.status === 'in_progress') return 50;
+    if (task.status === "completed") return 100;
+    if (task.status === "failed") return 0;
+    if (task.status === "in_progress") return 50;
     return 0;
   }
 
   private getCurrentStep(task: any): string {
-    return task.status === 'in_progress' ? 'Processing' : task.status;
+    return task.status === "in_progress" ? "Processing" : task.status;
   }
 
   private estimateTimeRemaining(task: any): number {
-    if (task.status === 'completed' || task.status === 'failed') return 0;
+    if (task.status === "completed" || task.status === "failed") return 0;
     return 30; // seconds
   }
 }
@@ -992,13 +1013,13 @@ class DependencyResolver {
     const visit = (task: SubTask) => {
       if (visited.has(task.id)) return;
       if (visiting.has(task.id)) {
-        throw new Error('Circular dependency detected');
+        throw new Error("Circular dependency detected");
       }
 
       visiting.add(task.id);
 
       for (const depId of task.dependencies) {
-        const dep = subtasks.find(t => t.id === depId);
+        const dep = subtasks.find((t) => t.id === depId);
         if (dep) visit(dep);
       }
 
@@ -1032,30 +1053,35 @@ class ResultAggregator {
 ## コミット計画
 
 ### コミット1: GitHub統合型定義
+
 ```bash
 git add src/github/operations/orchestration-types.ts test/github/operations/orchestration-types.test.ts
 git commit -m "feat(github): add orchestration type definitions with tests"
 ```
 
 ### コミット2: オーケストレーションエントリーポイント
+
 ```bash
 git add src/entrypoints/orchestrate.ts test/entrypoints/orchestrate.test.ts
 git commit -m "feat(github): implement orchestration entrypoint with tests"
 ```
 
 ### コミット3: サブタスク実行管理
+
 ```bash
 git add src/github/operations/subtask-execution.ts test/github/operations/subtask-execution.test.ts
 git commit -m "feat(github): implement subtask execution manager with tests"
 ```
 
 ### コミット4: プログレストラッキング
+
 ```bash
 git add src/github/operations/progress-tracker.ts test/github/operations/progress-tracker.test.ts
 git commit -m "feat(github): implement progress tracking for orchestration"
 ```
 
 ### コミット5: 統合テスト
+
 ```bash
 git add test/github/operations/orchestration-integration.test.ts
 git commit -m "test(github): add orchestration integration tests"
@@ -1089,30 +1115,30 @@ test/
 
 ```typescript
 // test/github/operations/orchestration-integration.test.ts
-import { describe, test, expect } from 'bun:test';
-import { OrchestrationEntrypoint } from '../../../src/entrypoints/orchestrate';
-import { TaskAnalyzer } from '../../../src/orchestration';
+import { describe, test, expect } from "bun:test";
+import { OrchestrationEntrypoint } from "../../../src/entrypoints/orchestrate";
+import { TaskAnalyzer } from "../../../src/orchestration";
 
-describe('GitHub Actions Orchestration Integration', () => {
-  test('should handle complete orchestration workflow', async () => {
+describe("GitHub Actions Orchestration Integration", () => {
+  test("should handle complete orchestration workflow", async () => {
     const context = {
-      eventType: 'issue_comment',
-      repository: { owner: 'test', name: 'repo' },
+      eventType: "issue_comment",
+      repository: { owner: "test", name: "repo" },
       issue: {
         number: 1,
-        title: 'Implement user authentication system',
+        title: "Implement user authentication system",
         body: `
           Create a complete authentication system with:
           - User registration and login
           - Password reset functionality
           - JWT token management
           - Rate limiting
-        `
+        `,
       },
       comment: {
         id: 123,
-        body: '/claude orchestrate'
-      }
+        body: "/claude orchestrate",
+      },
     };
 
     const entrypoint = new OrchestrationEntrypoint(context);
@@ -1125,25 +1151,25 @@ describe('GitHub Actions Orchestration Integration', () => {
 
     expect(result.success).toBe(true);
     expect(result.subtaskResults.length).toBeGreaterThan(2);
-    expect(result.summary).toContain('authentication');
+    expect(result.summary).toContain("authentication");
 
     // Verify comment was updated with progress
     const finalComment = entrypoint.getLastComment();
-    expect(finalComment).toContain('✅');
-    expect(finalComment).toContain('Completed');
+    expect(finalComment).toContain("✅");
+    expect(finalComment).toContain("Completed");
   });
 
-  test('should show progress in GitHub comment', async () => {
+  test("should show progress in GitHub comment", async () => {
     const context = {
-      eventType: 'issue_comment',
-      repository: { owner: 'test', name: 'repo' },
+      eventType: "issue_comment",
+      repository: { owner: "test", name: "repo" },
       issue: {
         number: 1,
-        title: 'Complex feature request'
+        title: "Complex feature request",
       },
       comment: {
-        body: '/claude orchestrate'
-      }
+        body: "/claude orchestrate",
+      },
     };
 
     const entrypoint = new OrchestrationEntrypoint(context);
@@ -1158,8 +1184,8 @@ describe('GitHub Actions Orchestration Integration', () => {
 
     // Should have multiple comment updates showing progress
     expect(commentUpdates.length).toBeGreaterThan(2);
-    expect(commentUpdates[0]).toContain('Analyzing task complexity');
-    expect(commentUpdates[commentUpdates.length - 1]).toContain('✅ Completed');
+    expect(commentUpdates[0]).toContain("Analyzing task complexity");
+    expect(commentUpdates[commentUpdates.length - 1]).toContain("✅ Completed");
   });
 });
 ```
@@ -1167,6 +1193,7 @@ describe('GitHub Actions Orchestration Integration', () => {
 ## 実行手順
 
 ### 実行フロー
+
 ```bash
 # 1. phase3-prompt-extension から作業ブランチを作成
 git checkout phase3-prompt-extension
@@ -1197,6 +1224,7 @@ git branch -d phase3-github-actions # ローカルの作業ブランチを削除
 ```
 
 ### 詳細ステップ（TDD）
+
 ```bash
 # 1. phase3-prompt-extension から作業ブランチ作成
 git checkout phase3-prompt-extension
@@ -1228,6 +1256,7 @@ git branch -d phase3-github-actions
 ## 依存関係
 
 このフェーズはフェーズ3.1（プロンプト拡張）完了後に実装してください。以下のフェーズで活用されます：
+
 - フェーズ4: MCP拡張（オーケストレーションツールとの連携）
 
 ## 次のステップ

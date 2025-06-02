@@ -5,6 +5,7 @@
 タスク分析エンジンは、複雑なタスクを適切なサブタスクに分解し、各サブタスクに最適なモードを割り当てるオーケストレーション機能の核心部分です。タスクの複雑度を分析し、分割が必要かを判定する機能を実装します。
 
 **📌 参考実装**: RooCode（RooCline）のオーケストレーション実装を参考にしてください：
+
 - GitHub: https://github.com/RooCodeInc/Roo-Code
 - UIthub: https://uithub.com/RooCodeInc/Roo-Code
 - DeepWiki: https://deepwiki.com/RooCodeInc/Roo-Code
@@ -74,9 +75,7 @@ classDiagram
     TaskAnalyzer --> ModeSelector : uses
 ```
 
-
 ## TDD実装計画
-
 
 ### タスク2.1.1: タスク分析型定義の作成
 
@@ -116,7 +115,7 @@ export interface DependencyGraph {
 export interface DependencyEdge {
   from: string;
   to: string;
-  type: 'sequential' | 'parallel' | 'conditional';
+  type: "sequential" | "parallel" | "conditional";
 }
 
 export interface ModeSelectionRule {
@@ -127,41 +126,40 @@ export interface ModeSelectionRule {
 }
 
 export type ComplexityFactorType =
-  | 'multi_step'
-  | 'cross_domain'
-  | 'file_complexity'
-  | 'integration_required'
-  | 'performance_critical'
-  | 'security_sensitive'
-  | 'legacy_code'
-  | 'external_dependencies';
+  | "multi_step"
+  | "cross_domain"
+  | "file_complexity"
+  | "integration_required"
+  | "performance_critical"
+  | "security_sensitive"
+  | "legacy_code"
+  | "external_dependencies";
 ```
 
 ### タスク2.1.2: 複雑度計算エンジンの実装
-
 
 #### テストファースト: src/orchestration/complexity-calculator.ts
 
 ```typescript
 // test/orchestration/complexity-calculator.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { ComplexityCalculator } from '../../src/orchestration/complexity-calculator';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { ComplexityCalculator } from "../../src/orchestration/complexity-calculator";
 
-describe('ComplexityCalculator', () => {
+describe("ComplexityCalculator", () => {
   let calculator: ComplexityCalculator;
 
   beforeEach(() => {
     calculator = new ComplexityCalculator();
   });
 
-  test('should calculate low complexity for simple tasks', () => {
+  test("should calculate low complexity for simple tasks", () => {
     const simpleTask = "Fix typo in README.md";
     const complexity = calculator.calculateComplexity(simpleTask);
 
     expect(complexity).toBeLessThan(3.0);
   });
 
-  test('should calculate high complexity for multi-step tasks', () => {
+  test("should calculate high complexity for multi-step tasks", () => {
     const complexTask = `
       Implement a complete user authentication system with:
       - User registration and login
@@ -177,28 +175,29 @@ describe('ComplexityCalculator', () => {
     expect(complexity).toBeGreaterThan(7.0);
   });
 
-  test('should identify complexity factors correctly', () => {
-    const task = "Refactor legacy payment processing system to support new payment methods";
+  test("should identify complexity factors correctly", () => {
+    const task =
+      "Refactor legacy payment processing system to support new payment methods";
     const factors = calculator.identifyComplexityFactors(task);
 
-    const factorTypes = factors.map(f => f.type);
-    expect(factorTypes).toContain('legacy_code');
-    expect(factorTypes).toContain('integration_required');
+    const factorTypes = factors.map((f) => f.type);
+    expect(factorTypes).toContain("legacy_code");
+    expect(factorTypes).toContain("integration_required");
   });
 
-  test('should use appropriate complexity threshold', () => {
+  test("should use appropriate complexity threshold", () => {
     const threshold = calculator.getComplexityThreshold();
     expect(threshold).toBeGreaterThan(0);
     expect(threshold).toBeLessThan(10);
   });
 
-  test('should handle edge cases gracefully', () => {
+  test("should handle edge cases gracefully", () => {
     expect(() => calculator.calculateComplexity("")).not.toThrow();
     expect(() => calculator.calculateComplexity("   ")).not.toThrow();
     expect(calculator.calculateComplexity("")).toBe(0);
   });
 
-  test('should assign higher complexity to security-sensitive tasks', () => {
+  test("should assign higher complexity to security-sensitive tasks", () => {
     const securityTask = "Implement OAuth2 authentication with PKCE flow";
     const regularTask = "Add logging to user service";
 
@@ -213,14 +212,17 @@ describe('ComplexityCalculator', () => {
 #### 実装: src/orchestration/complexity-calculator.ts
 
 ```typescript
-import type { ComplexityFactor, ComplexityPattern, ComplexityFactorType } from './types';
+import type {
+  ComplexityFactor,
+  ComplexityPattern,
+  ComplexityFactorType,
+} from "./types";
 
 export class ComplexityCalculator {
   private readonly BASE_COMPLEXITY = 1.0;
   private readonly COMPLEXITY_THRESHOLD = 5.0;
 
-  constructor() {
-  }
+  constructor() {}
 
   calculateComplexity(description: string): number {
     if (!description || description.trim().length === 0) {
@@ -248,72 +250,72 @@ export class ComplexityCalculator {
     // Multi-step complexity
     if (this.hasMultipleSteps(lowerDesc)) {
       factors.push({
-        type: 'multi_step',
+        type: "multi_step",
         weight: 2.5,
-        description: 'Task requires multiple implementation steps'
+        description: "Task requires multiple implementation steps",
       });
     }
 
     // Cross-domain complexity
     if (this.isCrossDomain(lowerDesc)) {
       factors.push({
-        type: 'cross_domain',
+        type: "cross_domain",
         weight: 2.0,
-        description: 'Task spans multiple knowledge domains'
+        description: "Task spans multiple knowledge domains",
       });
     }
 
     // File complexity
     if (this.hasFileComplexity(lowerDesc)) {
       factors.push({
-        type: 'file_complexity',
+        type: "file_complexity",
         weight: 1.5,
-        description: 'Multiple files need modification'
+        description: "Multiple files need modification",
       });
     }
 
     // Integration complexity
     if (this.requiresIntegration(lowerDesc)) {
       factors.push({
-        type: 'integration_required',
+        type: "integration_required",
         weight: 3.0,
-        description: 'Requires integration with external systems'
+        description: "Requires integration with external systems",
       });
     }
 
     // Security sensitivity
     if (this.isSecuritySensitive(lowerDesc)) {
       factors.push({
-        type: 'security_sensitive',
+        type: "security_sensitive",
         weight: 2.5,
-        description: 'Involves security-critical functionality'
+        description: "Involves security-critical functionality",
       });
     }
 
     // Legacy code complexity
     if (this.involvesLegacyCode(lowerDesc)) {
       factors.push({
-        type: 'legacy_code',
+        type: "legacy_code",
         weight: 2.0,
-        description: 'Involves working with legacy code'
+        description: "Involves working with legacy code",
       });
     }
 
     // Performance critical
     if (this.isPerformanceCritical(lowerDesc)) {
       factors.push({
-        type: 'performance_critical',
+        type: "performance_critical",
         weight: 1.8,
-        description: 'Performance optimization required'
+        description: "Performance optimization required",
       });
     }
 
     // External dependencies
     if (this.hasExternalDependencies(lowerDesc)) {
       factors.push({
-        type: 'external_dependencies',
+        type: "external_dependencies",
         weight: 1.5,
-        description: 'Depends on external libraries or services'
+        description: "Depends on external libraries or services",
       });
     }
 
@@ -330,7 +332,7 @@ export class ComplexityCalculator {
       /\b(step|phase|stage)\s*\d+/gi,
       /\b(first|second|third|finally)/gi,
       /[•\-\*]\s/g, // bullet points
-      /\d+\.\s/g    // numbered lists
+      /\d+\.\s/g, // numbered lists
     ];
 
     let stepCount = 0;
@@ -345,9 +347,21 @@ export class ComplexityCalculator {
   }
 
   private isCrossDomain(description: string): boolean {
-    const domains = ['frontend', 'backend', 'database', 'api', 'ui', 'ux', 'testing', 'deployment', 'security'];
-    const mentionedDomains = domains.filter(domain =>
-      description.includes(domain) || description.includes(domain.toUpperCase())
+    const domains = [
+      "frontend",
+      "backend",
+      "database",
+      "api",
+      "ui",
+      "ux",
+      "testing",
+      "deployment",
+      "security",
+    ];
+    const mentionedDomains = domains.filter(
+      (domain) =>
+        description.includes(domain) ||
+        description.includes(domain.toUpperCase()),
     );
     return mentionedDomains.length >= 2;
   }
@@ -357,63 +371,104 @@ export class ComplexityCalculator {
       /\bmultiple\s+(files|components|modules)/i,
       /\bseveral\s+(files|components|modules)/i,
       /\bacross\s+(files|components|modules)/i,
-      /\brefactor\s+.*\s+(files|codebase)/i
+      /\brefactor\s+.*\s+(files|codebase)/i,
     ];
 
-    return fileIndicators.some(pattern => pattern.test(description));
+    return fileIndicators.some((pattern) => pattern.test(description));
   }
 
   private requiresIntegration(description: string): boolean {
     const integrationKeywords = [
-      'integrate', 'api', 'webhook', 'external', 'third-party', 'service',
-      'database', 'connect', 'sync', 'import', 'export'
+      "integrate",
+      "api",
+      "webhook",
+      "external",
+      "third-party",
+      "service",
+      "database",
+      "connect",
+      "sync",
+      "import",
+      "export",
     ];
 
-    return integrationKeywords.some(keyword =>
-      description.toLowerCase().includes(keyword)
+    return integrationKeywords.some((keyword) =>
+      description.toLowerCase().includes(keyword),
     );
   }
 
   private isSecuritySensitive(description: string): boolean {
     const securityKeywords = [
-      'auth', 'authentication', 'authorization', 'security', 'encrypt',
-      'jwt', 'token', 'password', 'oauth', 'permission', 'role', 'access'
+      "auth",
+      "authentication",
+      "authorization",
+      "security",
+      "encrypt",
+      "jwt",
+      "token",
+      "password",
+      "oauth",
+      "permission",
+      "role",
+      "access",
     ];
 
-    return securityKeywords.some(keyword =>
-      description.toLowerCase().includes(keyword)
+    return securityKeywords.some((keyword) =>
+      description.toLowerCase().includes(keyword),
     );
   }
 
   private involvesLegacyCode(description: string): boolean {
     const legacyIndicators = [
-      'legacy', 'refactor', 'migrate', 'modernize', 'upgrade', 'replace'
+      "legacy",
+      "refactor",
+      "migrate",
+      "modernize",
+      "upgrade",
+      "replace",
     ];
 
-    return legacyIndicators.some(keyword =>
-      description.toLowerCase().includes(keyword)
+    return legacyIndicators.some((keyword) =>
+      description.toLowerCase().includes(keyword),
     );
   }
 
   private isPerformanceCritical(description: string): boolean {
     const performanceKeywords = [
-      'performance', 'optimize', 'speed', 'fast', 'efficient', 'cache',
-      'memory', 'cpu', 'latency', 'throughput', 'scale'
+      "performance",
+      "optimize",
+      "speed",
+      "fast",
+      "efficient",
+      "cache",
+      "memory",
+      "cpu",
+      "latency",
+      "throughput",
+      "scale",
     ];
 
-    return performanceKeywords.some(keyword =>
-      description.toLowerCase().includes(keyword)
+    return performanceKeywords.some((keyword) =>
+      description.toLowerCase().includes(keyword),
     );
   }
 
   private hasExternalDependencies(description: string): boolean {
     const dependencyIndicators = [
-      'library', 'package', 'npm', 'dependency', 'external', 'third-party',
-      'framework', 'tool', 'service', 'api'
+      "library",
+      "package",
+      "npm",
+      "dependency",
+      "external",
+      "third-party",
+      "framework",
+      "tool",
+      "service",
+      "api",
     ];
 
-    return dependencyIndicators.some(keyword =>
-      description.toLowerCase().includes(keyword)
+    return dependencyIndicators.some((keyword) =>
+      description.toLowerCase().includes(keyword),
     );
   }
 
@@ -429,22 +484,21 @@ export class ComplexityCalculator {
 
 ### タスク2.1.3: タスク分析エンジンの実装
 
-
 #### テストファースト: src/orchestration/task-analyzer.ts
 
 ```typescript
 // test/orchestration/task-analyzer.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { TaskAnalyzer } from '../../src/orchestration/task-analyzer';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { TaskAnalyzer } from "../../src/orchestration/task-analyzer";
 
-describe('TaskAnalyzer', () => {
+describe("TaskAnalyzer", () => {
   let analyzer: TaskAnalyzer;
 
   beforeEach(() => {
     analyzer = new TaskAnalyzer();
   });
 
-  test('should analyze simple task correctly', () => {
+  test("should analyze simple task correctly", () => {
     const task = "Fix typo in documentation";
     const analysis = analyzer.analyzeTask(task);
 
@@ -453,7 +507,7 @@ describe('TaskAnalyzer', () => {
     expect(analysis.estimatedSubtasks).toBeLessThanOrEqual(1);
   });
 
-  test('should analyze complex task correctly', () => {
+  test("should analyze complex task correctly", () => {
     const task = `
       Implement a complete user management system with:
       1. User registration and authentication
@@ -472,7 +526,7 @@ describe('TaskAnalyzer', () => {
     expect(analysis.requiredModes.length).toBeGreaterThan(1);
   });
 
-  test('should determine required modes correctly', () => {
+  test("should determine required modes correctly", () => {
     const designTask = "Design system architecture for microservices";
     const codeTask = "Implement user authentication API";
     const debugTask = "Fix memory leak in payment processor";
@@ -481,14 +535,15 @@ describe('TaskAnalyzer', () => {
     const codeAnalysis = analyzer.analyzeTask(codeTask);
     const debugAnalysis = analyzer.analyzeTask(debugTask);
 
-    expect(designAnalysis.requiredModes).toContain('architect');
-    expect(codeAnalysis.requiredModes).toContain('code');
-    expect(debugAnalysis.requiredModes).toContain('debug');
+    expect(designAnalysis.requiredModes).toContain("architect");
+    expect(codeAnalysis.requiredModes).toContain("code");
+    expect(debugAnalysis.requiredModes).toContain("debug");
   });
 
-  test('should decide orchestration necessity correctly', () => {
+  test("should decide orchestration necessity correctly", () => {
     const simpleTask = "Update package.json version";
-    const complexTask = "Implement complete CI/CD pipeline with testing, building, and deployment";
+    const complexTask =
+      "Implement complete CI/CD pipeline with testing, building, and deployment";
 
     const simpleAnalysis = analyzer.analyzeTask(simpleTask);
     const complexAnalysis = analyzer.analyzeTask(complexTask);
@@ -497,7 +552,7 @@ describe('TaskAnalyzer', () => {
     expect(analyzer.shouldOrchestrate(complexAnalysis)).toBe(true);
   });
 
-  test('should provide meaningful suggested approach', () => {
+  test("should provide meaningful suggested approach", () => {
     const task = "Migrate from REST API to GraphQL";
     const analysis = analyzer.analyzeTask(task);
 
@@ -505,7 +560,7 @@ describe('TaskAnalyzer', () => {
     expect(analysis.suggestedApproach.length).toBeGreaterThan(10);
   });
 
-  test('should handle edge cases gracefully', () => {
+  test("should handle edge cases gracefully", () => {
     expect(() => analyzer.analyzeTask("")).not.toThrow();
     expect(() => analyzer.analyzeTask("   ")).not.toThrow();
 
@@ -519,9 +574,9 @@ describe('TaskAnalyzer', () => {
 #### 実装: src/orchestration/task-analyzer.ts
 
 ```typescript
-import { ComplexityCalculator } from './complexity-calculator';
-import { ModeSelector } from './mode-selector';
-import type { TaskAnalysis } from './types';
+import { ComplexityCalculator } from "./complexity-calculator";
+import { ModeSelector } from "./mode-selector";
+import type { TaskAnalysis } from "./types";
 
 export class TaskAnalyzer {
   private complexityCalculator: ComplexityCalculator;
@@ -538,12 +593,21 @@ export class TaskAnalyzer {
       return this.createEmptyAnalysis();
     }
 
-    const complexity = this.complexityCalculator.calculateComplexity(description);
-    const complexityFactors = this.complexityCalculator.identifyComplexityFactors(description);
+    const complexity =
+      this.complexityCalculator.calculateComplexity(description);
+    const complexityFactors =
+      this.complexityCalculator.identifyComplexityFactors(description);
     const requiredModes = this.determineRequiredModes(description);
     const requiresOrchestration = complexity >= this.ORCHESTRATION_THRESHOLD;
-    const estimatedSubtasks = this.estimateSubtaskCount(complexity, description);
-    const suggestedApproach = this.generateSuggestedApproach(description, complexity, requiredModes);
+    const estimatedSubtasks = this.estimateSubtaskCount(
+      complexity,
+      description,
+    );
+    const suggestedApproach = this.generateSuggestedApproach(
+      description,
+      complexity,
+      requiredModes,
+    );
 
     return {
       complexity,
@@ -551,7 +615,7 @@ export class TaskAnalyzer {
       requiredModes,
       requiresOrchestration,
       estimatedSubtasks,
-      suggestedApproach
+      suggestedApproach,
     };
   }
 
@@ -565,32 +629,32 @@ export class TaskAnalyzer {
 
     // Architecture/Design indicators
     if (this.hasArchitectureKeywords(lowerDesc)) {
-      modes.add('architect');
+      modes.add("architect");
     }
 
     // Code implementation indicators
     if (this.hasCodeKeywords(lowerDesc)) {
-      modes.add('code');
+      modes.add("code");
     }
 
     // Debugging indicators
     if (this.hasDebugKeywords(lowerDesc)) {
-      modes.add('debug');
+      modes.add("debug");
     }
 
     // Documentation/Knowledge indicators
     if (this.hasAskKeywords(lowerDesc)) {
-      modes.add('ask');
+      modes.add("ask");
     }
 
     // Complex tasks that need orchestration
     if (this.needsOrchestration(lowerDesc)) {
-      modes.add('orchestrator');
+      modes.add("orchestrator");
     }
 
     // If no specific mode identified, default to code
     if (modes.size === 0) {
-      modes.add('code');
+      modes.add("code");
     }
 
     return Array.from(modes);
@@ -607,51 +671,104 @@ export class TaskAnalyzer {
       requiredModes: [],
       requiresOrchestration: false,
       estimatedSubtasks: 0,
-      suggestedApproach: 'No task description provided'
+      suggestedApproach: "No task description provided",
     };
   }
 
   private hasArchitectureKeywords(description: string): boolean {
     const architectureKeywords = [
-      'design', 'architecture', 'structure', 'plan', 'blueprint', 'schema',
-      'system design', 'high-level', 'overview', 'strategy', 'approach'
+      "design",
+      "architecture",
+      "structure",
+      "plan",
+      "blueprint",
+      "schema",
+      "system design",
+      "high-level",
+      "overview",
+      "strategy",
+      "approach",
     ];
-    return architectureKeywords.some(keyword => description.includes(keyword));
+    return architectureKeywords.some((keyword) =>
+      description.includes(keyword),
+    );
   }
 
   private hasCodeKeywords(description: string): boolean {
     const codeKeywords = [
-      'implement', 'code', 'develop', 'build', 'create', 'function',
-      'class', 'method', 'algorithm', 'feature', 'component', 'module'
+      "implement",
+      "code",
+      "develop",
+      "build",
+      "create",
+      "function",
+      "class",
+      "method",
+      "algorithm",
+      "feature",
+      "component",
+      "module",
     ];
-    return codeKeywords.some(keyword => description.includes(keyword));
+    return codeKeywords.some((keyword) => description.includes(keyword));
   }
 
   private hasDebugKeywords(description: string): boolean {
     const debugKeywords = [
-      'fix', 'bug', 'error', 'issue', 'problem', 'debug', 'troubleshoot',
-      'investigate', 'diagnose', 'resolve', 'repair'
+      "fix",
+      "bug",
+      "error",
+      "issue",
+      "problem",
+      "debug",
+      "troubleshoot",
+      "investigate",
+      "diagnose",
+      "resolve",
+      "repair",
     ];
-    return debugKeywords.some(keyword => description.includes(keyword));
+    return debugKeywords.some((keyword) => description.includes(keyword));
   }
 
   private hasAskKeywords(description: string): boolean {
     const askKeywords = [
-      'explain', 'how', 'what', 'why', 'when', 'where', 'documentation',
-      'understand', 'clarify', 'describe', 'tell me', 'help me understand'
+      "explain",
+      "how",
+      "what",
+      "why",
+      "when",
+      "where",
+      "documentation",
+      "understand",
+      "clarify",
+      "describe",
+      "tell me",
+      "help me understand",
     ];
-    return askKeywords.some(keyword => description.includes(keyword));
+    return askKeywords.some((keyword) => description.includes(keyword));
   }
 
   private needsOrchestration(description: string): boolean {
     const orchestrationIndicators = [
-      'complete', 'entire', 'full', 'comprehensive', 'end-to-end',
-      'multiple', 'several', 'various', 'different', 'across'
+      "complete",
+      "entire",
+      "full",
+      "comprehensive",
+      "end-to-end",
+      "multiple",
+      "several",
+      "various",
+      "different",
+      "across",
     ];
-    return orchestrationIndicators.some(keyword => description.includes(keyword));
+    return orchestrationIndicators.some((keyword) =>
+      description.includes(keyword),
+    );
   }
 
-  private estimateSubtaskCount(complexity: number, description: string): number {
+  private estimateSubtaskCount(
+    complexity: number,
+    description: string,
+  ): number {
     // Base estimation from complexity
     let subtasks = Math.ceil(complexity / 2);
 
@@ -661,7 +778,8 @@ export class TaskAnalyzer {
       subtasks = Math.max(subtasks, stepMatches.length);
     }
 
-    const listMatches = description.match(/[•\-\*]\s/g) || description.match(/\d+\.\s/g);
+    const listMatches =
+      description.match(/[•\-\*]\s/g) || description.match(/\d+\.\s/g);
     if (listMatches) {
       subtasks = Math.max(subtasks, listMatches.length);
     }
@@ -669,134 +787,141 @@ export class TaskAnalyzer {
     return Math.min(Math.max(subtasks, 1), 10); // Cap between 1 and 10
   }
 
-  private generateSuggestedApproach(description: string, complexity: number, requiredModes: string[]): string {
+  private generateSuggestedApproach(
+    description: string,
+    complexity: number,
+    requiredModes: string[],
+  ): string {
     if (complexity === 0) {
-      return 'No task description provided';
+      return "No task description provided";
     }
 
     if (complexity < 3) {
-      return `Simple task that can be completed directly with ${requiredModes[0] || 'code'} mode.`;
+      return `Simple task that can be completed directly with ${requiredModes[0] || "code"} mode.`;
     }
 
     if (complexity < 5) {
-      return `Moderate complexity task. Consider breaking into 2-3 focused subtasks using ${requiredModes.join(' and ')} modes.`;
+      return `Moderate complexity task. Consider breaking into 2-3 focused subtasks using ${requiredModes.join(" and ")} modes.`;
     }
 
     const approach = [];
 
-    if (requiredModes.includes('architect')) {
-      approach.push('Start with architectural design and planning');
+    if (requiredModes.includes("architect")) {
+      approach.push("Start with architectural design and planning");
     }
 
-    if (requiredModes.includes('code')) {
-      approach.push('Break implementation into focused, manageable components');
+    if (requiredModes.includes("code")) {
+      approach.push("Break implementation into focused, manageable components");
     }
 
-    if (requiredModes.includes('debug')) {
-      approach.push('Include systematic testing and debugging phases');
+    if (requiredModes.includes("debug")) {
+      approach.push("Include systematic testing and debugging phases");
     }
 
-    approach.push('Use orchestration to coordinate between different modes and subtasks');
+    approach.push(
+      "Use orchestration to coordinate between different modes and subtasks",
+    );
 
-    return approach.join('. ') + '.';
+    return approach.join(". ") + ".";
   }
 }
 ```
 
 ### タスク2.1.4: モード選択エンジンの実装
 
-
 #### テストファースト: src/orchestration/mode-selector.ts
 
 ```typescript
 // test/orchestration/mode-selector.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { ModeSelector } from '../../src/orchestration/mode-selector';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { ModeSelector } from "../../src/orchestration/mode-selector";
 
-describe('ModeSelector', () => {
+describe("ModeSelector", () => {
   let selector: ModeSelector;
 
   beforeEach(() => {
     selector = new ModeSelector();
   });
 
-  test('should select architect mode for design tasks', () => {
+  test("should select architect mode for design tasks", () => {
     const designTasks = [
       "Design the overall system architecture",
       "Create a high-level plan for the microservices",
-      "Plan the database schema for user management"
+      "Plan the database schema for user management",
     ];
 
-    designTasks.forEach(task => {
+    designTasks.forEach((task) => {
       const mode = selector.selectOptimalMode(task);
-      expect(mode).toBe('architect');
+      expect(mode).toBe("architect");
     });
   });
 
-  test('should select code mode for implementation tasks', () => {
+  test("should select code mode for implementation tasks", () => {
     const codeTasks = [
       "Implement user authentication API",
       "Create React component for user profile",
-      "Develop payment processing service"
+      "Develop payment processing service",
     ];
 
-    codeTasks.forEach(task => {
+    codeTasks.forEach((task) => {
       const mode = selector.selectOptimalMode(task);
-      expect(mode).toBe('code');
+      expect(mode).toBe("code");
     });
   });
 
-  test('should select debug mode for troubleshooting tasks', () => {
+  test("should select debug mode for troubleshooting tasks", () => {
     const debugTasks = [
       "Fix memory leak in payment processor",
       "Debug authentication issues",
-      "Resolve performance problems in search"
+      "Resolve performance problems in search",
     ];
 
-    debugTasks.forEach(task => {
+    debugTasks.forEach((task) => {
       const mode = selector.selectOptimalMode(task);
-      expect(mode).toBe('debug');
+      expect(mode).toBe("debug");
     });
   });
 
-  test('should select ask mode for informational tasks', () => {
+  test("should select ask mode for informational tasks", () => {
     const askTasks = [
       "Explain how OAuth2 works",
       "What are the best practices for API design?",
-      "How should we structure our TypeScript project?"
+      "How should we structure our TypeScript project?",
     ];
 
-    askTasks.forEach(task => {
+    askTasks.forEach((task) => {
       const mode = selector.selectOptimalMode(task);
-      expect(mode).toBe('ask');
+      expect(mode).toBe("ask");
     });
   });
 
-  test('should evaluate mode match scores correctly', () => {
+  test("should evaluate mode match scores correctly", () => {
     const task = "Implement user authentication with JWT tokens";
 
-    const codeScore = selector.evaluateModeMatch(task, 'code');
-    const architectScore = selector.evaluateModeMatch(task, 'architect');
-    const debugScore = selector.evaluateModeMatch(task, 'debug');
+    const codeScore = selector.evaluateModeMatch(task, "code");
+    const architectScore = selector.evaluateModeMatch(task, "architect");
+    const debugScore = selector.evaluateModeMatch(task, "debug");
 
     expect(codeScore).toBeGreaterThan(architectScore);
     expect(codeScore).toBeGreaterThan(debugScore);
   });
 
-  test('should get mode capabilities correctly', () => {
-    const codeCapabilities = selector.getModeCapabilities('code');
-    const architectCapabilities = selector.getModeCapabilities('architect');
+  test("should get mode capabilities correctly", () => {
+    const codeCapabilities = selector.getModeCapabilities("code");
+    const architectCapabilities = selector.getModeCapabilities("architect");
 
-    expect(codeCapabilities).toContain('implementation');
-    expect(architectCapabilities).toContain('design');
+    expect(codeCapabilities).toContain("implementation");
+    expect(architectCapabilities).toContain("design");
   });
 
-  test('should handle ambiguous tasks gracefully', () => {
+  test("should handle ambiguous tasks gracefully", () => {
     const ambiguousTask = "Work on the user system";
     const mode = selector.selectOptimalMode(ambiguousTask);
 
     // Should return a valid mode (defaulting to code if unclear)
-    expect(['code', 'architect', 'debug', 'ask', 'orchestrator']).toContain(mode);
+    expect(["code", "architect", "debug", "ask", "orchestrator"]).toContain(
+      mode,
+    );
   });
 });
 ```
@@ -804,8 +929,8 @@ describe('ModeSelector', () => {
 #### 実装: src/orchestration/mode-selector.ts
 
 ```typescript
-import { modeManager } from '../modes';
-import type { ModeSelectionRule } from './types';
+import { modeManager } from "../modes";
+import type { ModeSelectionRule } from "./types";
 
 export class ModeSelector {
   private selectionRules: ModeSelectionRule[];
@@ -816,7 +941,7 @@ export class ModeSelector {
 
   selectOptimalMode(subtask: string): string {
     const lowerTask = subtask.toLowerCase();
-    let bestMatch = { mode: 'code', score: 0 };
+    let bestMatch = { mode: "code", score: 0 };
 
     // Evaluate each available mode
     const availableModes = modeManager.getAllModes();
@@ -854,26 +979,49 @@ export class ModeSelector {
 
   getModeCapabilities(mode: string): string[] {
     const capabilityMap: Record<string, string[]> = {
-      'code': [
-        'implementation', 'coding', 'development', 'programming',
-        'feature creation', 'component building', 'algorithm implementation'
+      code: [
+        "implementation",
+        "coding",
+        "development",
+        "programming",
+        "feature creation",
+        "component building",
+        "algorithm implementation",
       ],
-      'architect': [
-        'design', 'planning', 'architecture', 'system design',
-        'high-level planning', 'technical specifications', 'blueprints'
+      architect: [
+        "design",
+        "planning",
+        "architecture",
+        "system design",
+        "high-level planning",
+        "technical specifications",
+        "blueprints",
       ],
-      'debug': [
-        'troubleshooting', 'bug fixing', 'problem solving', 'diagnostics',
-        'error resolution', 'performance analysis', 'investigation'
+      debug: [
+        "troubleshooting",
+        "bug fixing",
+        "problem solving",
+        "diagnostics",
+        "error resolution",
+        "performance analysis",
+        "investigation",
       ],
-      'ask': [
-        'information', 'explanation', 'documentation', 'guidance',
-        'knowledge sharing', 'clarification', 'educational content'
+      ask: [
+        "information",
+        "explanation",
+        "documentation",
+        "guidance",
+        "knowledge sharing",
+        "clarification",
+        "educational content",
       ],
-      'orchestrator': [
-        'task coordination', 'workflow management', 'delegation',
-        'complex task breakdown', 'multi-mode coordination'
-      ]
+      orchestrator: [
+        "task coordination",
+        "workflow management",
+        "delegation",
+        "complex task breakdown",
+        "multi-mode coordination",
+      ],
     };
 
     return capabilityMap[mode] || [];
@@ -883,88 +1031,140 @@ export class ModeSelector {
     return [
       // Architect mode rules
       {
-        pattern: /\b(design|architecture|plan|blueprint|structure|schema|strategy)\b/i,
-        mode: 'architect',
-        priority: 3
+        pattern:
+          /\b(design|architecture|plan|blueprint|structure|schema|strategy)\b/i,
+        mode: "architect",
+        priority: 3,
       },
       {
         pattern: /\b(high-level|overview|system design|architectural)\b/i,
-        mode: 'architect',
-        priority: 2
+        mode: "architect",
+        priority: 2,
       },
 
       // Code mode rules
       {
         pattern: /\b(implement|code|develop|build|create|write)\b/i,
-        mode: 'code',
-        priority: 3
+        mode: "code",
+        priority: 3,
       },
       {
         pattern: /\b(function|method|class|component|feature|api|endpoint)\b/i,
-        mode: 'code',
-        priority: 2
+        mode: "code",
+        priority: 2,
       },
 
       // Debug mode rules
       {
         pattern: /\b(fix|bug|error|issue|problem|debug|troubleshoot)\b/i,
-        mode: 'debug',
-        priority: 3
+        mode: "debug",
+        priority: 3,
       },
       {
         pattern: /\b(resolve|investigate|diagnose|repair|performance)\b/i,
-        mode: 'debug',
-        priority: 2
+        mode: "debug",
+        priority: 2,
       },
 
       // Ask mode rules
       {
         pattern: /\b(explain|how|what|why|when|where|documentation)\b/i,
-        mode: 'ask',
-        priority: 3
+        mode: "ask",
+        priority: 3,
       },
       {
         pattern: /\b(understand|clarify|describe|help me|tell me)\b/i,
-        mode: 'ask',
-        priority: 2
+        mode: "ask",
+        priority: 2,
       },
 
       // Orchestrator mode rules
       {
         pattern: /\b(complete|entire|full|comprehensive|end-to-end)\b/i,
-        mode: 'orchestrator',
-        priority: 2
+        mode: "orchestrator",
+        priority: 2,
       },
       {
         pattern: /\b(multiple|several|various|different|across)\b/i,
-        mode: 'orchestrator',
-        priority: 1
-      }
+        mode: "orchestrator",
+        priority: 1,
+      },
     ];
   }
 
   private getModeKeywords(mode: string): string[] {
     const keywordMap: Record<string, string[]> = {
-      'architect': [
-        'design', 'architecture', 'plan', 'blueprint', 'structure', 'schema',
-        'strategy', 'high-level', 'overview', 'system design', 'planning'
+      architect: [
+        "design",
+        "architecture",
+        "plan",
+        "blueprint",
+        "structure",
+        "schema",
+        "strategy",
+        "high-level",
+        "overview",
+        "system design",
+        "planning",
       ],
-      'code': [
-        'implement', 'code', 'develop', 'build', 'create', 'write', 'function',
-        'method', 'class', 'component', 'feature', 'api', 'endpoint', 'algorithm'
+      code: [
+        "implement",
+        "code",
+        "develop",
+        "build",
+        "create",
+        "write",
+        "function",
+        "method",
+        "class",
+        "component",
+        "feature",
+        "api",
+        "endpoint",
+        "algorithm",
       ],
-      'debug': [
-        'fix', 'bug', 'error', 'issue', 'problem', 'debug', 'troubleshoot',
-        'resolve', 'investigate', 'diagnose', 'repair', 'performance'
+      debug: [
+        "fix",
+        "bug",
+        "error",
+        "issue",
+        "problem",
+        "debug",
+        "troubleshoot",
+        "resolve",
+        "investigate",
+        "diagnose",
+        "repair",
+        "performance",
       ],
-      'ask': [
-        'explain', 'how', 'what', 'why', 'when', 'where', 'documentation',
-        'understand', 'clarify', 'describe', 'help', 'tell', 'guide'
+      ask: [
+        "explain",
+        "how",
+        "what",
+        "why",
+        "when",
+        "where",
+        "documentation",
+        "understand",
+        "clarify",
+        "describe",
+        "help",
+        "tell",
+        "guide",
       ],
-      'orchestrator': [
-        'complete', 'entire', 'full', 'comprehensive', 'end-to-end',
-        'multiple', 'several', 'various', 'different', 'across', 'coordinate'
-      ]
+      orchestrator: [
+        "complete",
+        "entire",
+        "full",
+        "comprehensive",
+        "end-to-end",
+        "multiple",
+        "several",
+        "various",
+        "different",
+        "across",
+        "coordinate",
+      ],
     };
 
     return keywordMap[mode] || [];
@@ -975,6 +1175,7 @@ export class ModeSelector {
 ## コミット計画
 
 ### コミット1: タスク分析型定義
+
 ```bash
 # プリコミットチェック
 bun test
@@ -987,6 +1188,7 @@ git commit -m "feat(orchestration): add task analysis type definitions"
 ```
 
 ### コミット2: 複雑度計算エンジン
+
 ```bash
 # プリコミットチェック
 bun test
@@ -999,6 +1201,7 @@ git commit -m "feat(orchestration): implement complexity calculation engine with
 ```
 
 ### コミット3: タスク分析エンジン
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1011,6 +1214,7 @@ git commit -m "feat(orchestration): implement task analysis engine with tests"
 ```
 
 ### コミット4: モード選択エンジン
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1023,6 +1227,7 @@ git commit -m "feat(orchestration): implement mode selection engine with tests"
 ```
 
 ### コミット5: エクスポート設定
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1062,22 +1267,22 @@ export type {
   SubTask,
   DependencyGraph,
   ModeSelectionRule,
-  ComplexityFactorType
-} from './types';
-export { ComplexityCalculator } from './complexity-calculator';
-export { TaskAnalyzer } from './task-analyzer';
-export { ModeSelector } from './mode-selector';
+  ComplexityFactorType,
+} from "./types";
+export { ComplexityCalculator } from "./complexity-calculator";
+export { TaskAnalyzer } from "./task-analyzer";
+export { ModeSelector } from "./mode-selector";
 ```
 
 ## 統合テスト
 
 ```typescript
 // test/orchestration/integration.test.ts
-import { describe, test, expect } from 'bun:test';
-import { TaskAnalyzer } from '../../src/orchestration';
+import { describe, test, expect } from "bun:test";
+import { TaskAnalyzer } from "../../src/orchestration";
 
-describe('Task Analysis Integration', () => {
-  test('should handle end-to-end task analysis workflow', () => {
+describe("Task Analysis Integration", () => {
+  test("should handle end-to-end task analysis workflow", () => {
     const analyzer = new TaskAnalyzer();
 
     const complexTask = `
@@ -1096,15 +1301,15 @@ describe('Task Analysis Integration', () => {
 
     expect(analysis.complexity).toBeGreaterThan(8.0);
     expect(analysis.requiresOrchestration).toBe(true);
-    expect(analysis.requiredModes).toContain('orchestrator');
-    expect(analysis.requiredModes).toContain('architect');
-    expect(analysis.requiredModes).toContain('code');
+    expect(analysis.requiredModes).toContain("orchestrator");
+    expect(analysis.requiredModes).toContain("architect");
+    expect(analysis.requiredModes).toContain("code");
     expect(analysis.estimatedSubtasks).toBeGreaterThanOrEqual(6);
     expect(analysis.complexityFactors.length).toBeGreaterThan(0);
-    expect(analysis.suggestedApproach).toContain('orchestration');
+    expect(analysis.suggestedApproach).toContain("orchestration");
   });
 
-  test('should handle simple task analysis workflow', () => {
+  test("should handle simple task analysis workflow", () => {
     const analyzer = new TaskAnalyzer();
 
     const simpleTask = "Fix typo in user profile component";
@@ -1113,10 +1318,10 @@ describe('Task Analysis Integration', () => {
     expect(analysis.complexity).toBeLessThan(3.0);
     expect(analysis.requiresOrchestration).toBe(false);
     expect(analysis.estimatedSubtasks).toBeLessThanOrEqual(1);
-    expect(analysis.requiredModes).toContain('code');
+    expect(analysis.requiredModes).toContain("code");
   });
 
-  test('should provide consistent analysis results', () => {
+  test("should provide consistent analysis results", () => {
     const analyzer = new TaskAnalyzer();
     const task = "Implement OAuth2 authentication with PKCE flow";
 
@@ -1124,7 +1329,9 @@ describe('Task Analysis Integration', () => {
     const analysis2 = analyzer.analyzeTask(task);
 
     expect(analysis1.complexity).toBe(analysis2.complexity);
-    expect(analysis1.requiresOrchestration).toBe(analysis2.requiresOrchestration);
+    expect(analysis1.requiresOrchestration).toBe(
+      analysis2.requiresOrchestration,
+    );
     expect(analysis1.requiredModes).toEqual(analysis2.requiredModes);
   });
 });
@@ -1133,6 +1340,7 @@ describe('Task Analysis Integration', () => {
 ## 実行手順
 
 ### 実行フロー
+
 ```bash
 # 1. phase1-task-system から作業ブランチを作成
 git checkout phase1-task-system
@@ -1163,6 +1371,7 @@ git branch -d phase2-task-analyzer # ローカルの作業ブランチを削除
 ```
 
 ### 詳細ステップ（TDD）
+
 ```bash
 # 1. phase1-task-system から作業ブランチ作成
 git checkout phase1-task-system
@@ -1194,6 +1403,7 @@ git branch -d phase2-task-analyzer
 ## 依存関係
 
 このフェーズはフェーズ1（モードシステム、タスクシステム）完了後に実装してください。以下のフェーズに必要となります：
+
 - フェーズ2.2: コンテキスト最適化（分析結果の活用）
 - フェーズ3: GitHub Actionsとの統合
 - フェーズ4: MCP拡張（new_taskツール）

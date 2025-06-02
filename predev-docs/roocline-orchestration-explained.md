@@ -7,11 +7,13 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ## 核心概念：なぜオーケストレーションが必要か？
 
 ### 従来の問題点
+
 1. **クソデカコンテキスト問題**: 全ての情報をAIに渡すと、重要な情報が埋もれてしまう
 2. **数撃ちゃ当たる戦略の限界**: 並列で複数の試行を行うとコストが膨大になる
 3. **専門性の欠如**: 全てのタスクを同じ設定で処理すると、各タスクに最適な結果が得られない
 
 ### オーケストレーションによる解決
+
 - **タスクの分解**: 大きな問題を管理可能な小さな部分に分割
 - **専門モードの活用**: 各サブタスクに最適な専門モードを選択
 - **コンテキストの最適化**: 各タスクに必要最小限の情報のみを提供
@@ -19,6 +21,7 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ## モードシステムの詳細
 
 ### 1. Code Mode（コードモード）
+
 ```yaml
 役割: 実際のコーディング作業を担当
 アクセス可能なツール:
@@ -31,6 +34,7 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ```
 
 ### 2. Architect Mode（アーキテクトモード）
+
 ```yaml
 役割: システム設計と技術的意思決定
 アクセス可能なツール: Code Modeと同様
@@ -41,6 +45,7 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ```
 
 ### 3. Debug Mode（デバッグモード）
+
 ```yaml
 役割: エラーの診断と修正
 特徴:
@@ -50,6 +55,7 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ```
 
 ### 4. Ask Mode（質問モード）
+
 ```yaml
 役割: 情報収集と明確化
 特徴:
@@ -59,6 +65,7 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ```
 
 ### 5. Orchestrator Mode（オーケストレーターモード）🪃
+
 ```yaml
 役割: 戦略的なワークフロー調整
 機能:
@@ -71,12 +78,14 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ## オーケストレーションの動作フロー
 
 ### 1. タスク受信と分析
+
 ```xml
 <!-- ユーザーからのタスク -->
 「新しいユーザー認証システムを実装してください」
 ```
 
 ### 2. Orchestratorによる分解
+
 ```xml
 <orchestration>
   <analysis>
@@ -106,6 +115,7 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ```
 
 ### 3. new_task ツールによる委譲
+
 ```xml
 <new_task>
   <mode>architect</mode>
@@ -132,51 +142,50 @@ RooCline（現在は Roo Code）は、AI支援開発ツールにおいて「オ�
 ## コンテキスト最適化の仕組み
 
 ### モード別優先度設定
+
 ```typescript
 const MODE_PRIORITIES = {
   architect: {
-    design_decision: 1.5,      // 最優先
+    design_decision: 1.5, // 最優先
     technical_detail: 1.3,
     dependency_info: 1.2,
-    file_change: 0.8,         // 低優先度
-    error_info: 0.7
+    file_change: 0.8, // 低優先度
+    error_info: 0.7,
   },
   code: {
-    file_change: 1.5,         // 最優先
+    file_change: 1.5, // 最優先
     technical_detail: 1.3,
     error_info: 1.2,
     design_decision: 0.9,
-    dependency_info: 0.8
+    dependency_info: 0.8,
   },
   debug: {
-    error_info: 1.5,          // 最優先
+    error_info: 1.5, // 最優先
     stack_trace: 1.4,
     recent_changes: 1.3,
     test_results: 1.2,
-    design_decision: 0.7
-  }
+    design_decision: 0.7,
+  },
 };
 ```
 
 ### 動的コンテキスト生成
+
 ```typescript
 // サブタスク用のコンテキスト生成例
 function createContextForSubTask(
   previousResults: string[],
   taskDescription: string,
   mode: string,
-  maxTokens: number
+  maxTokens: number,
 ) {
   // 1. 前のタスクの結果から必要な情報を抽出
-  const relevantPreviousInfo = extractRelevantInfo(
-    previousResults,
-    mode
-  );
+  const relevantPreviousInfo = extractRelevantInfo(previousResults, mode);
 
   // 2. モード固有の情報を優先度順に収集
   const modeSpecificContext = gatherModeSpecificInfo(
     mode,
-    MODE_PRIORITIES[mode]
+    MODE_PRIORITIES[mode],
   );
 
   // 3. トークン制限内で最適化
@@ -184,7 +193,7 @@ function createContextForSubTask(
     relevantPreviousInfo,
     modeSpecificContext,
     taskDescription,
-    maxTokens
+    maxTokens,
   );
 }
 ```
@@ -192,17 +201,19 @@ function createContextForSubTask(
 ## ブーメランタスク機能
 
 ### 概念
+
 「ブーメランタスク」は、あるモードが自身では処理できないタスクを検出し、適切なモードに「投げる」機能です。処理が完了すると、結果が元のモードに「戻ってくる」ことからこの名前が付けられています。
 
 ### 実装例
+
 ```typescript
 // Codeモードでの実行中
 if (taskRequiresArchitecturalDecision(currentTask)) {
   // Architectモードにブーメラン
   const architectResult = await boomerangTask({
-    targetMode: 'architect',
-    task: 'このデータベース設計の選択について判断してください',
-    context: currentContext
+    targetMode: "architect",
+    task: "このデータベース設計の選択について判断してください",
+    context: currentContext,
   });
 
   // 結果を使って実装を継続
@@ -213,6 +224,7 @@ if (taskRequiresArchitecturalDecision(currentTask)) {
 ## カスタムモードの実装
 
 ### .actionmodes ファイル形式
+
 ```yaml
 # プロジェクトルートの .actionmodes ファイル
 custom_modes:
@@ -238,21 +250,25 @@ custom_modes:
 ## 実装上の利点
 
 ### 1. 精度の向上
+
 - 各タスクに特化したプロンプトとコンテキスト
 - 不要な情報によるノイズの削減
 - 専門モードによる深い分析
 
 ### 2. コスト効率
+
 - トークン使用量の最適化（30-50%削減）
 - 必要な情報のみを処理
 - 再試行の削減
 
 ### 3. スケーラビリティ
+
 - 複雑なプロジェクトへの対応
 - チーム固有のワークフローサポート
 - カスタムモードによる拡張性
 
 ### 4. デバッグとメンテナンス
+
 - 各サブタスクの明確な責任範囲
 - 問題の特定が容易
 - 段階的な改善が可能
@@ -583,21 +599,26 @@ classDiagram
 ### claude-code-actionとの比較
 
 #### 共通点
+
 1. **モードシステム**: 両者ともモードの概念を採用
 2. **タスク管理**: タスクの作成と実行管理
 3. **コンテキスト最適化**: トークン使用量の最適化
 
 #### RooClineの特徴（claude-code-actionでは省略された部分）
+
 1. **VSCode統合**
+
    - `ClineProvider`によるWebviewProviderの実装
    - VSCode拡張機能としての深い統合
    - Webview UIとの双方向通信
 
 2. **階層的タスク管理**
+
    - タスクスタックによる親子関係の管理
    - ネストされたタスクの実行サポート
 
 3. **プロバイダー設定管理**
+
    - モードごとのAPI設定の永続化
    - 動的なプロバイダー切り替え
 
@@ -606,12 +627,15 @@ classDiagram
    - 進捗状況の視覚的フィードバック
 
 #### claude-code-actionでの簡略化
+
 1. **GitHub Actions特化**
+
    - VSCode依存の削除
    - GitHub APIとの直接統合
    - コメントベースのUI
 
 2. **シンプルなタスク管理**
+
    - フラットなタスク構造
    - GitHub Actionsのワークフローに最適化
 
@@ -624,6 +648,7 @@ classDiagram
 RooClineは**VSCode拡張機能**として設計されており、リッチなUIとリアルタイムの対話を提供します。一方、claude-code-actionは**GitHub Actions環境**で動作することを前提とし、よりシンプルで自動化に適した設計となっています。
 
 この違いにより、claude-code-actionでは：
+
 - Webview関連のコンポーネントを削除
 - GitHub APIとの統合を強化
 - MCPツールによるオーケストレーションを採用

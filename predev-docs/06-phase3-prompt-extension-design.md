@@ -5,6 +5,7 @@
 プロンプト生成拡張は、既存のプロンプト作成システムを拡張し、モード別・サブタスク別に最適化されたプロンプトを生成する機能を実装します。オーケストレーション機能との統合により、各サブタスクに最適なコンテキストとプロンプトを提供します。
 
 **📌 参考実装**: RooCode（RooCline）のオーケストレーション実装を参考にしてください：
+
 - GitHub: https://github.com/RooCodeInc/Roo-Code
 - UIthub: https://uithub.com/RooCodeInc/Roo-Code
 - DeepWiki: https://deepwiki.com/RooCodeInc/Roo-Code
@@ -69,8 +70,8 @@ classDiagram
 #### 実装: src/create-prompt/types.ts
 
 ```typescript
-import type { Mode } from '../modes/types';
-import type { SubTask, TaskContext } from '../tasks/types';
+import type { Mode } from "../modes/types";
+import type { SubTask, TaskContext } from "../tasks/types";
 
 export interface PromptTemplate {
   mode: string;
@@ -85,7 +86,7 @@ export interface PromptConstraints {
   maxTokens: number;
   requiredSections: string[];
   forbiddenTerms: string[];
-  outputFormat: 'markdown' | 'json' | 'code' | 'yaml';
+  outputFormat: "markdown" | "json" | "code" | "yaml";
   styleGuidelines?: string[];
 }
 
@@ -129,7 +130,10 @@ export interface PromptMetadata {
   generationTime: number;
 }
 
-export type PromptVariableResolver = (variableName: string, context: any) => string;
+export type PromptVariableResolver = (
+  variableName: string,
+  context: any,
+) => string;
 
 export interface PromptValidationResult {
   isValid: boolean;
@@ -145,107 +149,109 @@ export interface PromptValidationResult {
 
 ```typescript
 // test/create-prompt/mode-prompt-generator.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { ModePromptGenerator } from '../../src/create-prompt/mode-prompt-generator';
-import { modeManager } from '../../src/modes';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { ModePromptGenerator } from "../../src/create-prompt/mode-prompt-generator";
+import { modeManager } from "../../src/modes";
 
-describe('ModePromptGenerator', () => {
+describe("ModePromptGenerator", () => {
   let generator: ModePromptGenerator;
 
   beforeEach(() => {
     generator = new ModePromptGenerator();
   });
 
-  test('should generate code mode specific prompt', () => {
+  test("should generate code mode specific prompt", () => {
     const context = {
-      mode: 'code',
-      taskDescription: 'Implement user authentication API',
+      mode: "code",
+      taskDescription: "Implement user authentication API",
       globalContext: {
-        framework: 'Express.js',
-        database: 'MongoDB'
+        framework: "Express.js",
+        database: "MongoDB",
       },
-      previousResults: ['Database schema designed'],
+      previousResults: ["Database schema designed"],
       constraints: {
         maxTokens: 4000,
-        requiredSections: ['implementation', 'testing'],
+        requiredSections: ["implementation", "testing"],
         forbiddenTerms: [],
-        outputFormat: 'markdown' as const
-      }
+        outputFormat: "markdown" as const,
+      },
     };
 
     const result = generator.generateModeSpecificPrompt(context);
 
-    expect(result.prompt).toContain('implementation');
-    expect(result.prompt).toContain('Express.js');
-    expect(result.prompt).toContain('MongoDB');
-    expect(result.metadata.mode).toBe('code');
+    expect(result.prompt).toContain("implementation");
+    expect(result.prompt).toContain("Express.js");
+    expect(result.prompt).toContain("MongoDB");
+    expect(result.metadata.mode).toBe("code");
     expect(result.qualityScore.overall).toBeGreaterThan(0.7);
   });
 
-  test('should generate architect mode specific prompt', () => {
+  test("should generate architect mode specific prompt", () => {
     const context = {
-      mode: 'architect',
-      taskDescription: 'Design microservices architecture',
+      mode: "architect",
+      taskDescription: "Design microservices architecture",
       globalContext: {
-        scale: 'enterprise',
-        requirements: 'high availability'
+        scale: "enterprise",
+        requirements: "high availability",
       },
       previousResults: [],
       constraints: {
         maxTokens: 5000,
-        requiredSections: ['overview', 'components', 'interactions'],
+        requiredSections: ["overview", "components", "interactions"],
         forbiddenTerms: [],
-        outputFormat: 'markdown' as const
-      }
+        outputFormat: "markdown" as const,
+      },
     };
 
     const result = generator.generateModeSpecificPrompt(context);
 
-    expect(result.prompt).toContain('architecture');
-    expect(result.prompt).toContain('microservices');
-    expect(result.prompt).toContain('high availability');
-    expect(result.metadata.mode).toBe('architect');
+    expect(result.prompt).toContain("architecture");
+    expect(result.prompt).toContain("microservices");
+    expect(result.prompt).toContain("high availability");
+    expect(result.metadata.mode).toBe("architect");
   });
 
-  test('should apply mode constraints correctly', () => {
-    const mode = modeManager.getModeBySlug('debug');
-    const basePrompt = 'Debug the authentication issue';
+  test("should apply mode constraints correctly", () => {
+    const mode = modeManager.getModeBySlug("debug");
+    const basePrompt = "Debug the authentication issue";
 
     const constrainedPrompt = generator.applyModeConstraints(basePrompt, mode);
 
-    expect(constrainedPrompt).toContain('troubleshoot');
-    expect(constrainedPrompt).toContain('analyze');
+    expect(constrainedPrompt).toContain("troubleshoot");
+    expect(constrainedPrompt).toContain("analyze");
     expect(constrainedPrompt.length).toBeGreaterThan(basePrompt.length);
   });
 
-  test('should get mode-specific instructions', () => {
-    const codeInstructions = generator.getModeInstructions('code');
-    const architectInstructions = generator.getModeInstructions('architect');
+  test("should get mode-specific instructions", () => {
+    const codeInstructions = generator.getModeInstructions("code");
+    const architectInstructions = generator.getModeInstructions("architect");
 
-    expect(codeInstructions).toContain('implement');
-    expect(architectInstructions).toContain('design');
+    expect(codeInstructions).toContain("implement");
+    expect(architectInstructions).toContain("design");
     expect(codeInstructions).not.toBe(architectInstructions);
   });
 
-  test('should handle unknown mode gracefully', () => {
+  test("should handle unknown mode gracefully", () => {
     const context = {
-      mode: 'unknown_mode',
-      taskDescription: 'Some task',
+      mode: "unknown_mode",
+      taskDescription: "Some task",
       globalContext: {},
       previousResults: [],
       constraints: {
         maxTokens: 2000,
         requiredSections: [],
         forbiddenTerms: [],
-        outputFormat: 'markdown' as const
-      }
+        outputFormat: "markdown" as const,
+      },
     };
 
     const result = generator.generateModeSpecificPrompt(context);
 
     expect(result.prompt).toBeTruthy();
-    expect(result.metadata.mode).toBe('code'); // fallback to default
-    expect(result.warnings).toContain('Unknown mode, falling back to code mode');
+    expect(result.metadata.mode).toBe("code"); // fallback to default
+    expect(result.warnings).toContain(
+      "Unknown mode, falling back to code mode",
+    );
   });
 });
 ```
@@ -253,15 +259,15 @@ describe('ModePromptGenerator', () => {
 #### 実装: src/create-prompt/mode-prompt-generator.ts
 
 ```typescript
-import { modeManager } from '../modes';
-import type { Mode } from '../modes/types';
+import { modeManager } from "../modes";
+import type { Mode } from "../modes/types";
 import type {
   ModePromptContext,
   PromptTemplate,
   PromptGenerationResult,
   PromptMetadata,
-  QualityScore
-} from './types';
+  QualityScore,
+} from "./types";
 
 export class ModePromptGenerator {
   private promptTemplates: Map<string, PromptTemplate>;
@@ -270,14 +276,18 @@ export class ModePromptGenerator {
     this.promptTemplates = this.initializePromptTemplates();
   }
 
-  generateModeSpecificPrompt(context: ModePromptContext): PromptGenerationResult {
+  generateModeSpecificPrompt(
+    context: ModePromptContext,
+  ): PromptGenerationResult {
     const startTime = Date.now();
-    const mode = modeManager.getModeBySlug(context.mode) || modeManager.getModeBySlug('code')!;
+    const mode =
+      modeManager.getModeBySlug(context.mode) ||
+      modeManager.getModeBySlug("code")!;
     const template = this.getTemplateForMode(context.mode);
 
     const warnings: string[] = [];
     if (!modeManager.getModeBySlug(context.mode)) {
-      warnings.push('Unknown mode, falling back to code mode');
+      warnings.push("Unknown mode, falling back to code mode");
     }
 
     // Generate base prompt from template
@@ -292,15 +302,18 @@ export class ModePromptGenerator {
 
     // Optimize for token limit
     if (context.constraints.maxTokens) {
-      prompt = this.optimizeForTokenLimit(prompt, context.constraints.maxTokens);
+      prompt = this.optimizeForTokenLimit(
+        prompt,
+        context.constraints.maxTokens,
+      );
     }
 
     const metadata: PromptMetadata = {
       mode: mode.slug,
       templateUsed: template.mode,
       tokensUsed: this.estimateTokens(prompt),
-      optimizationApplied: ['mode_constraints', 'token_optimization'],
-      generationTime: Date.now() - startTime
+      optimizationApplied: ["mode_constraints", "token_optimization"],
+      generationTime: Date.now() - startTime,
     };
 
     const qualityScore = this.calculateQualityScore(prompt, context);
@@ -309,13 +322,13 @@ export class ModePromptGenerator {
       prompt,
       metadata,
       qualityScore,
-      warnings: warnings.length > 0 ? warnings : undefined
+      warnings: warnings.length > 0 ? warnings : undefined,
     };
   }
 
   getModeInstructions(mode: string): string {
     const instructionMap: Record<string, string> = {
-      'code': `
+      code: `
 ## Implementation Guidelines
 - Focus on clean, maintainable code
 - Include error handling and edge cases
@@ -323,7 +336,7 @@ export class ModePromptGenerator {
 - Follow established coding standards
 - Consider performance implications
       `,
-      'architect': `
+      architect: `
 ## Design Guidelines
 - Consider scalability and maintainability
 - Define clear component boundaries
@@ -331,7 +344,7 @@ export class ModePromptGenerator {
 - Address non-functional requirements
 - Provide migration strategy if needed
       `,
-      'debug': `
+      debug: `
 ## Debugging Guidelines
 - Systematically analyze the problem
 - Identify root causes, not just symptoms
@@ -339,7 +352,7 @@ export class ModePromptGenerator {
 - Include diagnostic commands and tools
 - Suggest preventive measures
       `,
-      'ask': `
+      ask: `
 ## Information Guidelines
 - Provide clear, comprehensive explanations
 - Include relevant examples and use cases
@@ -347,23 +360,23 @@ export class ModePromptGenerator {
 - Structure information logically
 - Anticipate follow-up questions
       `,
-      'orchestrator': `
+      orchestrator: `
 ## Orchestration Guidelines
 - Break down complex tasks systematically
 - Identify dependencies and execution order
 - Delegate to appropriate specialized modes
 - Coordinate between different components
 - Monitor overall progress and quality
-      `
+      `,
     };
 
-    return instructionMap[mode] || instructionMap['code'];
+    return instructionMap[mode] || instructionMap["code"];
   }
 
   applyModeConstraints(prompt: string, mode: Mode): string {
     // Add mode-specific role and context
     const roleDefinition = mode.roleDefinition;
-    const customInstructions = mode.customInstructions || '';
+    const customInstructions = mode.customInstructions || "";
 
     let enhancedPrompt = `${roleDefinition}\n\n`;
 
@@ -375,17 +388,21 @@ export class ModePromptGenerator {
 
     // Apply mode-specific formatting and constraints
     switch (mode.slug) {
-      case 'code':
-        enhancedPrompt += '\n\nPlease provide implementation details, including code examples and testing approaches.';
+      case "code":
+        enhancedPrompt +=
+          "\n\nPlease provide implementation details, including code examples and testing approaches.";
         break;
-      case 'architect':
-        enhancedPrompt += '\n\nPlease provide architectural diagrams, component descriptions, and integration patterns.';
+      case "architect":
+        enhancedPrompt +=
+          "\n\nPlease provide architectural diagrams, component descriptions, and integration patterns.";
         break;
-      case 'debug':
-        enhancedPrompt += '\n\nPlease provide step-by-step debugging analysis and specific solutions.';
+      case "debug":
+        enhancedPrompt +=
+          "\n\nPlease provide step-by-step debugging analysis and specific solutions.";
         break;
-      case 'ask':
-        enhancedPrompt += '\n\nPlease provide comprehensive explanations with examples and references.';
+      case "ask":
+        enhancedPrompt +=
+          "\n\nPlease provide comprehensive explanations with examples and references.";
         break;
     }
 
@@ -395,8 +412,8 @@ export class ModePromptGenerator {
   private initializePromptTemplates(): Map<string, PromptTemplate> {
     const templates = new Map<string, PromptTemplate>();
 
-    templates.set('code', {
-      mode: 'code',
+    templates.set("code", {
+      mode: "code",
       templateString: `
 # Implementation Task: {task}
 
@@ -414,17 +431,23 @@ export class ModePromptGenerator {
 
 Please implement the solution following best practices.
       `,
-      variables: ['task', 'context', 'previousResults', 'requirements', 'technicalConstraints'],
+      variables: [
+        "task",
+        "context",
+        "previousResults",
+        "requirements",
+        "technicalConstraints",
+      ],
       constraints: {
         maxTokens: 4000,
-        requiredSections: ['implementation', 'testing'],
+        requiredSections: ["implementation", "testing"],
         forbiddenTerms: [],
-        outputFormat: 'markdown'
-      }
+        outputFormat: "markdown",
+      },
     });
 
-    templates.set('architect', {
-      mode: 'architect',
+    templates.set("architect", {
+      mode: "architect",
       templateString: `
 # Architecture Design: {task}
 
@@ -442,17 +465,23 @@ Please implement the solution following best practices.
 
 Please design a comprehensive architecture solution.
       `,
-      variables: ['task', 'context', 'previousResults', 'requirements', 'constraints'],
+      variables: [
+        "task",
+        "context",
+        "previousResults",
+        "requirements",
+        "constraints",
+      ],
       constraints: {
         maxTokens: 5000,
-        requiredSections: ['overview', 'components', 'interactions'],
+        requiredSections: ["overview", "components", "interactions"],
         forbiddenTerms: [],
-        outputFormat: 'markdown'
-      }
+        outputFormat: "markdown",
+      },
     });
 
-    templates.set('debug', {
-      mode: 'debug',
+    templates.set("debug", {
+      mode: "debug",
       templateString: `
 # Debugging Task: {task}
 
@@ -470,17 +499,23 @@ Please design a comprehensive architecture solution.
 
 Please provide systematic debugging analysis.
       `,
-      variables: ['task', 'context', 'previousResults', 'systemInfo', 'errorDetails'],
+      variables: [
+        "task",
+        "context",
+        "previousResults",
+        "systemInfo",
+        "errorDetails",
+      ],
       constraints: {
         maxTokens: 3500,
-        requiredSections: ['analysis', 'solution', 'prevention'],
+        requiredSections: ["analysis", "solution", "prevention"],
         forbiddenTerms: [],
-        outputFormat: 'markdown'
-      }
+        outputFormat: "markdown",
+      },
     });
 
-    templates.set('orchestrator', {
-      mode: 'orchestrator',
+    templates.set("orchestrator", {
+      mode: "orchestrator",
       templateString: `
 # Orchestration Plan: {task}
 
@@ -498,39 +533,48 @@ Please provide systematic debugging analysis.
 
 Please outline a detailed orchestration plan.
       `,
-      variables: ['task', 'goal', 'mainSteps', 'considerations', 'coordination'],
+      variables: [
+        "task",
+        "goal",
+        "mainSteps",
+        "considerations",
+        "coordination",
+      ],
       constraints: {
         maxTokens: 4500,
-        requiredSections: ['plan', 'steps', 'dependencies', 'monitoring'],
+        requiredSections: ["plan", "steps", "dependencies", "monitoring"],
         forbiddenTerms: [],
-        outputFormat: 'markdown'
-      }
+        outputFormat: "markdown",
+      },
     });
 
     return templates;
   }
 
   private getTemplateForMode(mode: string): PromptTemplate {
-    return this.promptTemplates.get(mode) || this.promptTemplates.get('code')!;
+    return this.promptTemplates.get(mode) || this.promptTemplates.get("code")!;
   }
 
-  private expandTemplate(template: PromptTemplate, context: ModePromptContext): string {
+  private expandTemplate(
+    template: PromptTemplate,
+    context: ModePromptContext,
+  ): string {
     let prompt = template.templateString;
 
     const variableMap: Record<string, string> = {
-      'task': context.taskDescription,
-      'context': this.formatContext(context.globalContext),
-      'previousResults': this.formatPreviousResults(context.previousResults),
-      'requirements': this.extractRequirements(context),
-      'technicalConstraints': this.formatConstraints(context.constraints),
-      'constraints': this.formatConstraints(context.constraints),
-      'systemInfo': this.formatSystemInfo(context.globalContext),
-      'errorDetails': this.extractErrorDetails(context)
+      task: context.taskDescription,
+      context: this.formatContext(context.globalContext),
+      previousResults: this.formatPreviousResults(context.previousResults),
+      requirements: this.extractRequirements(context),
+      technicalConstraints: this.formatConstraints(context.constraints),
+      constraints: this.formatConstraints(context.constraints),
+      systemInfo: this.formatSystemInfo(context.globalContext),
+      errorDetails: this.extractErrorDetails(context),
     };
 
     for (const [variable, value] of Object.entries(variableMap)) {
-      const regex = new RegExp(`{${variable}}`, 'g');
-      prompt = prompt.replace(regex, value || '');
+      const regex = new RegExp(`{${variable}}`, "g");
+      prompt = prompt.replace(regex, value || "");
     }
 
     return prompt;
@@ -538,59 +582,67 @@ Please outline a detailed orchestration plan.
 
   private formatContext(globalContext: Record<string, any>): string {
     if (!globalContext || Object.keys(globalContext).length === 0) {
-      return 'No specific context provided.';
+      return "No specific context provided.";
     }
 
     return Object.entries(globalContext)
       .map(([key, value]) => `- ${key}: ${value}`)
-      .join('\n');
+      .join("\n");
   }
 
   private formatPreviousResults(results: string[]): string {
     if (!results || results.length === 0) {
-      return 'No previous work completed.';
+      return "No previous work completed.";
     }
 
-    return results.map((result, index) => `${index + 1}. ${result}`).join('\n');
+    return results.map((result, index) => `${index + 1}. ${result}`).join("\n");
   }
 
   private extractRequirements(context: ModePromptContext): string {
     const sections = context.constraints.requiredSections;
     if (!sections || sections.length === 0) {
-      return 'General implementation requirements apply.';
+      return "General implementation requirements apply.";
     }
 
-    return `Please ensure the following sections are included:\n${sections.map(s => `- ${s}`).join('\n')}`;
+    return `Please ensure the following sections are included:\n${sections.map((s) => `- ${s}`).join("\n")}`;
   }
 
   private formatConstraints(constraints: any): string {
-    if (!constraints) return 'No specific constraints.';
+    if (!constraints) return "No specific constraints.";
 
     const items = [];
-    if (constraints.maxTokens) items.push(`Maximum tokens: ${constraints.maxTokens}`);
-    if (constraints.outputFormat) items.push(`Output format: ${constraints.outputFormat}`);
+    if (constraints.maxTokens)
+      items.push(`Maximum tokens: ${constraints.maxTokens}`);
+    if (constraints.outputFormat)
+      items.push(`Output format: ${constraints.outputFormat}`);
     if (constraints.forbiddenTerms?.length > 0) {
-      items.push(`Avoid terms: ${constraints.forbiddenTerms.join(', ')}`);
+      items.push(`Avoid terms: ${constraints.forbiddenTerms.join(", ")}`);
     }
 
-    return items.length > 0 ? items.join('\n') : 'No specific constraints.';
+    return items.length > 0 ? items.join("\n") : "No specific constraints.";
   }
 
   private formatSystemInfo(context: Record<string, any>): string {
-    const systemKeys = ['os', 'framework', 'database', 'version', 'environment'];
+    const systemKeys = [
+      "os",
+      "framework",
+      "database",
+      "version",
+      "environment",
+    ];
     const systemInfo = systemKeys
-      .filter(key => context[key])
-      .map(key => `${key}: ${context[key]}`)
-      .join('\n');
+      .filter((key) => context[key])
+      .map((key) => `${key}: ${context[key]}`)
+      .join("\n");
 
-    return systemInfo || 'System information not provided.';
+    return systemInfo || "System information not provided.";
   }
 
   private extractErrorDetails(context: ModePromptContext): string {
     if (context.modeSpecificData?.error) {
       return context.modeSpecificData.error;
     }
-    return 'Error details to be investigated.';
+    return "Error details to be investigated.";
   }
 
   private injectModeInstructions(prompt: string, instructions: string): string {
@@ -605,11 +657,14 @@ Please outline a detailed orchestration plan.
     }
 
     // Simple optimization: truncate sections that are too verbose
-    const lines = prompt.split('\n');
+    const lines = prompt.split("\n");
     const targetRatio = maxTokens / estimatedTokens;
     const targetLines = Math.floor(lines.length * targetRatio);
 
-    return lines.slice(0, targetLines).join('\n') + '\n\n[Content optimized for token limit]';
+    return (
+      lines.slice(0, targetLines).join("\n") +
+      "\n\n[Content optimized for token limit]"
+    );
   }
 
   // estimateTokensメソッドは、複数のクラスで共通のロジックを使用しています。
@@ -624,23 +679,38 @@ Please outline a detailed orchestration plan.
     return Math.ceil((wordBasedTokens + charBasedTokens) / 2);
   }
 
-  private calculateQualityScore(prompt: string, context: ModePromptContext): QualityScore {
+  private calculateQualityScore(
+    prompt: string,
+    context: ModePromptContext,
+  ): QualityScore {
     // Simple quality metrics
-    const hasRequiredSections = context.constraints.requiredSections.every(section =>
-      prompt.toLowerCase().includes(section.toLowerCase())
+    const hasRequiredSections = context.constraints.requiredSections.every(
+      (section) => prompt.toLowerCase().includes(section.toLowerCase()),
     );
 
     const hasContext = prompt.includes(context.taskDescription);
     const appropriateLength = prompt.length > 200 && prompt.length < 8000;
-    const hasModeSpecificTerms = this.containsModeSpecificTerms(prompt, context.mode);
+    const hasModeSpecificTerms = this.containsModeSpecificTerms(
+      prompt,
+      context.mode,
+    );
 
     const completeness = hasRequiredSections ? 0.9 : 0.6;
     const specificity = hasContext ? 0.8 : 0.5;
     const clarity = appropriateLength ? 0.8 : 0.6;
     const contextRelevance = hasModeSpecificTerms ? 0.85 : 0.7;
-    const tokenEfficiency = this.calculateTokenEfficiency(prompt, context.constraints.maxTokens);
+    const tokenEfficiency = this.calculateTokenEfficiency(
+      prompt,
+      context.constraints.maxTokens,
+    );
 
-    const overall = (completeness + specificity + clarity + contextRelevance + tokenEfficiency) / 5;
+    const overall =
+      (completeness +
+        specificity +
+        clarity +
+        contextRelevance +
+        tokenEfficiency) /
+      5;
 
     return {
       overall,
@@ -648,20 +718,20 @@ Please outline a detailed orchestration plan.
       completeness,
       specificity,
       tokenEfficiency,
-      contextRelevance
+      contextRelevance,
     };
   }
 
   private containsModeSpecificTerms(prompt: string, mode: string): boolean {
     const modeTerms: Record<string, string[]> = {
-      'code': ['implement', 'function', 'class', 'method', 'test'],
-      'architect': ['design', 'architecture', 'component', 'system', 'pattern'],
-      'debug': ['debug', 'analyze', 'troubleshoot', 'investigate', 'fix'],
-      'ask': ['explain', 'describe', 'clarify', 'understand', 'information']
+      code: ["implement", "function", "class", "method", "test"],
+      architect: ["design", "architecture", "component", "system", "pattern"],
+      debug: ["debug", "analyze", "troubleshoot", "investigate", "fix"],
+      ask: ["explain", "describe", "clarify", "understand", "information"],
     };
 
     const terms = modeTerms[mode] || [];
-    return terms.some(term => prompt.toLowerCase().includes(term));
+    return terms.some((term) => prompt.toLowerCase().includes(term));
   }
 
   private calculateTokenEfficiency(prompt: string, maxTokens: number): number {
@@ -681,134 +751,140 @@ Please outline a detailed orchestration plan.
 
 ```typescript
 // test/create-prompt/subtask-prompt-generator.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { SubtaskPromptGenerator } from '../../src/create-prompt/subtask-prompt-generator';
-import type { SubTask, TaskContext } from '../../src/tasks/types';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { SubtaskPromptGenerator } from "../../src/create-prompt/subtask-prompt-generator";
+import type { SubTask, TaskContext } from "../../src/tasks/types";
 
-describe('SubtaskPromptGenerator', () => {
+describe("SubtaskPromptGenerator", () => {
   let generator: SubtaskPromptGenerator;
 
   beforeEach(() => {
     generator = new SubtaskPromptGenerator();
   });
 
-  test('should generate prompt for independent subtask', () => {
+  test("should generate prompt for independent subtask", () => {
     const subtask: SubTask = {
-      id: 'subtask-1',
-      description: 'Implement user authentication API endpoints',
-      mode: 'code',
+      id: "subtask-1",
+      description: "Implement user authentication API endpoints",
+      mode: "code",
       priority: 1,
       dependencies: [],
-      estimatedComplexity: 6.5
+      estimatedComplexity: 6.5,
     };
 
     const context: TaskContext = {
       previousResults: [],
       globalContext: {
-        framework: 'Express.js',
-        database: 'MongoDB'
+        framework: "Express.js",
+        database: "MongoDB",
       },
       modeSpecificContext: {
-        implementationFocus: 'security'
+        implementationFocus: "security",
       },
-      maxTokens: 4000
+      maxTokens: 4000,
     };
 
     const result = generator.generateSubtaskPrompt(subtask, context);
 
-    expect(result.prompt).toContain('authentication');
-    expect(result.prompt).toContain('Express.js');
-    expect(result.metadata.mode).toBe('code');
+    expect(result.prompt).toContain("authentication");
+    expect(result.prompt).toContain("Express.js");
+    expect(result.metadata.mode).toBe("code");
     expect(result.qualityScore.overall).toBeGreaterThan(0.7);
   });
 
-  test('should generate prompt for dependent subtask', () => {
+  test("should generate prompt for dependent subtask", () => {
     const subtask: SubTask = {
-      id: 'subtask-3',
-      description: 'Implement password reset functionality',
-      mode: 'code',
+      id: "subtask-3",
+      description: "Implement password reset functionality",
+      mode: "code",
       priority: 3,
-      dependencies: ['subtask-1', 'subtask-2'],
-      estimatedComplexity: 4.0
+      dependencies: ["subtask-1", "subtask-2"],
+      estimatedComplexity: 4.0,
     };
 
     const context: TaskContext = {
       previousResults: [
-        'User registration API completed',
-        'Email service integration completed'
+        "User registration API completed",
+        "Email service integration completed",
       ],
       globalContext: {
-        framework: 'Express.js',
-        emailProvider: 'SendGrid'
+        framework: "Express.js",
+        emailProvider: "SendGrid",
       },
       modeSpecificContext: {},
-      maxTokens: 3500
+      maxTokens: 3500,
     };
 
     const result = generator.generateSubtaskPrompt(subtask, context);
 
-    expect(result.prompt).toContain('password reset');
-    expect(result.prompt).toContain('registration API completed');
-    expect(result.prompt).toContain('Email service integration');
+    expect(result.prompt).toContain("password reset");
+    expect(result.prompt).toContain("registration API completed");
+    expect(result.prompt).toContain("Email service integration");
     expect(result.metadata.tokensUsed).toBeLessThan(3500);
   });
 
-  test('should create contextualized prompt with previous results', () => {
+  test("should create contextualized prompt with previous results", () => {
     const subtask: SubTask = {
-      id: 'subtask-2',
-      description: 'Create user profile management',
-      mode: 'code',
+      id: "subtask-2",
+      description: "Create user profile management",
+      mode: "code",
       priority: 2,
-      dependencies: ['subtask-1'],
-      estimatedComplexity: 5.0
+      dependencies: ["subtask-1"],
+      estimatedComplexity: 5.0,
     };
 
     const previousResults = [
-      'Database schema created with user table',
-      'Authentication middleware implemented',
-      'JWT token generation working'
+      "Database schema created with user table",
+      "Authentication middleware implemented",
+      "JWT token generation working",
     ];
 
-    const prompt = generator.createContextualizedPrompt(subtask, previousResults);
+    const prompt = generator.createContextualizedPrompt(
+      subtask,
+      previousResults,
+    );
 
-    expect(prompt).toContain('profile management');
-    expect(prompt).toContain('Database schema created');
-    expect(prompt).toContain('Authentication middleware');
-    expect(prompt).toContain('JWT token generation');
+    expect(prompt).toContain("profile management");
+    expect(prompt).toContain("Database schema created");
+    expect(prompt).toContain("Authentication middleware");
+    expect(prompt).toContain("JWT token generation");
   });
 
-  test('should inject dependency information correctly', () => {
-    const basePrompt = 'Implement the feature as described.';
-    const dependencies = ['User authentication system', 'Database connection'];
+  test("should inject dependency information correctly", () => {
+    const basePrompt = "Implement the feature as described.";
+    const dependencies = ["User authentication system", "Database connection"];
 
-    const enhancedPrompt = generator.injectDependencyInfo(basePrompt, dependencies);
+    const enhancedPrompt = generator.injectDependencyInfo(
+      basePrompt,
+      dependencies,
+    );
 
-    expect(enhancedPrompt).toContain('authentication system');
-    expect(enhancedPrompt).toContain('Database connection');
-    expect(enhancedPrompt).toContain('Dependencies');
+    expect(enhancedPrompt).toContain("authentication system");
+    expect(enhancedPrompt).toContain("Database connection");
+    expect(enhancedPrompt).toContain("Dependencies");
   });
 
-  test('should handle subtask without dependencies', () => {
+  test("should handle subtask without dependencies", () => {
     const subtask: SubTask = {
-      id: 'subtask-1',
-      description: 'Setup project structure',
-      mode: 'code',
+      id: "subtask-1",
+      description: "Setup project structure",
+      mode: "code",
       priority: 1,
       dependencies: [],
-      estimatedComplexity: 2.0
+      estimatedComplexity: 2.0,
     };
 
     const context: TaskContext = {
       previousResults: [],
       globalContext: {},
       modeSpecificContext: {},
-      maxTokens: 2000
+      maxTokens: 2000,
     };
 
     const result = generator.generateSubtaskPrompt(subtask, context);
 
-    expect(result.prompt).toContain('project structure');
-    expect(result.prompt).not.toContain('Dependencies');
+    expect(result.prompt).toContain("project structure");
+    expect(result.prompt).not.toContain("Dependencies");
     expect(result.warnings).toBeUndefined();
   });
 });
@@ -817,14 +893,14 @@ describe('SubtaskPromptGenerator', () => {
 #### 実装: src/create-prompt/subtask-prompt-generator.ts
 
 ```typescript
-import type { SubTask, TaskContext } from '../tasks/types';
+import type { SubTask, TaskContext } from "../tasks/types";
 import type {
   SubtaskPromptContext,
   PromptGenerationResult,
   PromptMetadata,
-  QualityScore
-} from './types';
-import { ModePromptGenerator } from './mode-prompt-generator';
+  QualityScore,
+} from "./types";
+import { ModePromptGenerator } from "./mode-prompt-generator";
 
 export class SubtaskPromptGenerator {
   private modePromptGenerator: ModePromptGenerator;
@@ -833,7 +909,10 @@ export class SubtaskPromptGenerator {
     this.modePromptGenerator = new ModePromptGenerator();
   }
 
-  generateSubtaskPrompt(subtask: SubTask, context: TaskContext): PromptGenerationResult {
+  generateSubtaskPrompt(
+    subtask: SubTask,
+    context: TaskContext,
+  ): PromptGenerationResult {
     const startTime = Date.now();
 
     // Create enhanced context for subtask
@@ -846,23 +925,31 @@ export class SubtaskPromptGenerator {
         maxTokens: context.maxTokens,
         requiredSections: this.getRequiredSectionsForMode(subtask.mode),
         forbiddenTerms: [],
-        outputFormat: 'markdown'
+        outputFormat: "markdown",
       },
       subtask,
       dependencies: subtask.dependencies,
       parentTaskId: subtask.parentTaskId,
-      executionOrder: subtask.priority
+      executionOrder: subtask.priority,
     };
 
     // Generate base prompt using mode generator
-    const baseResult = this.modePromptGenerator.generateModeSpecificPrompt(subtaskContext);
+    const baseResult =
+      this.modePromptGenerator.generateModeSpecificPrompt(subtaskContext);
 
     // Enhance with subtask-specific context
-    let enhancedPrompt = this.enhanceWithSubtaskContext(baseResult.prompt, subtask, context);
+    let enhancedPrompt = this.enhanceWithSubtaskContext(
+      baseResult.prompt,
+      subtask,
+      context,
+    );
 
     // Add dependency information if present
     if (subtask.dependencies.length > 0) {
-      enhancedPrompt = this.injectDependencyInfo(enhancedPrompt, this.resolveDependencies(subtask.dependencies, context));
+      enhancedPrompt = this.injectDependencyInfo(
+        enhancedPrompt,
+        this.resolveDependencies(subtask.dependencies, context),
+      );
     }
 
     // Add execution context
@@ -871,21 +958,31 @@ export class SubtaskPromptGenerator {
     const metadata: PromptMetadata = {
       ...baseResult.metadata,
       tokensUsed: this.estimateTokens(enhancedPrompt),
-      optimizationApplied: [...baseResult.metadata.optimizationApplied, 'subtask_context', 'dependency_injection'],
-      generationTime: Date.now() - startTime
+      optimizationApplied: [
+        ...baseResult.metadata.optimizationApplied,
+        "subtask_context",
+        "dependency_injection",
+      ],
+      generationTime: Date.now() - startTime,
     };
 
-    const qualityScore = this.calculateSubtaskQualityScore(enhancedPrompt, subtaskContext);
+    const qualityScore = this.calculateSubtaskQualityScore(
+      enhancedPrompt,
+      subtaskContext,
+    );
 
     return {
       prompt: enhancedPrompt,
       metadata,
       qualityScore,
-      warnings: baseResult.warnings
+      warnings: baseResult.warnings,
     };
   }
 
-  createContextualizedPrompt(subtask: SubTask, previousResults: string[]): string {
+  createContextualizedPrompt(
+    subtask: SubTask,
+    previousResults: string[],
+  ): string {
     let prompt = `## Subtask: ${subtask.description}\n\n`;
 
     if (previousResults.length > 0) {
@@ -893,7 +990,7 @@ export class SubtaskPromptGenerator {
       previousResults.forEach((result, index) => {
         prompt += `${index + 1}. ${result}\n`;
       });
-      prompt += '\n';
+      prompt += "\n";
     }
 
     prompt += `### Current Task Requirements\n`;
@@ -903,7 +1000,7 @@ export class SubtaskPromptGenerator {
 
     if (subtask.dependencies.length > 0) {
       prompt += `### Dependencies\n`;
-      prompt += `This task depends on: ${subtask.dependencies.join(', ')}\n\n`;
+      prompt += `This task depends on: ${subtask.dependencies.join(", ")}\n\n`;
     }
 
     prompt += `### Task Description\n${subtask.description}\n\n`;
@@ -919,7 +1016,7 @@ export class SubtaskPromptGenerator {
 
 The following components must be available and functioning before implementing this task:
 
-${dependencies.map((dep, index) => `${index + 1}. ${dep}`).join('\n')}
+${dependencies.map((dep, index) => `${index + 1}. ${dep}`).join("\n")}
 
 Please ensure your implementation builds upon these existing components and maintains compatibility.
 
@@ -930,7 +1027,11 @@ Please ensure your implementation builds upon these existing components and main
     return dependencySection + prompt;
   }
 
-  private enhanceWithSubtaskContext(basePrompt: string, subtask: SubTask, context: TaskContext): string {
+  private enhanceWithSubtaskContext(
+    basePrompt: string,
+    subtask: SubTask,
+    context: TaskContext,
+  ): string {
     let enhanced = basePrompt;
 
     // Add subtask-specific metadata
@@ -944,7 +1045,10 @@ Please ensure your implementation builds upon these existing components and main
     }
 
     // Add mode-specific context if available
-    if (context.modeSpecificContext && Object.keys(context.modeSpecificContext).length > 0) {
+    if (
+      context.modeSpecificContext &&
+      Object.keys(context.modeSpecificContext).length > 0
+    ) {
       enhanced += `\n## Mode-Specific Context\n`;
       Object.entries(context.modeSpecificContext).forEach(([key, value]) => {
         enhanced += `- **${key}**: ${value}\n`;
@@ -954,7 +1058,11 @@ Please ensure your implementation builds upon these existing components and main
     return enhanced;
   }
 
-  private addExecutionContext(prompt: string, subtask: SubTask, context: TaskContext): string {
+  private addExecutionContext(
+    prompt: string,
+    subtask: SubTask,
+    context: TaskContext,
+  ): string {
     let enhanced = prompt;
 
     enhanced += `\n## Execution Guidelines\n`;
@@ -986,7 +1094,10 @@ Please ensure your implementation builds upon these existing components and main
     return enhanced;
   }
 
-  private resolveDependencies(dependencyIds: string[], context: TaskContext): string[] {
+  private resolveDependencies(
+    dependencyIds: string[],
+    context: TaskContext,
+  ): string[] {
     // In a full implementation, this would resolve dependency IDs to their descriptions
     // For now, we'll use the previous results as proxy for dependencies
     const resolvedDependencies: string[] = [];
@@ -995,7 +1106,9 @@ Please ensure your implementation builds upon these existing components and main
       if (index < context.previousResults.length) {
         resolvedDependencies.push(context.previousResults[index]);
       } else {
-        resolvedDependencies.push(`Dependency ${depId} (details to be resolved)`);
+        resolvedDependencies.push(
+          `Dependency ${depId} (details to be resolved)`,
+        );
       }
     });
 
@@ -1004,34 +1117,41 @@ Please ensure your implementation builds upon these existing components and main
 
   private getRequiredSectionsForMode(mode: string): string[] {
     const sectionMap: Record<string, string[]> = {
-      'code': ['implementation', 'testing', 'documentation'],
-      'architect': ['overview', 'components', 'interactions', 'considerations'],
-      'debug': ['analysis', 'investigation', 'solution', 'prevention'],
-      'ask': ['explanation', 'examples', 'references'],
-      'orchestrator': ['breakdown', 'coordination', 'monitoring']
+      code: ["implementation", "testing", "documentation"],
+      architect: ["overview", "components", "interactions", "considerations"],
+      debug: ["analysis", "investigation", "solution", "prevention"],
+      ask: ["explanation", "examples", "references"],
+      orchestrator: ["breakdown", "coordination", "monitoring"],
     };
 
-    return sectionMap[mode] || sectionMap['code'];
+    return sectionMap[mode] || sectionMap["code"];
   }
 
-  private calculateSubtaskQualityScore(prompt: string, context: SubtaskPromptContext): QualityScore {
-    const baseScore = this.modePromptGenerator.calculateQualityScore(prompt, context);
+  private calculateSubtaskQualityScore(
+    prompt: string,
+    context: SubtaskPromptContext,
+  ): QualityScore {
+    const baseScore = this.modePromptGenerator.calculateQualityScore(
+      prompt,
+      context,
+    );
 
     // Additional subtask-specific quality factors
-    const hasDependencyInfo = context.dependencies.length === 0 || prompt.includes('Dependencies');
-    const hasExecutionGuidance = prompt.includes('Execution Guidelines');
-    const hasSubtaskMetadata = prompt.includes('Subtask Information');
+    const hasDependencyInfo =
+      context.dependencies.length === 0 || prompt.includes("Dependencies");
+    const hasExecutionGuidance = prompt.includes("Execution Guidelines");
+    const hasSubtaskMetadata = prompt.includes("Subtask Information");
 
-    const subtaskSpecificity = (
-      (hasDependencyInfo ? 1 : 0) +
-      (hasExecutionGuidance ? 1 : 0) +
-      (hasSubtaskMetadata ? 1 : 0)
-    ) / 3;
+    const subtaskSpecificity =
+      ((hasDependencyInfo ? 1 : 0) +
+        (hasExecutionGuidance ? 1 : 0) +
+        (hasSubtaskMetadata ? 1 : 0)) /
+      3;
 
     return {
       ...baseScore,
       specificity: (baseScore.specificity + subtaskSpecificity) / 2,
-      overall: (baseScore.overall + subtaskSpecificity) / 2
+      overall: (baseScore.overall + subtaskSpecificity) / 2,
     };
   }
 
@@ -1055,110 +1175,116 @@ Please ensure your implementation builds upon these existing components and main
 
 ```typescript
 // test/create-prompt/prompt-extension.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { PromptExtension } from '../../src/create-prompt/prompt-extension';
-import type { Mode } from '../../src/modes/types';
-import type { SubTask, TaskContext } from '../../src/tasks/types';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { PromptExtension } from "../../src/create-prompt/prompt-extension";
+import type { Mode } from "../../src/modes/types";
+import type { SubTask, TaskContext } from "../../src/tasks/types";
 
-describe('PromptExtension', () => {
+describe("PromptExtension", () => {
   let promptExtension: PromptExtension;
 
   beforeEach(() => {
     promptExtension = new PromptExtension();
   });
 
-  test('should create prompt for specific mode', () => {
+  test("should create prompt for specific mode", () => {
     const context = {
-      mode: 'code',
-      taskDescription: 'Implement JWT authentication',
-      globalContext: { framework: 'Express.js' },
+      mode: "code",
+      taskDescription: "Implement JWT authentication",
+      globalContext: { framework: "Express.js" },
       previousResults: [],
       constraints: {
         maxTokens: 4000,
-        requiredSections: ['implementation'],
+        requiredSections: ["implementation"],
         forbiddenTerms: [],
-        outputFormat: 'markdown' as const
-      }
+        outputFormat: "markdown" as const,
+      },
     };
 
     const mode: Mode = {
-      slug: 'code',
-      name: 'Code Implementation',
-      roleDefinition: 'You are an expert software developer',
-      groups: ['file_operations', 'code_generation']
+      slug: "code",
+      name: "Code Implementation",
+      roleDefinition: "You are an expert software developer",
+      groups: ["file_operations", "code_generation"],
     };
 
     const result = promptExtension.createPromptForMode(context, mode);
 
-    expect(result.prompt).toContain('JWT authentication');
-    expect(result.prompt).toContain('Express.js');
-    expect(result.metadata.mode).toBe('code');
+    expect(result.prompt).toContain("JWT authentication");
+    expect(result.prompt).toContain("Express.js");
+    expect(result.metadata.mode).toBe("code");
     expect(result.qualityScore.overall).toBeGreaterThan(0.7);
   });
 
-  test('should create prompt for subtask', () => {
+  test("should create prompt for subtask", () => {
     const subtask: SubTask = {
-      id: 'subtask-1',
-      description: 'Implement user registration endpoint',
-      mode: 'code',
+      id: "subtask-1",
+      description: "Implement user registration endpoint",
+      mode: "code",
       priority: 1,
       dependencies: [],
-      estimatedComplexity: 5.0
+      estimatedComplexity: 5.0,
     };
 
     const context: TaskContext = {
       previousResults: [],
       globalContext: {
-        framework: 'Express.js',
-        database: 'MongoDB'
+        framework: "Express.js",
+        database: "MongoDB",
       },
       modeSpecificContext: {},
-      maxTokens: 3000
+      maxTokens: 3000,
     };
 
     const result = promptExtension.createPromptForSubtask(subtask, context);
 
-    expect(result.prompt).toContain('user registration');
-    expect(result.prompt).toContain('Express.js');
+    expect(result.prompt).toContain("user registration");
+    expect(result.prompt).toContain("Express.js");
     expect(result.metadata.tokensUsed).toBeLessThan(3000);
   });
 
-  test('should optimize prompt for constraints', () => {
-    const longPrompt = 'Very long prompt content that exceeds token limits. '.repeat(200);
+  test("should optimize prompt for constraints", () => {
+    const longPrompt =
+      "Very long prompt content that exceeds token limits. ".repeat(200);
     const constraints = {
       maxTokens: 1000,
-      requiredSections: ['summary'],
-      forbiddenTerms: ['harmful'],
-      outputFormat: 'markdown' as const
+      requiredSections: ["summary"],
+      forbiddenTerms: ["harmful"],
+      outputFormat: "markdown" as const,
     };
 
     const optimized = promptExtension.optimizePrompt(longPrompt, constraints);
 
     expect(optimized.length).toBeLessThan(longPrompt.length);
-    expect(optimized).not.toContain('harmful');
+    expect(optimized).not.toContain("harmful");
     expect(promptExtension.estimateTokens(optimized)).toBeLessThan(1000);
   });
 
-  test('should integrate with existing prompt creation system', () => {
-    const existingPrompt = 'This is an existing system prompt.';
+  test("should integrate with existing prompt creation system", () => {
+    const existingPrompt = "This is an existing system prompt.";
     const enhancement = {
-      mode: 'code',
-      taskDescription: 'Add authentication',
+      mode: "code",
+      taskDescription: "Add authentication",
       globalContext: {},
       previousResults: [],
       constraints: {
         maxTokens: 2000,
         requiredSections: [],
         forbiddenTerms: [],
-        outputFormat: 'markdown' as const
-      }
+        outputFormat: "markdown" as const,
+      },
     };
 
-    const result = promptExtension.enhanceExistingPrompt(existingPrompt, enhancement);
+    const result = promptExtension.enhanceExistingPrompt(
+      existingPrompt,
+      enhancement,
+    );
 
-    expect(result.prompt).toContain('existing system prompt');
-    expect(result.prompt).toContain('authentication');
-    expect(result.metadata.optimizationApplied).toContain('existing_prompt_enhancement');
+    expect(result.prompt).toContain("existing system prompt");
+    expect(result.prompt).toContain("authentication");
+    expect(result.metadata.optimizationApplied).toContain(
+      "existing_prompt_enhancement",
+    );
   });
 });
 ```
@@ -1166,16 +1292,16 @@ describe('PromptExtension', () => {
 #### 実装: src/create-prompt/prompt-extension.ts
 
 ```typescript
-import { ModePromptGenerator } from './mode-prompt-generator';
-import { SubtaskPromptGenerator } from './subtask-prompt-generator';
-import type { Mode } from '../modes/types';
-import type { SubTask, TaskContext } from '../tasks/types';
+import { ModePromptGenerator } from "./mode-prompt-generator";
+import { SubtaskPromptGenerator } from "./subtask-prompt-generator";
+import type { Mode } from "../modes/types";
+import type { SubTask, TaskContext } from "../tasks/types";
 import type {
   ModePromptContext,
   PromptConstraints,
   PromptGenerationResult,
-  PromptValidationResult
-} from './types';
+  PromptValidationResult,
+} from "./types";
 
 export class PromptExtension {
   private modePromptGenerator: ModePromptGenerator;
@@ -1186,17 +1312,23 @@ export class PromptExtension {
     this.subtaskPromptGenerator = new SubtaskPromptGenerator();
   }
 
-  createPromptForMode(context: ModePromptContext, mode: Mode): PromptGenerationResult {
+  createPromptForMode(
+    context: ModePromptContext,
+    mode: Mode,
+  ): PromptGenerationResult {
     // Ensure mode is correctly set in context
     const enhancedContext = {
       ...context,
-      mode: mode.slug
+      mode: mode.slug,
     };
 
     return this.modePromptGenerator.generateModeSpecificPrompt(enhancedContext);
   }
 
-  createPromptForSubtask(subtask: SubTask, context: TaskContext): PromptGenerationResult {
+  createPromptForSubtask(
+    subtask: SubTask,
+    context: TaskContext,
+  ): PromptGenerationResult {
     return this.subtaskPromptGenerator.generateSubtaskPrompt(subtask, context);
   }
 
@@ -1205,9 +1337,9 @@ export class PromptExtension {
 
     // Remove forbidden terms
     if (constraints.forbiddenTerms && constraints.forbiddenTerms.length > 0) {
-      constraints.forbiddenTerms.forEach(term => {
-        const regex = new RegExp(term, 'gi');
-        optimized = optimized.replace(regex, '[TERM_REMOVED]');
+      constraints.forbiddenTerms.forEach((term) => {
+        const regex = new RegExp(term, "gi");
+        optimized = optimized.replace(regex, "[TERM_REMOVED]");
       });
     }
 
@@ -1220,8 +1352,14 @@ export class PromptExtension {
     }
 
     // Ensure required sections are present
-    if (constraints.requiredSections && constraints.requiredSections.length > 0) {
-      optimized = this.ensureRequiredSections(optimized, constraints.requiredSections);
+    if (
+      constraints.requiredSections &&
+      constraints.requiredSections.length > 0
+    ) {
+      optimized = this.ensureRequiredSections(
+        optimized,
+        constraints.requiredSections,
+      );
     }
 
     // Apply output format
@@ -1230,31 +1368,47 @@ export class PromptExtension {
     return optimized;
   }
 
-  enhanceExistingPrompt(existingPrompt: string, enhancement: ModePromptContext): PromptGenerationResult {
+  enhanceExistingPrompt(
+    existingPrompt: string,
+    enhancement: ModePromptContext,
+  ): PromptGenerationResult {
     const startTime = Date.now();
 
     // Generate mode-specific enhancement
-    const modeResult = this.modePromptGenerator.generateModeSpecificPrompt(enhancement);
+    const modeResult =
+      this.modePromptGenerator.generateModeSpecificPrompt(enhancement);
 
     // Combine existing prompt with enhancement
-    const combinedPrompt = this.combinePrompts(existingPrompt, modeResult.prompt);
+    const combinedPrompt = this.combinePrompts(
+      existingPrompt,
+      modeResult.prompt,
+    );
 
     // Optimize the combined prompt
-    const optimizedPrompt = this.optimizePrompt(combinedPrompt, enhancement.constraints);
+    const optimizedPrompt = this.optimizePrompt(
+      combinedPrompt,
+      enhancement.constraints,
+    );
 
     return {
       prompt: optimizedPrompt,
       metadata: {
         ...modeResult.metadata,
-        optimizationApplied: [...modeResult.metadata.optimizationApplied, 'existing_prompt_enhancement'],
-        generationTime: Date.now() - startTime
+        optimizationApplied: [
+          ...modeResult.metadata.optimizationApplied,
+          "existing_prompt_enhancement",
+        ],
+        generationTime: Date.now() - startTime,
       },
       qualityScore: modeResult.qualityScore,
-      warnings: modeResult.warnings
+      warnings: modeResult.warnings,
     };
   }
 
-  validatePrompt(prompt: string, constraints: PromptConstraints): PromptValidationResult {
+  validatePrompt(
+    prompt: string,
+    constraints: PromptConstraints,
+  ): PromptValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
     const suggestions: string[] = [];
@@ -1262,47 +1416,51 @@ export class PromptExtension {
     // Check token limit
     const tokenCount = this.estimateTokens(prompt);
     if (tokenCount > constraints.maxTokens) {
-      errors.push(`Prompt exceeds token limit: ${tokenCount} > ${constraints.maxTokens}`);
+      errors.push(
+        `Prompt exceeds token limit: ${tokenCount} > ${constraints.maxTokens}`,
+      );
     } else if (tokenCount > constraints.maxTokens * 0.9) {
-      warnings.push('Prompt is close to token limit, consider optimization');
+      warnings.push("Prompt is close to token limit, consider optimization");
     }
 
     // Check required sections
     if (constraints.requiredSections) {
-      const missingSections = constraints.requiredSections.filter(section =>
-        !prompt.toLowerCase().includes(section.toLowerCase())
+      const missingSections = constraints.requiredSections.filter(
+        (section) => !prompt.toLowerCase().includes(section.toLowerCase()),
       );
       if (missingSections.length > 0) {
-        errors.push(`Missing required sections: ${missingSections.join(', ')}`);
+        errors.push(`Missing required sections: ${missingSections.join(", ")}`);
       }
     }
 
     // Check forbidden terms
     if (constraints.forbiddenTerms) {
-      const foundTerms = constraints.forbiddenTerms.filter(term =>
-        prompt.toLowerCase().includes(term.toLowerCase())
+      const foundTerms = constraints.forbiddenTerms.filter((term) =>
+        prompt.toLowerCase().includes(term.toLowerCase()),
       );
       if (foundTerms.length > 0) {
-        errors.push(`Contains forbidden terms: ${foundTerms.join(', ')}`);
+        errors.push(`Contains forbidden terms: ${foundTerms.join(", ")}`);
       }
     }
 
     // Quality suggestions
     if (prompt.length < 100) {
-      suggestions.push('Prompt might be too short for effective guidance');
+      suggestions.push("Prompt might be too short for effective guidance");
     }
     if (prompt.length > 10000) {
-      suggestions.push('Prompt might be too long, consider breaking into sections');
+      suggestions.push(
+        "Prompt might be too long, consider breaking into sections",
+      );
     }
-    if (!prompt.includes('task') && !prompt.includes('Task')) {
-      suggestions.push('Consider making the task description more explicit');
+    if (!prompt.includes("task") && !prompt.includes("Task")) {
+      suggestions.push("Consider making the task description more explicit");
     }
 
     return {
       isValid: errors.length === 0,
       errors,
       warnings,
-      suggestions
+      suggestions,
     };
   }
 
@@ -1327,29 +1485,33 @@ export class PromptExtension {
 
     // Truncate at sentence boundaries when possible
     const sentences = prompt.split(/[.!?]+/);
-    let result = '';
+    let result = "";
 
     for (const sentence of sentences) {
-      if ((result + sentence).length > targetChars - 100) { // Leave buffer
+      if ((result + sentence).length > targetChars - 100) {
+        // Leave buffer
         break;
       }
-      result += sentence + '.';
+      result += sentence + ".";
     }
 
-    return result + '\n\n[Content truncated to fit token limit]';
+    return result + "\n\n[Content truncated to fit token limit]";
   }
 
-  private ensureRequiredSections(prompt: string, requiredSections: string[]): string {
+  private ensureRequiredSections(
+    prompt: string,
+    requiredSections: string[],
+  ): string {
     let enhanced = prompt;
 
-    const missingSections = requiredSections.filter(section =>
-      !prompt.toLowerCase().includes(section.toLowerCase())
+    const missingSections = requiredSections.filter(
+      (section) => !prompt.toLowerCase().includes(section.toLowerCase()),
     );
 
     if (missingSections.length > 0) {
-      enhanced += '\n\n## Required Sections\n';
-      enhanced += 'Please ensure your response includes:\n';
-      missingSections.forEach(section => {
+      enhanced += "\n\n## Required Sections\n";
+      enhanced += "Please ensure your response includes:\n";
+      missingSections.forEach((section) => {
         enhanced += `- ${section}\n`;
       });
     }
@@ -1359,13 +1521,13 @@ export class PromptExtension {
 
   private applyOutputFormat(prompt: string, format: string): string {
     switch (format) {
-      case 'json':
+      case "json":
         return `${prompt}\n\nPlease provide your response in valid JSON format.`;
-      case 'yaml':
+      case "yaml":
         return `${prompt}\n\nPlease provide your response in YAML format.`;
-      case 'code':
+      case "code":
         return `${prompt}\n\nPlease provide your response primarily as code with minimal explanatory text.`;
-      case 'markdown':
+      case "markdown":
       default:
         return `${prompt}\n\nPlease provide your response in well-formatted Markdown.`;
     }
@@ -1380,6 +1542,7 @@ export class PromptExtension {
 ## コミット計画
 
 ### コミット1: プロンプト拡張型定義
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1392,6 +1555,7 @@ git commit -m "feat(create-prompt): add prompt extension type definitions"
 ```
 
 ### コミット2: モード別プロンプト生成エンジン
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1404,6 +1568,7 @@ git commit -m "feat(create-prompt): implement mode-specific prompt generation en
 ```
 
 ### コミット3: サブタスクプロンプト生成エンジン
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1416,6 +1581,7 @@ git commit -m "feat(create-prompt): implement subtask prompt generation engine w
 ```
 
 ### コミット4: プロンプト拡張統合クラス
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1428,6 +1594,7 @@ git commit -m "feat(create-prompt): implement prompt extension integration class
 ```
 
 ### コミット5: エクスポート更新
+
 ```bash
 # プリコミットチェック
 bun test
@@ -1463,7 +1630,7 @@ test/
 // src/create-prompt/index.ts
 
 // 既存のエクスポート（変更なし）
-export { createPrompt } from './prompt-creator'; // 既存の関数
+export { createPrompt } from "./prompt-creator"; // 既存の関数
 
 // 新しいプロンプト拡張エクスポート
 export type {
@@ -1474,24 +1641,24 @@ export type {
   SubtaskPromptContext,
   PromptGenerationResult,
   PromptMetadata,
-  PromptValidationResult
-} from './types';
+  PromptValidationResult,
+} from "./types";
 
-export { ModePromptGenerator } from './mode-prompt-generator';
-export { SubtaskPromptGenerator } from './subtask-prompt-generator';
-export { PromptExtension } from './prompt-extension';
+export { ModePromptGenerator } from "./mode-prompt-generator";
+export { SubtaskPromptGenerator } from "./subtask-prompt-generator";
+export { PromptExtension } from "./prompt-extension";
 ```
 
 ## 統合テスト
 
 ```typescript
 // test/create-prompt/integration.test.ts
-import { describe, test, expect } from 'bun:test';
-import { PromptExtension } from '../../src/create-prompt/prompt-extension';
-import { TaskAnalyzer } from '../../src/orchestration/task-analyzer';
+import { describe, test, expect } from "bun:test";
+import { PromptExtension } from "../../src/create-prompt/prompt-extension";
+import { TaskAnalyzer } from "../../src/orchestration/task-analyzer";
 
-describe('Prompt Extension Integration', () => {
-  test('should integrate with orchestration system', () => {
+describe("Prompt Extension Integration", () => {
+  test("should integrate with orchestration system", () => {
     const promptExtension = new PromptExtension();
     const taskAnalyzer = new TaskAnalyzer();
 
@@ -1508,21 +1675,26 @@ describe('Prompt Extension Integration', () => {
     expect(analysis.requiresOrchestration).toBe(true);
 
     // Generate prompts for each required mode
-    analysis.requiredModes.forEach(mode => {
+    analysis.requiredModes.forEach((mode) => {
       const context = {
         mode,
         taskDescription: complexTask,
-        globalContext: { framework: 'React', backend: 'Node.js' },
+        globalContext: { framework: "React", backend: "Node.js" },
         previousResults: [],
         constraints: {
           maxTokens: 4000,
-          requiredSections: ['implementation', 'testing'],
+          requiredSections: ["implementation", "testing"],
           forbiddenTerms: [],
-          outputFormat: 'markdown' as const
-        }
+          outputFormat: "markdown" as const,
+        },
       };
 
-      const modeObj = { slug: mode, name: mode, roleDefinition: '', groups: [] };
+      const modeObj = {
+        slug: mode,
+        name: mode,
+        roleDefinition: "",
+        groups: [],
+      };
       const result = promptExtension.createPromptForMode(context, modeObj);
 
       expect(result.prompt).toBeTruthy();
@@ -1531,27 +1703,32 @@ describe('Prompt Extension Integration', () => {
     });
   });
 
-  test('should optimize prompts for token constraints', () => {
+  test("should optimize prompts for token constraints", () => {
     const promptExtension = new PromptExtension();
 
     const longContext = {
-      mode: 'code',
-      taskDescription: 'Implement feature ' + 'with many details '.repeat(100),
-      globalContext: { detail: 'very long context '.repeat(50) },
-      previousResults: ['result '.repeat(30)],
+      mode: "code",
+      taskDescription: "Implement feature " + "with many details ".repeat(100),
+      globalContext: { detail: "very long context ".repeat(50) },
+      previousResults: ["result ".repeat(30)],
       constraints: {
         maxTokens: 1000,
-        requiredSections: ['implementation'],
+        requiredSections: ["implementation"],
         forbiddenTerms: [],
-        outputFormat: 'markdown' as const
-      }
+        outputFormat: "markdown" as const,
+      },
     };
 
-    const modeObj = { slug: 'code', name: 'Code', roleDefinition: '', groups: [] };
+    const modeObj = {
+      slug: "code",
+      name: "Code",
+      roleDefinition: "",
+      groups: [],
+    };
     const result = promptExtension.createPromptForMode(longContext, modeObj);
 
     expect(promptExtension.estimateTokens(result.prompt)).toBeLessThan(1000);
-    expect(result.metadata.optimizationApplied).toContain('token_optimization');
+    expect(result.metadata.optimizationApplied).toContain("token_optimization");
   });
 });
 ```
@@ -1559,6 +1736,7 @@ describe('Prompt Extension Integration', () => {
 ## 実行手順
 
 ### 実行フロー
+
 ```bash
 # 1. phase2-context-optimizer から作業ブランチを作成
 git checkout phase2-context-optimizer
@@ -1588,6 +1766,7 @@ git branch -d phase3-prompt-extension
 ```
 
 ### 詳細ステップ（TDD）
+
 ```bash
 # 1. phase2-context-optimizer から作業ブランチ作成
 git checkout phase2-context-optimizer
@@ -1619,6 +1798,7 @@ git branch -d phase3-prompt-extension
 ## 依存関係
 
 このフェーズはフェーズ2（タスク分析、コンテキスト最適化）完了後に実装してください。以下のフェーズに必要となります：
+
 - フェーズ3.2: GitHub Actions統合（拡張されたプロンプト生成の活用）
 - フェーズ4: MCP拡張（プロンプト生成ツール）
 

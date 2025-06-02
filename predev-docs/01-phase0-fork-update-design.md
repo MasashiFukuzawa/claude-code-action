@@ -5,6 +5,7 @@
 このフェーズでは、フォークしたリポジトリでオーケストレーション機能を開発するための基本的な参照更新を行います。
 
 **📌 参考実装**: RooCode（RooCline）のオーケストレーション実装を参考にしてください：
+
 - GitHub: https://github.com/RooCodeInc/Roo-Code
 - UIthub: https://uithub.com/RooCodeInc/Roo-Code
 - DeepWiki: https://deepwiki.com/RooCodeInc/Roo-Code
@@ -18,10 +19,11 @@
 #### 対象ファイル
 
 1. **README.md**
+
    - アクション使用例の更新
    - インストール手順の更新
 
-2. **examples/*.yml**
+2. **examples/\*.yml**
    - claude.yml
    - claude-auto-review.yml
    - claude-pr-path-specific.yml
@@ -43,44 +45,48 @@ uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
 
 ```typescript
 // test/fork-update.test.ts
-import { describe, test, expect } from 'bun:test';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { describe, test, expect } from "bun:test";
+import { readFileSync } from "fs";
+import { join } from "path";
 
-describe('Fork Update Validation', () => {
-  const rootDir = join(__dirname, '..');
+describe("Fork Update Validation", () => {
+  const rootDir = join(__dirname, "..");
 
-  test('README.md should reference forked action', () => {
-    const readme = readFileSync(join(rootDir, 'README.md'), 'utf-8');
-    expect(readme).not.toContain('anthropics/claude-code-action@beta');
-    expect(readme).toContain('MasashiFukuzawa/claude-code-action@orchestrator-alpha');
+  test("README.md should reference forked action", () => {
+    const readme = readFileSync(join(rootDir, "README.md"), "utf-8");
+    expect(readme).not.toContain("anthropics/claude-code-action@beta");
+    expect(readme).toContain(
+      "MasashiFukuzawa/claude-code-action@orchestrator-alpha",
+    );
   });
 
-  test('all example files should reference forked action', () => {
+  test("all example files should reference forked action", () => {
     const exampleFiles = [
-      'claude.yml',
-      'claude-auto-review.yml',
-      'claude-pr-path-specific.yml',
-      'claude-review-from-author.yml'
+      "claude.yml",
+      "claude-auto-review.yml",
+      "claude-pr-path-specific.yml",
+      "claude-review-from-author.yml",
     ];
 
-    exampleFiles.forEach(file => {
-      const content = readFileSync(join(rootDir, 'examples', file), 'utf-8');
-      expect(content).not.toContain('anthropics/claude-code-action@beta');
-      expect(content).toContain('MasashiFukuzawa/claude-code-action@orchestrator-alpha');
+    exampleFiles.forEach((file) => {
+      const content = readFileSync(join(rootDir, "examples", file), "utf-8");
+      expect(content).not.toContain("anthropics/claude-code-action@beta");
+      expect(content).toContain(
+        "MasashiFukuzawa/claude-code-action@orchestrator-alpha",
+      );
     });
   });
 
-  test('should maintain YAML structure integrity', () => {
+  test("should maintain YAML structure integrity", () => {
     const exampleFiles = [
-      'claude.yml',
-      'claude-auto-review.yml',
-      'claude-pr-path-specific.yml',
-      'claude-review-from-author.yml'
+      "claude.yml",
+      "claude-auto-review.yml",
+      "claude-pr-path-specific.yml",
+      "claude-review-from-author.yml",
     ];
 
-    exampleFiles.forEach(file => {
-      const content = readFileSync(join(rootDir, 'examples', file), 'utf-8');
+    exampleFiles.forEach((file) => {
+      const content = readFileSync(join(rootDir, "examples", file), "utf-8");
       // YAMLの基本構造が保たれていることを確認
       expect(content).toMatch(/^name:/m);
       expect(content).toMatch(/^\s+uses:/m);
@@ -94,19 +100,19 @@ describe('Fork Update Validation', () => {
 
 ```typescript
 // scripts/update-fork-references.ts
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
-import { glob } from 'glob';
+import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import { glob } from "glob";
 
-const OLD_REFERENCE = 'anthropics/claude-code-action@beta';
-const NEW_REFERENCE = 'MasashiFukuzawa/claude-code-action@orchestrator-alpha';
+const OLD_REFERENCE = "anthropics/claude-code-action@beta";
+const NEW_REFERENCE = "MasashiFukuzawa/claude-code-action@orchestrator-alpha";
 
 function updateFile(filePath: string): boolean {
-  const content = readFileSync(filePath, 'utf-8');
+  const content = readFileSync(filePath, "utf-8");
   if (content.includes(OLD_REFERENCE)) {
     const updatedContent = content.replace(
-      new RegExp(OLD_REFERENCE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-      NEW_REFERENCE
+      new RegExp(OLD_REFERENCE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+      NEW_REFERENCE,
     );
     writeFileSync(filePath, updatedContent);
     console.log(`✅ Updated: ${filePath}`);
@@ -116,10 +122,7 @@ function updateFile(filePath: string): boolean {
 }
 
 async function main() {
-  const files = [
-    'README.md',
-    ...await glob('examples/*.yml')
-  ];
+  const files = ["README.md", ...(await glob("examples/*.yml"))];
 
   let updatedCount = 0;
   for (const file of files) {
@@ -137,6 +140,7 @@ main().catch(console.error);
 ## コミット計画
 
 ### コミット1: テストの追加
+
 ```bash
 # プリコミットチェック
 bun test
@@ -149,6 +153,7 @@ git commit -m "test: add tests for fork reference updates"
 ```
 
 ### コミット2: 更新スクリプトとREADME更新
+
 ```bash
 # プリコミットチェック
 bun test
@@ -161,6 +166,7 @@ git commit -m "feat: update README action references for orchestrator fork"
 ```
 
 ### コミット3: サンプルファイルの更新
+
 ```bash
 # プリコミットチェック
 bun test
@@ -175,6 +181,7 @@ git commit -m "feat: update example workflows for orchestrator fork"
 ## 実行手順
 
 ### 実行フロー
+
 ```bash
 # 1. feature/orchestrator-alpha から作業ブランチを作成
 git checkout feature/orchestrator-alpha
@@ -205,6 +212,7 @@ git branch -d phase0-fork-update # ローカルの作業ブランチを削除
 ```
 
 ### 詳細ステップ（TDD）
+
 ```bash
 # 1. feature/orchestrator-alpha から作業ブランチ作成
 git checkout feature/orchestrator-alpha
@@ -250,10 +258,12 @@ git branch -d phase0-fork-update
 ## 検証項目
 
 1. **参照の完全性**
+
    - すべての `anthropics/claude-code-action@beta` が置換されている
    - 新しい参照が正しい形式である
 
 2. **ファイルの整合性**
+
    - YAMLファイルの構文が正しい
    - Markdownのフォーマットが保たれている
 
@@ -264,12 +274,14 @@ git branch -d phase0-fork-update
 ## リスクと対策
 
 ### リスク1: 不完全な置換
+
 - **対策**: grepで確認
   ```bash
   grep -r "anthropics/claude-code-action" .
   ```
 
 ### リスク2: YAMLの破損
+
 - **対策**: YAML linterの使用
   ```bash
   # yamllintがインストールされている場合
@@ -286,5 +298,6 @@ git branch -d phase0-fork-update
 ## 次のステップ
 
 フェーズ0完了後、以下のフェーズを並列で開始可能：
+
 - フェーズ1.1: モードシステム（型定義）
 - フェーズ1.2: タスクシステム（型定義）

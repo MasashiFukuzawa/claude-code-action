@@ -5,6 +5,7 @@
 組み込みモードシステムは、タスクの性質に応じて異なるAIの振る舞いを定義する基盤機能です。Code、Architect、Debug、Ask、Orchestratorの5つの組み込みモードを実装します。
 
 **📌 参考実装**: RooCode（RooCline）のオーケストレーション実装を参考にしてください：
+
 - GitHub: https://github.com/RooCodeInc/Roo-Code
 - UIthub: https://uithub.com/RooCodeInc/Roo-Code
 - DeepWiki: https://deepwiki.com/RooCodeInc/Roo-Code
@@ -52,23 +53,23 @@ classDiagram
 
 ```typescript
 export const VALID_GROUPS = [
-  'file_operations',
-  'git_operations',
-  'code_analysis',
-  'testing',
-  'read_operations',
-  'write_operations',
-  'documentation',
-  'analysis',
-  'diagnostic_tools',
-  'logging',
-  'search',
-  'task_management',
-  'mode_switching',
-  'context_optimization'
+  "file_operations",
+  "git_operations",
+  "code_analysis",
+  "testing",
+  "read_operations",
+  "write_operations",
+  "documentation",
+  "analysis",
+  "diagnostic_tools",
+  "logging",
+  "search",
+  "task_management",
+  "mode_switching",
+  "context_optimization",
 ] as const;
 
-export type ValidGroup = typeof VALID_GROUPS[number];
+export type ValidGroup = (typeof VALID_GROUPS)[number];
 
 export interface Mode {
   slug: string;
@@ -85,7 +86,13 @@ export interface ModeContext {
   globalContext?: Record<string, any>;
 }
 
-export type ModeSlug = 'code' | 'architect' | 'debug' | 'ask' | 'orchestrator' | string;
+export type ModeSlug =
+  | "code"
+  | "architect"
+  | "debug"
+  | "ask"
+  | "orchestrator"
+  | string;
 ```
 
 ### タスク1.1.2: 組み込みモードの実装
@@ -94,54 +101,54 @@ export type ModeSlug = 'code' | 'architect' | 'debug' | 'ask' | 'orchestrator' |
 
 ```typescript
 // test/modes/built-in-modes.test.ts
-import { describe, test, expect } from 'bun:test';
-import { BUILT_IN_MODES } from '../../src/modes/built-in-modes';
+import { describe, test, expect } from "bun:test";
+import { BUILT_IN_MODES } from "../../src/modes/built-in-modes";
 
-describe('Built-in Modes', () => {
-  test('should define CODE mode correctly', () => {
+describe("Built-in Modes", () => {
+  test("should define CODE mode correctly", () => {
     const codeMode = BUILT_IN_MODES.CODE;
-    expect(codeMode.slug).toBe('code');
-    expect(codeMode.name).toBe('Code');
-    expect(codeMode.roleDefinition).toContain('expert software developer');
-    expect(codeMode.groups).toContain('file_operations');
-    expect(codeMode.groups).toContain('git_operations');
+    expect(codeMode.slug).toBe("code");
+    expect(codeMode.name).toBe("Code");
+    expect(codeMode.roleDefinition).toContain("expert software developer");
+    expect(codeMode.groups).toContain("file_operations");
+    expect(codeMode.groups).toContain("git_operations");
   });
 
-  test('should define ARCHITECT mode correctly', () => {
+  test("should define ARCHITECT mode correctly", () => {
     const architectMode = BUILT_IN_MODES.ARCHITECT;
-    expect(architectMode.slug).toBe('architect');
-    expect(architectMode.name).toBe('Architect');
-    expect(architectMode.roleDefinition).toContain('system architect');
-    expect(architectMode.groups).toContain('read_operations');
-    expect(architectMode.groups).not.toContain('write_operations');
+    expect(architectMode.slug).toBe("architect");
+    expect(architectMode.name).toBe("Architect");
+    expect(architectMode.roleDefinition).toContain("system architect");
+    expect(architectMode.groups).toContain("read_operations");
+    expect(architectMode.groups).not.toContain("write_operations");
   });
 
-  test('should define DEBUG mode correctly', () => {
+  test("should define DEBUG mode correctly", () => {
     const debugMode = BUILT_IN_MODES.DEBUG;
-    expect(debugMode.slug).toBe('debug');
-    expect(debugMode.name).toBe('Debug');
-    expect(debugMode.roleDefinition).toContain('debugging expert');
-    expect(debugMode.groups).toContain('diagnostic_tools');
+    expect(debugMode.slug).toBe("debug");
+    expect(debugMode.name).toBe("Debug");
+    expect(debugMode.roleDefinition).toContain("debugging expert");
+    expect(debugMode.groups).toContain("diagnostic_tools");
   });
 
-  test('should define ASK mode correctly', () => {
+  test("should define ASK mode correctly", () => {
     const askMode = BUILT_IN_MODES.ASK;
-    expect(askMode.slug).toBe('ask');
-    expect(askMode.name).toBe('Ask');
-    expect(askMode.roleDefinition).toContain('knowledgeable assistant');
-    expect(askMode.groups).toContain('read_operations');
+    expect(askMode.slug).toBe("ask");
+    expect(askMode.name).toBe("Ask");
+    expect(askMode.roleDefinition).toContain("knowledgeable assistant");
+    expect(askMode.groups).toContain("read_operations");
   });
 
-  test('should define ORCHESTRATOR mode correctly', () => {
+  test("should define ORCHESTRATOR mode correctly", () => {
     const orchestratorMode = BUILT_IN_MODES.ORCHESTRATOR;
-    expect(orchestratorMode.slug).toBe('orchestrator');
-    expect(orchestratorMode.name).toBe('Orchestrator');
-    expect(orchestratorMode.roleDefinition).toContain('task orchestrator');
-    expect(orchestratorMode.groups).toContain('task_management');
+    expect(orchestratorMode.slug).toBe("orchestrator");
+    expect(orchestratorMode.name).toBe("Orchestrator");
+    expect(orchestratorMode.roleDefinition).toContain("task orchestrator");
+    expect(orchestratorMode.groups).toContain("task_management");
   });
 
-  test('all modes should have required fields', () => {
-    Object.values(BUILT_IN_MODES).forEach(mode => {
+  test("all modes should have required fields", () => {
+    Object.values(BUILT_IN_MODES).forEach((mode) => {
       expect(mode.slug).toBeTruthy();
       expect(mode.name).toBeTruthy();
       expect(mode.roleDefinition).toBeTruthy();
@@ -155,74 +162,74 @@ describe('Built-in Modes', () => {
 #### 実装: src/modes/built-in-modes.ts
 
 ```typescript
-import type { Mode } from './types';
+import type { Mode } from "./types";
 
 export const BUILT_IN_MODES = {
   CODE: {
-    slug: 'code',
-    name: 'Code',
+    slug: "code",
+    name: "Code",
     roleDefinition: `You are an expert software developer focused on implementation details.
     Your primary goal is to write clean, efficient, and maintainable code.
     You follow best practices and coding standards for the given language and framework.`,
-    groups: ['file_operations', 'git_operations', 'code_analysis', 'testing'],
+    groups: ["file_operations", "git_operations", "code_analysis", "testing"],
     customInstructions: `- Write idiomatic code for the target language
 - Include appropriate error handling
 - Follow existing code patterns in the repository
-- Write tests when implementing new functionality`
+- Write tests when implementing new functionality`,
   },
 
   ARCHITECT: {
-    slug: 'architect',
-    name: 'Architect',
+    slug: "architect",
+    name: "Architect",
     roleDefinition: `You are a system architect focused on high-level design and planning.
     You analyze requirements, design system architectures, and make strategic technical decisions.
     You prioritize scalability, maintainability, and alignment with business goals.`,
-    groups: ['read_operations', 'documentation', 'analysis'],
+    groups: ["read_operations", "documentation", "analysis"],
     customInstructions: `- Focus on system design and architecture
 - Consider scalability and performance implications
 - Provide clear technical specifications
-- Document architectural decisions and trade-offs`
+- Document architectural decisions and trade-offs`,
   },
 
   DEBUG: {
-    slug: 'debug',
-    name: 'Debug',
+    slug: "debug",
+    name: "Debug",
     roleDefinition: `You are a debugging expert specialized in identifying and fixing issues.
     You systematically analyze problems, use diagnostic tools effectively, and provide clear explanations of root causes.
     You focus on not just fixing symptoms but addressing underlying issues.`,
-    groups: ['file_operations', 'diagnostic_tools', 'logging', 'testing'],
+    groups: ["file_operations", "diagnostic_tools", "logging", "testing"],
     customInstructions: `- Systematically isolate the problem
 - Use appropriate debugging tools and techniques
 - Explain the root cause clearly
-- Implement fixes that prevent recurrence`
+- Implement fixes that prevent recurrence`,
   },
 
   ASK: {
-    slug: 'ask',
-    name: 'Ask',
+    slug: "ask",
+    name: "Ask",
     roleDefinition: `You are a knowledgeable assistant focused on providing clear, accurate information.
     You explain concepts clearly, provide relevant examples, and ensure understanding.
     You adapt your explanations to the user's level of expertise.`,
-    groups: ['read_operations', 'documentation', 'search'],
+    groups: ["read_operations", "documentation", "search"],
     customInstructions: `- Provide clear, concise explanations
 - Use examples to illustrate concepts
 - Reference documentation when appropriate
-- Admit uncertainty rather than speculate`
+- Admit uncertainty rather than speculate`,
   },
 
   ORCHESTRATOR: {
-    slug: 'orchestrator',
-    name: 'Orchestrator',
+    slug: "orchestrator",
+    name: "Orchestrator",
     roleDefinition: `You are a task orchestrator responsible for breaking down complex tasks and delegating to appropriate modes.
     You analyze task complexity, identify subtasks, and coordinate their execution.
     You optimize for efficiency by providing each mode with focused, relevant context.`,
-    groups: ['task_management', 'mode_switching', 'context_optimization'],
+    groups: ["task_management", "mode_switching", "context_optimization"],
     customInstructions: `- Analyze task complexity and requirements
 - Break down tasks into appropriate subtasks
 - Select the optimal mode for each subtask
 - Minimize context size while maintaining effectiveness
-- Coordinate results between subtasks`
-  }
+- Coordinate results between subtasks`,
+  },
 } as const;
 
 export type BuiltInModeSlug = keyof typeof BUILT_IN_MODES;
@@ -234,56 +241,57 @@ export type BuiltInModeSlug = keyof typeof BUILT_IN_MODES;
 
 ```typescript
 // test/modes/mode-manager.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { ModeManager } from '../../src/modes/mode-manager';
-import { BUILT_IN_MODES } from '../../src/modes/built-in-modes';
-import type { Mode } from '../../src/modes/types';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { ModeManager } from "../../src/modes/mode-manager";
+import { BUILT_IN_MODES } from "../../src/modes/built-in-modes";
+import type { Mode } from "../../src/modes/types";
 
-describe('ModeManager', () => {
+describe("ModeManager", () => {
   let manager: ModeManager;
 
   beforeEach(() => {
     manager = new ModeManager();
   });
 
-  test('should initialize with built-in modes', () => {
+  test("should initialize with built-in modes", () => {
     const allModes = manager.getAllModes();
     expect(allModes.length).toBe(5);
 
-    const slugs = allModes.map(m => m.slug);
-    expect(slugs).toContain('code');
-    expect(slugs).toContain('architect');
-    expect(slugs).toContain('debug');
-    expect(slugs).toContain('ask');
-    expect(slugs).toContain('orchestrator');
+    const slugs = allModes.map((m) => m.slug);
+    expect(slugs).toContain("code");
+    expect(slugs).toContain("architect");
+    expect(slugs).toContain("debug");
+    expect(slugs).toContain("ask");
+    expect(slugs).toContain("orchestrator");
   });
 
-  test('should get mode by slug', () => {
-    const codeMode = manager.getModeBySlug('code');
+  test("should get mode by slug", () => {
+    const codeMode = manager.getModeBySlug("code");
     expect(codeMode).toEqual(BUILT_IN_MODES.CODE);
 
-    const architectMode = manager.getModeBySlug('architect');
+    const architectMode = manager.getModeBySlug("architect");
     expect(architectMode).toEqual(BUILT_IN_MODES.ARCHITECT);
   });
 
-  test('should throw error for unknown mode', () => {
-    expect(() => manager.getModeBySlug('unknown')).toThrow('Mode not found: unknown');
+  test("should throw error for unknown mode", () => {
+    expect(() => manager.getModeBySlug("unknown")).toThrow(
+      "Mode not found: unknown",
+    );
   });
 
-  test('should get default mode', () => {
+  test("should get default mode", () => {
     const defaultMode = manager.getDefaultMode();
-    expect(defaultMode.slug).toBe('code');
+    expect(defaultMode.slug).toBe("code");
   });
-
 });
 ```
 
 #### 実装: src/modes/mode-manager.ts
 
 ```typescript
-import type { Mode, ValidGroup } from './types';
-import { BUILT_IN_MODES } from './built-in-modes';
-import { VALID_GROUPS } from './types';
+import type { Mode, ValidGroup } from "./types";
+import { BUILT_IN_MODES } from "./built-in-modes";
+import { VALID_GROUPS } from "./types";
 
 export class ModeManager {
   private modes: Map<string, Mode>;
@@ -294,7 +302,7 @@ export class ModeManager {
   }
 
   private initializeBuiltInModes(): void {
-    Object.values(BUILT_IN_MODES).forEach(mode => {
+    Object.values(BUILT_IN_MODES).forEach((mode) => {
       this.modes.set(mode.slug, mode);
     });
   }
@@ -312,7 +320,7 @@ export class ModeManager {
   }
 
   getDefaultMode(): Mode {
-    return this.getModeBySlug('code');
+    return this.getModeBySlug("code");
   }
 
   getBuiltInModes(): Mode[] {
@@ -327,6 +335,7 @@ export const modeManager = new ModeManager();
 ## コミット計画
 
 ### コミット1: Mode型定義
+
 ```bash
 # プリコミットチェック
 bun test
@@ -339,6 +348,7 @@ git commit -m "feat(modes): add Mode interface and type definitions"
 ```
 
 ### コミット2: 組み込みモード
+
 ```bash
 # プリコミットチェック
 bun test
@@ -351,6 +361,7 @@ git commit -m "feat(modes): implement built-in modes (Code, Architect, Debug, As
 ```
 
 ### コミット3: モードマネージャー
+
 ```bash
 # プリコミットチェック
 bun test
@@ -363,6 +374,7 @@ git commit -m "feat(modes): implement ModeManager for built-in mode retrieval wi
 ```
 
 ### コミット4: エクスポート設定
+
 ```bash
 # プリコミットチェック
 bun test
@@ -394,39 +406,39 @@ test/
 
 ```typescript
 // src/modes/index.ts
-export type { Mode, ModeContext, ModeSlug } from './types';
-export { BUILT_IN_MODES, type BuiltInModeSlug } from './built-in-modes';
-export { ModeManager, modeManager } from './mode-manager';
+export type { Mode, ModeContext, ModeSlug } from "./types";
+export { BUILT_IN_MODES, type BuiltInModeSlug } from "./built-in-modes";
+export { ModeManager, modeManager } from "./mode-manager";
 ```
 
 ## 統合テスト
 
 ```typescript
 // test/modes/integration.test.ts
-import { describe, test, expect } from 'bun:test';
-import { modeManager, type Mode } from '../../src/modes';
+import { describe, test, expect } from "bun:test";
+import { modeManager, type Mode } from "../../src/modes";
 
-describe('Mode System Integration', () => {
-  test('should handle mode switching workflow', () => {
+describe("Mode System Integration", () => {
+  test("should handle mode switching workflow", () => {
     // デフォルトモードから開始
     const defaultMode = modeManager.getDefaultMode();
-    expect(defaultMode.slug).toBe('code');
+    expect(defaultMode.slug).toBe("code");
 
     // アーキテクトモードに切り替え
-    const architectMode = modeManager.getModeBySlug('architect');
-    expect(architectMode.groups).not.toContain('write_operations');
+    const architectMode = modeManager.getModeBySlug("architect");
+    expect(architectMode.groups).not.toContain("write_operations");
 
     // デバッグモードに切り替え
-    const debugMode = modeManager.getModeBySlug('debug');
-    expect(debugMode.groups).toContain('diagnostic_tools');
+    const debugMode = modeManager.getModeBySlug("debug");
+    expect(debugMode.groups).toContain("diagnostic_tools");
   });
-
 });
 ```
 
 ## 実行手順
 
 ### 実行フロー
+
 ```bash
 # 1. phase0-fork-update から作業ブランチを作成
 git checkout phase0-fork-update
@@ -457,6 +469,7 @@ git branch -d phase1-mode-system # ローカルの作業ブランチを削除
 ```
 
 ### 詳細ステップ（TDD）
+
 ```bash
 # 1. phase0-fork-update から作業ブランチ作成
 git checkout phase0-fork-update
@@ -488,6 +501,7 @@ git branch -d phase1-mode-system
 ## 依存関係
 
 このフェーズは独立して実装可能です。以下のフェーズに必要となります：
+
 - フェーズ2.2: コンテキスト最適化（モード別の優先度設定）
 - フェーズ3.1: プロンプト生成の拡張（モード固有のプロンプト）
 

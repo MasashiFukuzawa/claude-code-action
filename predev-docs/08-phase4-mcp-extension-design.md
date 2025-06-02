@@ -5,6 +5,7 @@
 MCP（Model Context Protocol）拡張では、オーケストレーション機能をMCPツールとして提供し、タスク分解、モード切り替え、コンテキスト最適化などの機能を統合します。既存のMCPサーバーインフラストラクチャを拡張し、高度なタスク管理機能を提供します。
 
 **📌 参考実装**: RooCode（RooCline）のオーケストレーション実装を参考にしてください：
+
 - GitHub: https://github.com/RooCodeInc/Roo-Code
 - UIthub: https://uithub.com/RooCodeInc/Roo-Code
 - DeepWiki: https://deepwiki.com/RooCodeInc/Roo-Code
@@ -70,8 +71,8 @@ classDiagram
 #### 実装: src/mcp/orchestration-types.ts
 
 ```typescript
-import type { TaskAnalysis, SubTask } from '../orchestration/types';
-import type { Mode } from '../modes/types';
+import type { TaskAnalysis, SubTask } from "../orchestration/types";
+import type { Mode } from "../modes/types";
 
 export interface MCPTool {
   name: string;
@@ -157,54 +158,57 @@ export interface MCPToolInfo {
 
 ```typescript
 // test/mcp/orchestration-tools.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { OrchestrationTools } from '../../src/mcp/orchestration-tools';
-import type { AnalyzeTaskArgs, SwitchModeArgs } from '../../src/mcp/orchestration-types';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { OrchestrationTools } from "../../src/mcp/orchestration-tools";
+import type {
+  AnalyzeTaskArgs,
+  SwitchModeArgs,
+} from "../../src/mcp/orchestration-types";
 
-describe('OrchestrationTools', () => {
+describe("OrchestrationTools", () => {
   let tools: OrchestrationTools;
 
   beforeEach(() => {
     tools = new OrchestrationTools();
   });
 
-  test('should analyze task complexity', async () => {
+  test("should analyze task complexity", async () => {
     const args: AnalyzeTaskArgs = {
-      task: 'Implement user authentication with OAuth2 and JWT tokens',
-      context: { framework: 'Express.js' }
+      task: "Implement user authentication with OAuth2 and JWT tokens",
+      context: { framework: "Express.js" },
     };
 
     const analysis = await tools.analyzeTask(args);
 
     expect(analysis.complexity).toBeGreaterThan(5);
-    expect(analysis.requiredModes).toContain('code');
+    expect(analysis.requiredModes).toContain("code");
     expect(analysis.requiresOrchestration).toBe(true);
   });
 
-  test('should switch mode with context preservation', async () => {
+  test("should switch mode with context preservation", async () => {
     const args: SwitchModeArgs = {
-      mode: 'architect',
-      preserveContext: true
+      mode: "architect",
+      preserveContext: true,
     };
 
     const result = await tools.switchMode(args);
 
-    expect(result.mode.slug).toBe('architect');
+    expect(result.mode.slug).toBe("architect");
     expect(result.previousMode).toBeDefined();
     expect(result.contextPreserved).toBe(true);
   });
 
-  test('should optimize context for token limit', async () => {
+  test("should optimize context for token limit", async () => {
     const largeContext = {
-      fileContents: 'Large file content...'.repeat(1000),
-      history: ['Previous command 1', 'Previous command 2'],
-      metadata: { timestamp: new Date(), user: 'test' }
+      fileContents: "Large file content...".repeat(1000),
+      history: ["Previous command 1", "Previous command 2"],
+      metadata: { timestamp: new Date(), user: "test" },
     };
 
     const args = {
       context: largeContext,
       maxTokens: 1000,
-      priorityKeys: ['fileContents']
+      priorityKeys: ["fileContents"],
     };
 
     const optimized = await tools.optimizeContext(args);
@@ -214,7 +218,7 @@ describe('OrchestrationTools', () => {
     expect(optimized.compressionRatio).toBeGreaterThan(0.5);
   });
 
-  test('should decompose complex task into subtasks', async () => {
+  test("should decompose complex task into subtasks", async () => {
     const args = {
       task: `Build a complete e-commerce platform with:
         - User authentication system
@@ -223,28 +227,28 @@ describe('OrchestrationTools', () => {
         - Payment processing
         - Order tracking`,
       maxSubtasks: 10,
-      autoAssignModes: true
+      autoAssignModes: true,
     };
 
     const subtasks = await tools.decomposeTask(args);
 
     expect(subtasks.length).toBeGreaterThan(3);
     expect(subtasks.length).toBeLessThanOrEqual(10);
-    expect(subtasks.every(st => st.mode)).toBe(true);
-    expect(subtasks.some(st => st.dependencies.length > 0)).toBe(true);
+    expect(subtasks.every((st) => st.mode)).toBe(true);
+    expect(subtasks.some((st) => st.dependencies.length > 0)).toBe(true);
   });
 
-  test('should handle boomerang pattern for mode delegation', async () => {
+  test("should handle boomerang pattern for mode delegation", async () => {
     const args = {
-      task: 'Debug memory leak in payment processor',
-      targetMode: 'debug',
-      returnContext: true
+      task: "Debug memory leak in payment processor",
+      targetMode: "debug",
+      returnContext: true,
     };
 
     const result = await tools.boomerang(args);
 
-    expect(result.mode).toBe('debug');
-    expect(result.result).toContain('memory');
+    expect(result.mode).toBe("debug");
+    expect(result.result).toContain("memory");
     expect(result.tokensUsed).toBeGreaterThan(0);
   });
 });
@@ -253,10 +257,10 @@ describe('OrchestrationTools', () => {
 #### 実装: src/mcp/orchestration-tools.ts
 
 ```typescript
-import { TaskAnalyzer } from '../orchestration/task-analyzer';
-import { modeManager } from '../modes/mode-manager';
-import { ContextOptimizer } from '../orchestration/context-optimizer';
-import { SubtaskGenerator } from '../orchestration/subtask-generator';
+import { TaskAnalyzer } from "../orchestration/task-analyzer";
+import { modeManager } from "../modes/mode-manager";
+import { ContextOptimizer } from "../orchestration/context-optimizer";
+import { SubtaskGenerator } from "../orchestration/subtask-generator";
 import type {
   AnalyzeTaskArgs,
   SwitchModeArgs,
@@ -264,10 +268,10 @@ import type {
   DecomposeTaskArgs,
   BoomerangArgs,
   OptimizedContext,
-  BoomerangResult
-} from './orchestration-types';
-import type { TaskAnalysis, SubTask } from '../orchestration/types';
-import type { Mode } from '../modes/types';
+  BoomerangResult,
+} from "./orchestration-types";
+import type { TaskAnalysis, SubTask } from "../orchestration/types";
+import type { Mode } from "../modes/types";
 
 export class OrchestrationTools {
   private taskAnalyzer: TaskAnalyzer;
@@ -292,7 +296,7 @@ export class OrchestrationTools {
     if (context) {
       analysis.suggestedApproach = this.enhanceApproachWithContext(
         analysis.suggestedApproach,
-        context
+        context,
       );
     }
 
@@ -314,7 +318,7 @@ export class OrchestrationTools {
     return {
       mode: newMode,
       previousMode,
-      contextPreserved: preserveContext
+      contextPreserved: preserveContext,
     };
   }
 
@@ -324,7 +328,7 @@ export class OrchestrationTools {
     return this.contextOptimizer.optimizeContext({
       context,
       maxTokens,
-      priorityKeys
+      priorityKeys,
     });
   }
 
@@ -342,9 +346,9 @@ export class OrchestrationTools {
 
     // Auto-assign modes if requested
     if (autoAssignModes) {
-      return limitedSubtasks.map(subtask => ({
+      return limitedSubtasks.map((subtask) => ({
         ...subtask,
-        mode: subtask.mode || this.selectOptimalMode(subtask.description)
+        mode: subtask.mode || this.selectOptimalMode(subtask.description),
       }));
     }
 
@@ -358,7 +362,7 @@ export class OrchestrationTools {
     // Switch to target mode
     const switchResult = await this.switchMode({
       mode: targetMode,
-      preserveContext: returnContext
+      preserveContext: returnContext,
     });
 
     // Execute task in target mode (simulated)
@@ -368,7 +372,7 @@ export class OrchestrationTools {
     if (returnContext) {
       await this.switchMode({
         mode: switchResult.previousMode.slug,
-        preserveContext: true
+        preserveContext: true,
       });
     }
 
@@ -376,29 +380,30 @@ export class OrchestrationTools {
       result: result.output,
       mode: targetMode,
       tokensUsed: result.tokensUsed,
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
     };
   }
 
   private enhanceApproachWithContext(
     approach: string,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): string {
     const contextInfo = Object.entries(context)
       .map(([key, value]) => `${key}: ${value}`)
-      .join(', ');
+      .join(", ");
 
     return `${approach} Context: ${contextInfo}`;
   }
 
   private selectOptimalMode(taskDescription: string): string {
-    const modeSelector = new (require('../orchestration/mode-selector').ModeSelector)();
+    const modeSelector =
+      new (require("../orchestration/mode-selector").ModeSelector)();
     return modeSelector.selectOptimalMode(taskDescription);
   }
 
   private async executeInMode(
     task: string,
-    mode: Mode
+    mode: Mode,
   ): Promise<{ output: string; tokensUsed: number }> {
     // Simulate execution in specific mode
     const baseTokens = 500;
@@ -406,7 +411,7 @@ export class OrchestrationTools {
 
     return {
       output: `Executed "${task}" in ${mode.name} mode. ${mode.roleDefinition}`,
-      tokensUsed: Math.floor(baseTokens * complexityMultiplier)
+      tokensUsed: Math.floor(baseTokens * complexityMultiplier),
     };
   }
 }
@@ -418,73 +423,73 @@ export class OrchestrationTools {
 
 ```typescript
 // test/mcp/orchestration-server.test.ts
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { MCPOrchestrationServer } from '../../src/mcp/orchestration-server';
+import { describe, test, expect, beforeEach } from "bun:test";
+import { MCPOrchestrationServer } from "../../src/mcp/orchestration-server";
 
-describe('MCPOrchestrationServer', () => {
+describe("MCPOrchestrationServer", () => {
   let server: MCPOrchestrationServer;
 
   beforeEach(() => {
     server = new MCPOrchestrationServer();
   });
 
-  test('should register orchestration tools', () => {
+  test("should register orchestration tools", () => {
     server.registerOrchestrationTools();
 
     const tools = server.listTools();
-    const toolNames = tools.map(t => t.name);
+    const toolNames = tools.map((t) => t.name);
 
-    expect(toolNames).toContain('analyze_task');
-    expect(toolNames).toContain('switch_mode');
-    expect(toolNames).toContain('optimize_context');
-    expect(toolNames).toContain('decompose_task');
-    expect(toolNames).toContain('boomerang');
+    expect(toolNames).toContain("analyze_task");
+    expect(toolNames).toContain("switch_mode");
+    expect(toolNames).toContain("optimize_context");
+    expect(toolNames).toContain("decompose_task");
+    expect(toolNames).toContain("boomerang");
   });
 
-  test('should handle analyze_task tool call', async () => {
+  test("should handle analyze_task tool call", async () => {
     server.registerOrchestrationTools();
 
-    const result = await server.handleToolCall('analyze_task', {
-      task: 'Implement user authentication'
+    const result = await server.handleToolCall("analyze_task", {
+      task: "Implement user authentication",
     });
 
-    expect(result).toHaveProperty('complexity');
-    expect(result).toHaveProperty('requiredModes');
+    expect(result).toHaveProperty("complexity");
+    expect(result).toHaveProperty("requiredModes");
   });
 
-  test('should handle switch_mode tool call', async () => {
+  test("should handle switch_mode tool call", async () => {
     server.registerOrchestrationTools();
 
-    const result = await server.handleToolCall('switch_mode', {
-      mode: 'architect'
+    const result = await server.handleToolCall("switch_mode", {
+      mode: "architect",
     });
 
-    expect(result.mode.slug).toBe('architect');
+    expect(result.mode.slug).toBe("architect");
   });
 
-  test('should handle optimize_context tool call', async () => {
+  test("should handle optimize_context tool call", async () => {
     server.registerOrchestrationTools();
 
-    const result = await server.handleToolCall('optimize_context', {
-      context: { data: 'Large context data'.repeat(100) },
-      maxTokens: 500
+    const result = await server.handleToolCall("optimize_context", {
+      context: { data: "Large context data".repeat(100) },
+      maxTokens: 500,
     });
 
     expect(result.tokensUsed).toBeLessThanOrEqual(500);
   });
 
-  test('should validate tool arguments', async () => {
+  test("should validate tool arguments", async () => {
     server.registerOrchestrationTools();
 
-    await expect(
-      server.handleToolCall('analyze_task', {})
-    ).rejects.toThrow('Missing required argument: task');
+    await expect(server.handleToolCall("analyze_task", {})).rejects.toThrow(
+      "Missing required argument: task",
+    );
   });
 
-  test('should handle unknown tool gracefully', async () => {
-    await expect(
-      server.handleToolCall('unknown_tool', {})
-    ).rejects.toThrow('Unknown tool: unknown_tool');
+  test("should handle unknown tool gracefully", async () => {
+    await expect(server.handleToolCall("unknown_tool", {})).rejects.toThrow(
+      "Unknown tool: unknown_tool",
+    );
   });
 });
 ```
@@ -492,9 +497,9 @@ describe('MCPOrchestrationServer', () => {
 #### 実装: src/mcp/orchestration-server.ts
 
 ```typescript
-import { OrchestrationTools } from './orchestration-tools';
-import { MCPToolRegistry } from './tool-registry';
-import type { MCPTool, MCPToolInfo } from './orchestration-types';
+import { OrchestrationTools } from "./orchestration-tools";
+import { MCPToolRegistry } from "./tool-registry";
+import type { MCPTool, MCPToolInfo } from "./orchestration-types";
 
 export class MCPOrchestrationServer {
   private toolRegistry: MCPToolRegistry;
@@ -508,123 +513,141 @@ export class MCPOrchestrationServer {
   registerOrchestrationTools(): void {
     // Register analyze_task tool
     this.toolRegistry.registerTool({
-      name: 'analyze_task',
-      description: 'Analyze task complexity and determine required modes',
+      name: "analyze_task",
+      description: "Analyze task complexity and determine required modes",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {
-          task: { type: 'string', description: 'Task description to analyze' },
-          context: { type: 'object', description: 'Optional context information' }
+          task: { type: "string", description: "Task description to analyze" },
+          context: {
+            type: "object",
+            description: "Optional context information",
+          },
         },
-        required: ['task'],
-        additionalProperties: false
+        required: ["task"],
+        additionalProperties: false,
       },
-      handler: async (args) => this.orchestrationTools.analyzeTask(args)
+      handler: async (args) => this.orchestrationTools.analyzeTask(args),
     });
 
     // Register switch_mode tool
     this.toolRegistry.registerTool({
-      name: 'switch_mode',
-      description: 'Switch to a different AI mode',
+      name: "switch_mode",
+      description: "Switch to a different AI mode",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {
-          mode: { type: 'string', description: 'Target mode slug' },
-          preserveContext: { type: 'boolean', description: 'Preserve current context' }
+          mode: { type: "string", description: "Target mode slug" },
+          preserveContext: {
+            type: "boolean",
+            description: "Preserve current context",
+          },
         },
-        required: ['mode'],
-        additionalProperties: false
+        required: ["mode"],
+        additionalProperties: false,
       },
-      handler: async (args) => this.orchestrationTools.switchMode(args)
+      handler: async (args) => this.orchestrationTools.switchMode(args),
     });
 
     // Register optimize_context tool
     this.toolRegistry.registerTool({
-      name: 'optimize_context',
-      description: 'Optimize context to fit within token limits',
+      name: "optimize_context",
+      description: "Optimize context to fit within token limits",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {
-          context: { type: 'object', description: 'Context to optimize' },
-          maxTokens: { type: 'number', description: 'Maximum token limit' },
+          context: { type: "object", description: "Context to optimize" },
+          maxTokens: { type: "number", description: "Maximum token limit" },
           priorityKeys: {
-            type: 'array',
-            items: { type: 'string' },
-            description: 'Keys to prioritize'
-          }
+            type: "array",
+            items: { type: "string" },
+            description: "Keys to prioritize",
+          },
         },
-        required: ['context', 'maxTokens'],
-        additionalProperties: false
+        required: ["context", "maxTokens"],
+        additionalProperties: false,
       },
-      handler: async (args) => this.orchestrationTools.optimizeContext(args)
+      handler: async (args) => this.orchestrationTools.optimizeContext(args),
     });
 
     // Register decompose_task tool
     this.toolRegistry.registerTool({
-      name: 'decompose_task',
-      description: 'Decompose a complex task into subtasks',
+      name: "decompose_task",
+      description: "Decompose a complex task into subtasks",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {
-          task: { type: 'string', description: 'Task to decompose' },
-          maxSubtasks: { type: 'number', description: 'Maximum number of subtasks' },
-          autoAssignModes: { type: 'boolean', description: 'Auto-assign modes to subtasks' }
+          task: { type: "string", description: "Task to decompose" },
+          maxSubtasks: {
+            type: "number",
+            description: "Maximum number of subtasks",
+          },
+          autoAssignModes: {
+            type: "boolean",
+            description: "Auto-assign modes to subtasks",
+          },
         },
-        required: ['task'],
-        additionalProperties: false
+        required: ["task"],
+        additionalProperties: false,
       },
-      handler: async (args) => this.orchestrationTools.decomposeTask(args)
+      handler: async (args) => this.orchestrationTools.decomposeTask(args),
     });
 
     // Register boomerang tool
     this.toolRegistry.registerTool({
-      name: 'boomerang',
-      description: 'Delegate task to specific mode and return',
+      name: "boomerang",
+      description: "Delegate task to specific mode and return",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {
-          task: { type: 'string', description: 'Task to delegate' },
-          targetMode: { type: 'string', description: 'Target mode for delegation' },
-          returnContext: { type: 'boolean', description: 'Return to original mode after' }
+          task: { type: "string", description: "Task to delegate" },
+          targetMode: {
+            type: "string",
+            description: "Target mode for delegation",
+          },
+          returnContext: {
+            type: "boolean",
+            description: "Return to original mode after",
+          },
         },
-        required: ['task', 'targetMode'],
-        additionalProperties: false
+        required: ["task", "targetMode"],
+        additionalProperties: false,
       },
-      handler: async (args) => this.orchestrationTools.boomerang(args)
+      handler: async (args) => this.orchestrationTools.boomerang(args),
     });
 
     // Register list_modes tool
     this.toolRegistry.registerTool({
-      name: 'list_modes',
-      description: 'List all available AI modes',
+      name: "list_modes",
+      description: "List all available AI modes",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {},
-        additionalProperties: false
+        additionalProperties: false,
       },
       handler: async () => {
-        const modeManager = require('../modes/mode-manager').modeManager;
+        const modeManager = require("../modes/mode-manager").modeManager;
         return modeManager.getAllModes();
-      }
+      },
     });
 
     // Register get_context_usage tool
     this.toolRegistry.registerTool({
-      name: 'get_context_usage',
-      description: 'Get current context token usage',
+      name: "get_context_usage",
+      description: "Get current context token usage",
       inputSchema: {
-        type: 'object',
+        type: "object",
         properties: {},
-        additionalProperties: false
+        additionalProperties: false,
       },
       handler: async () => {
         // Simulate context usage tracking
         return {
           current: 2500,
           max: 4000,
-          percentage: 62.5
+          percentage: 62.5,
         };
-      }
+      },
     });
   }
 
@@ -666,13 +689,13 @@ export class MCPOrchestrationServer {
           const value = args[key];
           const expectedType = (prop as any).type;
 
-          if (expectedType === 'string' && typeof value !== 'string') {
+          if (expectedType === "string" && typeof value !== "string") {
             throw new Error(`Invalid type for ${key}: expected string`);
-          } else if (expectedType === 'number' && typeof value !== 'number') {
+          } else if (expectedType === "number" && typeof value !== "number") {
             throw new Error(`Invalid type for ${key}: expected number`);
-          } else if (expectedType === 'boolean' && typeof value !== 'boolean') {
+          } else if (expectedType === "boolean" && typeof value !== "boolean") {
             throw new Error(`Invalid type for ${key}: expected boolean`);
-          } else if (expectedType === 'object' && typeof value !== 'object') {
+          } else if (expectedType === "object" && typeof value !== "object") {
             throw new Error(`Invalid type for ${key}: expected object`);
           }
         }
@@ -698,11 +721,11 @@ class MCPToolRegistry {
   }
 
   listTools(): MCPToolInfo[] {
-    return Array.from(this.tools.values()).map(tool => ({
+    return Array.from(this.tools.values()).map((tool) => ({
       name: tool.name,
       description: tool.description,
-      category: 'orchestration',
-      version: '1.0.0'
+      category: "orchestration",
+      version: "1.0.0",
     }));
   }
 }
@@ -713,7 +736,7 @@ class MCPToolRegistry {
 #### 実装: src/mcp/context-window.ts
 
 ```typescript
-import type { ContextItem, TokenUsage } from './orchestration-types';
+import type { ContextItem, TokenUsage } from "./orchestration-types";
 
 export class ContextWindow {
   private maxTokens: number;
@@ -739,7 +762,7 @@ export class ContextWindow {
       value,
       tokens,
       priority,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   }
 
@@ -770,13 +793,15 @@ export class ContextWindow {
     return {
       current,
       max: this.maxTokens,
-      percentage: (current / this.maxTokens) * 100
+      percentage: (current / this.maxTokens) * 100,
     };
   }
 
   private getCurrentTokens(): number {
-    return Array.from(this.content.values())
-      .reduce((sum, item) => sum + item.tokens, 0);
+    return Array.from(this.content.values()).reduce(
+      (sum, item) => sum + item.tokens,
+      0,
+    );
   }
 
   private makeSpace(neededTokens: number): void {
@@ -807,10 +832,10 @@ export class ContextWindow {
 
 class TokenCalculator {
   calculateTokens(value: any): number {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       // Rough approximation: 1 token per 4 characters
       return Math.ceil(value.length / 4);
-    } else if (typeof value === 'object') {
+    } else if (typeof value === "object") {
       const jsonString = JSON.stringify(value);
       return Math.ceil(jsonString.length / 4);
     } else {
@@ -823,30 +848,35 @@ class TokenCalculator {
 ## コミット計画
 
 ### コミット1: MCP型定義
+
 ```bash
 git add src/mcp/orchestration-types.ts
 git commit -m "feat(mcp): add MCP orchestration type definitions"
 ```
 
 ### コミット2: オーケストレーションツール
+
 ```bash
 git add src/mcp/orchestration-tools.ts test/mcp/orchestration-tools.test.ts
 git commit -m "feat(mcp): implement orchestration tools with tests"
 ```
 
 ### コミット3: MCPサーバー統合
+
 ```bash
 git add src/mcp/orchestration-server.ts test/mcp/orchestration-server.test.ts
 git commit -m "feat(mcp): implement MCP server integration with tool registry"
 ```
 
 ### コミット4: コンテキストウィンドウ管理
+
 ```bash
 git add src/mcp/context-window.ts test/mcp/context-window.test.ts
 git commit -m "feat(mcp): implement context window management"
 ```
 
 ### コミット5: エクスポートと統合
+
 ```bash
 git add src/mcp/index.ts test/mcp/integration.test.ts
 git commit -m "feat(mcp): add exports and integration tests"
@@ -876,83 +906,83 @@ test/
 
 ```typescript
 // test/mcp/integration.test.ts
-import { describe, test, expect } from 'bun:test';
-import { MCPOrchestrationServer } from '../../src/mcp/orchestration-server';
+import { describe, test, expect } from "bun:test";
+import { MCPOrchestrationServer } from "../../src/mcp/orchestration-server";
 
-describe('MCP Orchestration Integration', () => {
-  test('should handle complete orchestration workflow via MCP', async () => {
+describe("MCP Orchestration Integration", () => {
+  test("should handle complete orchestration workflow via MCP", async () => {
     const server = new MCPOrchestrationServer();
     server.registerOrchestrationTools();
 
     // 1. Analyze complex task
-    const analysis = await server.handleToolCall('analyze_task', {
+    const analysis = await server.handleToolCall("analyze_task", {
       task: `Create a complete user management system with:
         - Authentication and authorization
         - User profile management
         - Admin dashboard
-        - Email notifications`
+        - Email notifications`,
     });
 
     expect(analysis.requiresOrchestration).toBe(true);
 
     // 2. Decompose into subtasks
-    const subtasks = await server.handleToolCall('decompose_task', {
+    const subtasks = await server.handleToolCall("decompose_task", {
       task: analysis.suggestedApproach,
       maxSubtasks: 5,
-      autoAssignModes: true
+      autoAssignModes: true,
     });
 
     expect(subtasks.length).toBeGreaterThan(2);
-    expect(subtasks.every(st => st.mode)).toBe(true);
+    expect(subtasks.every((st) => st.mode)).toBe(true);
 
     // 3. Switch modes for different subtasks
     for (const subtask of subtasks) {
-      const modeResult = await server.handleToolCall('switch_mode', {
+      const modeResult = await server.handleToolCall("switch_mode", {
         mode: subtask.mode,
-        preserveContext: true
+        preserveContext: true,
       });
 
       expect(modeResult.mode.slug).toBe(subtask.mode);
     }
 
     // 4. Use boomerang for specific task
-    const debugResult = await server.handleToolCall('boomerang', {
-      task: 'Debug authentication issues',
-      targetMode: 'debug',
-      returnContext: true
+    const debugResult = await server.handleToolCall("boomerang", {
+      task: "Debug authentication issues",
+      targetMode: "debug",
+      returnContext: true,
     });
 
-    expect(debugResult.mode).toBe('debug');
-    expect(debugResult.result).toContain('Debug');
+    expect(debugResult.mode).toBe("debug");
+    expect(debugResult.result).toContain("Debug");
 
     // 5. Check context usage
-    const usage = await server.handleToolCall('get_context_usage', {});
+    const usage = await server.handleToolCall("get_context_usage", {});
     expect(usage.percentage).toBeLessThanOrEqual(100);
   });
 
-  test('should optimize large contexts effectively', async () => {
+  test("should optimize large contexts effectively", async () => {
     const server = new MCPOrchestrationServer();
     server.registerOrchestrationTools();
 
     const largeContext = {
-      files: Array(50).fill('Large file content...').join('\n'),
-      history: Array(100).fill('Command history').join('\n'),
+      files: Array(50).fill("Large file content...").join("\n"),
+      history: Array(100).fill("Command history").join("\n"),
       metadata: {
         timestamp: new Date(),
-        user: 'test',
-        environment: 'development'
-      }
+        user: "test",
+        environment: "development",
+      },
     };
 
-    const optimized = await server.handleToolCall('optimize_context', {
+    const optimized = await server.handleToolCall("optimize_context", {
       context: largeContext,
       maxTokens: 1000,
-      priorityKeys: ['files']
+      priorityKeys: ["files"],
     });
 
     expect(optimized.tokensUsed).toBeLessThanOrEqual(1000);
     expect(optimized.compressionRatio).toBeGreaterThan(0);
-    expect(optimized.context).toHaveProperty('files');
+    expect(optimized.context).toHaveProperty("files");
   });
 });
 ```
@@ -983,6 +1013,7 @@ describe('MCP Orchestration Integration', () => {
 ## 実行手順
 
 ### 実行フロー
+
 ```bash
 # 1. phase3-github-actions から作業ブランチを作成
 git checkout phase3-github-actions
@@ -1013,6 +1044,7 @@ git branch -d phase4-mcp-extension # ローカルの作業ブランチを削除
 ```
 
 ### 詳細ステップ（TDD）
+
 ```bash
 # 1. phase3-github-actions から作業ブランチ作成
 git checkout phase3-github-actions
@@ -1044,6 +1076,7 @@ git branch -d phase4-mcp-extension
 ## 依存関係
 
 このフェーズは以下のフェーズ完了後に実装してください：
+
 - フェーズ1: モードシステム（モード管理）
 - フェーズ2: オーケストレーション（タスク分析、コンテキスト最適化）
 - フェーズ3.2: GitHub Actions統合（実行基盤）
