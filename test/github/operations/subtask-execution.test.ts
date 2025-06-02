@@ -62,8 +62,8 @@ describe("SubtaskExecutionManager", () => {
     const results = await manager.executeSequential(subtasks);
 
     expect(results.length).toBe(2);
-    expect(results[0].taskId).toBe("subtask-1");
-    expect(results[1].taskId).toBe("subtask-2");
+    expect(results[0]?.taskId).toBe("subtask-1");
+    expect(results[1]?.taskId).toBe("subtask-2");
   });
 
   test("should execute dependency graph correctly", async () => {
@@ -153,7 +153,7 @@ describe("SubtaskExecutionManager", () => {
     const results = await manager.executeParallel([problematicSubtask]);
 
     expect(results.length).toBe(1);
-    expect(results[0].success).toBe(false);
-    expect(results[0].error).toBeDefined();
+    expect(results[0]?.success).toBe(false);
+    expect(results[0]?.error).toBeDefined();
   });
 });

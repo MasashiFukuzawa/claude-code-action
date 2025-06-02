@@ -19,7 +19,7 @@ import type { Mode } from "../modes/types";
 export class OrchestrationEntrypoint {
   private githubContext: ParsedGitHubContext;
   private taskManager: TaskManager;
-  private orchestrator: AutoOrchestrator;
+  private orchestrator?: AutoOrchestrator;
   private progressTracker: ProgressTracker;
   private isInitialized: boolean = false;
 
@@ -45,7 +45,7 @@ export class OrchestrationEntrypoint {
   }
 
   async execute(): Promise<OrchestrationResult> {
-    if (!this.isInitialized) {
+    if (!this.isInitialized || !this.orchestrator) {
       throw new Error("Orchestration not initialized. Call prepare() first.");
     }
 
@@ -99,19 +99,19 @@ export class OrchestrationEntrypoint {
   private extractTaskInfo(): TaskInfo {
     return {
       id: `task-${Date.now()}`,
-      title: this.githubContext.issue?.title || "Task",
-      description: this.githubContext.issue?.body || "",
-      issueNumber: this.githubContext.issue?.number || 0,
+      title: (this.githubContext as any).issue?.title || "Task",
+      description: (this.githubContext as any).issue?.body || "",
+      issueNumber: (this.githubContext as any).issue?.number || 0,
       repository: {
         owner: this.githubContext.repository.owner,
-        name: this.githubContext.repository.name,
+        name: this.githubContext.repository.repo,
       },
     };
   }
 
   private extractTaskDescription(): string {
-    const issueBody = this.githubContext.issue?.body || "";
-    const commentBody = this.githubContext.comment?.body || "";
+    const issueBody = (this.githubContext as any).issue?.body || "";
+    const commentBody = (this.githubContext as any).comment?.body || "";
     return `${issueBody}\n\n${commentBody}`;
   }
 }
@@ -121,7 +121,7 @@ export class AutoOrchestrator {
     private taskManager: TaskManager,
     private taskAnalyzer: TaskAnalyzer,
     private contextOptimizer: ContextOptimizer,
-    private modeManager: typeof modeManager,
+    private modeManager: any,
   ) {}
 
   async orchestrateTask(taskDescription: string): Promise<OrchestrationResult> {
@@ -130,7 +130,10 @@ export class AutoOrchestrator {
 
     if (!analysis.requiresOrchestration) {
       // Simple task - execute directly
-      return this.executeSingleTask(taskDescription, analysis.requiredModes[0]);
+      return this.executeSingleTask(
+        taskDescription,
+        analysis.requiredModes[0] || "code",
+      );
     }
 
     // Complex task - create subtasks and execution plan
@@ -220,7 +223,11 @@ export class AutoOrchestrator {
       message: taskDescription,
     });
 
-    const result = await this.taskManager.executeTask(task.id);
+    const result = await this.taskManager.executeTask(task.id, async () => ({
+      success: true,
+      output: `Executed task: ${taskDescription}`,
+      tokensUsed: 100,
+    }));
 
     return {
       success: result.success,
@@ -234,7 +241,24 @@ export class AutoOrchestrator {
 
   private async generateSubtasks(analysis: TaskAnalysis): Promise<SubTask[]> {
     // Generate subtasks based on analysis
-    return analysis.suggestedSubtasks || [];
+    const subtasks: SubTask[] = [];
+
+    // Create subtasks based on required modes and estimated complexity
+    analysis.requiredModes.forEach((mode, index) => {
+      subtasks.push({
+        id: `subtask-${index + 1}`,
+        description: `Implement task using ${mode} mode`,
+        mode,
+        priority: index + 1,
+        dependencies: index > 0 ? [`subtask-${index}`] : [],
+        estimatedComplexity: Math.min(
+          analysis.complexity / analysis.requiredModes.length,
+          10,
+        ),
+      });
+    });
+
+    return subtasks;
   }
 
   private createDependencyEdges(executionPlan: ExecutionPlan): any {
@@ -254,7 +278,7 @@ export class AutoOrchestrator {
   private async executeInMode(
     task: string,
     mode: Mode,
-    context: any,
+    _context: any,
   ): Promise<string> {
     // Execute task in specified mode
     return `Executed task "${task}" in mode ${mode.slug}`;

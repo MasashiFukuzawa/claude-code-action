@@ -40,3 +40,14 @@ export interface CreateTaskParams {
 export interface TaskManagerOptions {
   defaultMaxTokens?: number;
 }
+
+export interface SubTask {
+  id: string;
+  description: string;
+  mode: string;
+  priority: number;
+  dependencies: string[];
+  estimatedComplexity: number;
+  estimatedDuration?: number;
+  parentTaskId?: string;
+}

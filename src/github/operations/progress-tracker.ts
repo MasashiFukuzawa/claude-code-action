@@ -15,7 +15,10 @@ export class ProgressTracker {
   }
 
   async createInitialComment(taskInfo: TaskInfo): Promise<string> {
+    // Use githubContext for repository information
+    const repoInfo = `${this.githubContext.repository.owner}/${this.githubContext.repository.repo}`;
     const content = `## 🤖 Orchestrating Task: ${taskInfo.title}
+**Repository:** ${repoInfo}
 
 ### Task Information
 - **ID**: ${taskInfo.id}

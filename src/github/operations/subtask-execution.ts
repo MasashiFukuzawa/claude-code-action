@@ -103,6 +103,22 @@ export class SubtaskExecutionManager {
     this.progressCallbacks.push(callback);
   }
 
+  queueSubtask(subtask: SubTask): void {
+    this.executionQueue.enqueue(subtask);
+  }
+
+  resolveExecutionOrder(subtasks: SubTask[]): SubTask[][] {
+    return this.dependencyResolver.resolveDependencies(subtasks);
+  }
+
+  createTaskFromSubtask(subtask: SubTask): void {
+    this.taskManager.createTask({
+      mode: subtask.mode,
+      message: subtask.description,
+      parentTaskId: subtask.parentTaskId,
+    });
+  }
+
   private async executeSubtask(subtask: SubTask): Promise<TaskResult> {
     try {
       // Notify progress start
@@ -196,7 +212,7 @@ export class DependencyResolver {
       const level = subtasks.filter(
         (task) =>
           !processed.has(task.id) &&
-          task.dependencies.every((dep) => processed.has(dep)),
+          task.dependencies.every((dep: string) => processed.has(dep)),
       );
 
       if (level.length === 0) {

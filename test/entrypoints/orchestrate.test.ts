@@ -44,10 +44,14 @@ describe("OrchestrationEntrypoint", () => {
   beforeEach(() => {
     mockContext = {
       eventName: "issue_comment",
-      repository: { full_name: "test/repo", owner: "test", name: "repo" },
-      issue: { number: 1, title: "Test Issue", body: "Test issue body" },
-      comment: { id: 123, body: "/claude orchestrate complex task" },
-    } as ParsedGitHubContext;
+      repository: { full_name: "test/repo", owner: "test", repo: "repo" },
+      runId: "test-run",
+      actor: "test-actor",
+      payload: {},
+      entityNumber: 1,
+      isPR: false,
+      inputs: {},
+    } as any;
 
     entrypoint = new OrchestrationEntrypoint(mockContext);
   });
@@ -91,9 +95,9 @@ describe("OrchestrationEntrypoint", () => {
   });
 
   test("should extract task info correctly", () => {
-    expect(mockContext.issue?.title).toBe("Test Issue");
     expect(mockContext.repository.owner).toBe("test");
-    expect(mockContext.repository.name).toBe("repo");
+    expect(mockContext.repository.repo).toBe("repo");
+    expect(mockContext.entityNumber).toBe(1);
   });
 
   test("should handle uninitialized state", async () => {

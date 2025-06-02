@@ -3,7 +3,6 @@ import type {
   OrchestrationResult,
   ExecutionPlan,
   ProgressUpdate,
-  TaskInfo,
   BoomerangRequest,
   BoomerangResult,
   ErrorRecoveryInfo,
@@ -54,7 +53,7 @@ describe("Orchestration Types", () => {
     };
 
     expect(plan.phases.length).toBe(1);
-    expect(plan.phases[0].executionType).toBe("parallel");
+    expect(plan.phases[0]?.executionType).toBe("parallel");
     expect(plan.criticalPath.length).toBe(3);
   });
 
