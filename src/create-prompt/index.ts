@@ -22,6 +22,22 @@ import type { CommonFields, PreparedContext, EventData } from "./types";
 import { GITHUB_SERVER_URL } from "../github/api/config";
 export type { CommonFields, PreparedContext } from "./types";
 
+// New prompt extension exports
+export type {
+  PromptTemplate,
+  PromptConstraints,
+  QualityScore,
+  ModePromptContext,
+  SubtaskPromptContext,
+  PromptGenerationResult,
+  PromptMetadata,
+  PromptValidationResult,
+} from "./prompt-types";
+
+export { ModePromptGenerator } from "./mode-prompt-generator";
+export { SubtaskPromptGenerator } from "./subtask-prompt-generator";
+export { PromptExtension } from "./prompt-extension";
+
 const BASE_ALLOWED_TOOLS = [
   "Edit",
   "Glob",
