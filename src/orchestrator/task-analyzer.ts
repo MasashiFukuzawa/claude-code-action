@@ -1,4 +1,4 @@
-import type { ComplexityAnalysis } from './types';
+import type { ComplexityAnalysis } from "./types";
 
 export class TaskAnalyzer {
   /**
@@ -11,7 +11,7 @@ export class TaskAnalyzer {
     return {
       isComplex: false,
       confidence: 0,
-      reason: 'Analysis not implemented yet',
+      reason: "Analysis not implemented yet",
       suggestedSubtasks: [],
     };
   }
