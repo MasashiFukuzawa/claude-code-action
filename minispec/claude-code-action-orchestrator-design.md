@@ -405,172 +405,618 @@ orchestrator:
 - 実装後、即座に `bun run format && bun tsc --noEmit && bun test`
 - エラーがあれば即修正、Green状態でコミット・プッシュ
 
-### Phase 1: 基礎実装（マイクロタスク版）
+### Phase 1: 基礎実装
 
-#### 1-1. 型定義とディレクトリ構造（15分）
+#### 1-1. 型定義とディレクトリ構造
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout -b feat/orchestrator-1-1-types`
+
+##### 1-1-1. ディレクトリ作成（5分）
 
 - [ ] `src/orchestrator/` ディレクトリ作成
-- [ ] `src/orchestrator/types.ts` 作成（基本型のみ）
-- [ ] `src/orchestrator/index.ts` 作成（export文のみ）
-- [ ] **品質チェック**: `bun run format && bun tsc --noEmit`
-- [ ] **コミット**: `feat: add orchestrator types and directory structure`
+- [ ] `.gitkeep` ファイル追加
+- [ ] **コミット**: `chore: create orchestrator directory`
 
-#### 1-2. TaskAnalyzer基本構造（10分）
+##### 1-1-2. 基本型定義（10分）
+
+- [ ] `src/orchestrator/types.ts` 作成
+- [ ] `ComplexityAnalysis` 型のみ定義
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add ComplexityAnalysis type`
+
+##### 1-1-3. エクスポート設定（5分）
+
+- [ ] `src/orchestrator/index.ts` 作成
+- [ ] types.tsからのexport文のみ
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add orchestrator module exports`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-1-types`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): add type definitions and directory structure`
+
+#### 1-2. TaskAnalyzer基本構造
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-1-types && git checkout -b feat/orchestrator-1-2-analyzer-base`
+
+##### 1-2-1. クラスファイル作成（5分）
 
 - [ ] `src/orchestrator/task-analyzer.ts` 作成
-- [ ] クラス定義とコンストラクタのみ
-- [ ] `analyze()` メソッドのスケルトン（固定値返却）
-- [ ] **品質チェック**: `bun tsc --noEmit`
-- [ ] **コミット**: `feat: add TaskAnalyzer class skeleton`
+- [ ] 空のクラス定義のみ
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: create TaskAnalyzer class file`
 
-#### 1-3. TaskAnalyzerテスト（テストファースト・10分）
+##### 1-2-2. クラス基本構造（5分）
+
+- [ ] `TaskAnalyzer` クラス定義
+- [ ] コンストラクタ追加（引数なし）
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add TaskAnalyzer class structure`
+
+##### 1-2-3. analyzeメソッドスケルトン（5分）
+
+- [ ] `analyze()` メソッド追加
+- [ ] 固定値を返すのみ
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add analyze method skeleton`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-2-analyzer-base`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): add TaskAnalyzer basic structure`
+
+#### 1-3. TaskAnalyzerテスト（テストファースト）
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-2-analyzer-base && git checkout -b feat/orchestrator-1-3-analyzer-tests`
+
+##### 1-3-1. テストファイル作成（5分）
 
 - [ ] `test/task-analyzer.test.ts` 作成
-- [ ] 最小限のテストケース（固定値のみ）
+- [ ] 基本的なimport文のみ
+- [ ] **コミット**: `test: create task-analyzer test file`
+
+##### 1-3-2. 基本テストケース（5分）
+
+- [ ] "should instantiate" テスト追加
 - [ ] **テスト実行**: `bun test task-analyzer.test.ts`
-- [ ] **Red状態を確認**（期待値と実装の差）
-- [ ] **コミット**: `test: add basic TaskAnalyzer tests`
+- [ ] **Green確認**
+- [ ] **コミット**: `test: add instantiation test`
 
-#### 1-4. 日本語検出機能（15分）
+##### 1-3-3. analyze固定値テスト（5分）
 
-- [ ] `detectJapanese()` プライベートメソッド実装
-- [ ] 対応するテストケース追加
+- [ ] "should return fixed analysis" テスト追加
 - [ ] **テスト実行**: `bun test task-analyzer.test.ts`
-- [ ] **Green状態を確認**
-- [ ] **コミット**: `feat: add Japanese language detection`
+- [ ] **Green確認**
+- [ ] **コミット**: `test: add fixed value analysis test`
 
-#### 1-5. 日本語パターン定義（10分）
+##### PR作成
 
-- [ ] `japanesePatterns` プロパティ追加
-- [ ] 基本的なパターンのみ（3-4個）
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-3-analyzer-tests`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `test(orchestrator): add TaskAnalyzer test foundation`
+
+#### 1-4. 日本語検出機能
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-3-analyzer-tests && git checkout -b feat/orchestrator-1-4-japanese-detection`
+
+##### 1-4-1. 検出メソッド定義（5分）
+
+- [ ] `detectJapanese()` プライベートメソッド追加
+- [ ] 空実装（false返却）
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add detectJapanese method`
+
+##### 1-4-2. 日本語検出テスト（5分）
+
+- [ ] 日本語検出のテストケース追加
+- [ ] **テスト実行**: `bun test`（Red確認）
+- [ ] **コミット**: `test: add Japanese detection tests`
+
+##### 1-4-3. 日本語検出実装（5分）
+
+- [ ] 正規表現パターン実装
+- [ ] **テスト実行**: `bun test`（Green確認）
+- [ ] **コミット**: `feat: implement Japanese detection logic`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-4-japanese-detection`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): add Japanese detection functionality`
+
+#### 1-5. 日本語パターン定義
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-4-japanese-detection && git checkout -b feat/orchestrator-1-5-japanese-patterns`
+
+##### 1-5-1. パターンプロパティ追加（5分）
+
+- [ ] `japanesePatterns` プロパティ定義
+- [ ] 型定義のみ（空オブジェクト）
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add japanesePatterns property`
+
+##### 1-5-2. 基本パターン追加（5分）
+
+- [ ] `multipleActions` パターン追加
+- [ ] `conditionals` パターン追加
 - [ ] **型チェック**: `bun tsc --noEmit`
 - [ ] **コミット**: `feat: add basic Japanese patterns`
 
-#### 1-6. 英語パターン定義（10分）
+##### 1-5-3. キーワードパターン追加（5分）
 
-- [ ] `englishPatterns` プロパティ追加
-- [ ] 日本語パターンに対応する英語版
+- [ ] `designKeywords` パターン追加
+- [ ] `implementKeywords` パターン追加
 - [ ] **型チェック**: `bun tsc --noEmit`
-- [ ] **コミット**: `feat: add English patterns`
+- [ ] **コミット**: `feat: add Japanese keyword patterns`
 
-#### 1-7. パターンマッチング機能（15分）
+##### PR作成
 
-- [ ] `analyzeIndicators()` メソッド実装
-- [ ] テストケース追加
-- [ ] **テスト実行**: `bun test task-analyzer.test.ts`
-- [ ] **コミット**: `feat: implement pattern matching`
-
-#### 1-8. スコアリングロジック（15分）
-
-- [ ] `calculateComplexityScore()` メソッド実装
-- [ ] 閾値判定ロジック
-- [ ] テストケース追加
-- [ ] **テスト実行**: `bun test task-analyzer.test.ts`
-- [ ] **コミット**: `feat: implement complexity scoring`
-
-#### 1-9. サブタスク生成機能（15分）
-
-- [ ] `generateSubtasks()` メソッド実装
-- [ ] テストケース追加
-- [ ] **全テスト実行**: `bun test`
-- [ ] **コミット**: `feat: implement subtask generation`
-
-#### 1-10. **PR作成**: TaskAnalyzer完了
-
-- [ ] **最終テスト**: `bun test`（全テスト通過確認）
-- [ ] **プッシュ**: `git push origin feat/orchestrator-task-analyzer`
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-5-japanese-patterns`
 - [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): add Japanese pattern definitions`
 
-#### 1-11. MCP Server基本構造（10分）
+#### 1-6. 英語パターン定義
 
-- [ ] 新ブランチ: `feat/orchestrator-mcp-server`
-- [ ] `src/mcp/orchestrator-server.ts` 作成
-- [ ] 基本的なサーバー初期化コードのみ
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-5-japanese-patterns && git checkout -b feat/orchestrator-1-6-english-patterns`
+
+##### 1-6-1. 英語パターンプロパティ（5分）
+
+- [ ] `englishPatterns` プロパティ定義
+- [ ] 型定義のみ（空オブジェクト）
 - [ ] **型チェック**: `bun tsc --noEmit`
-- [ ] **コミット**: `feat: add orchestrator MCP server skeleton`
+- [ ] **コミット**: `feat: add englishPatterns property`
 
-#### 1-12. analyze_complexityツール（15分）
+##### 1-6-2. 英語基本パターン（5分）
 
-- [ ] `analyze_complexity` ツール実装
-- [ ] TaskAnalyzerとの連携
-- [ ] **実行テスト**: サーバー起動確認
-- [ ] **コミット**: `feat: add analyze_complexity MCP tool`
+- [ ] `multipleActions` 英語版追加
+- [ ] `conditionals` 英語版追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add basic English patterns`
 
-#### 1-13. MCPサーバーテスト（10分）
+##### 1-6-3. 英語キーワード（5分）
+
+- [ ] 残りの英語パターン追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: complete English patterns`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-6-english-patterns`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): add English pattern definitions`
+
+#### 1-7. パターンマッチング機能
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-6-english-patterns && git checkout -b feat/orchestrator-1-7-pattern-matching`
+
+##### 1-7-1. indicatorsメソッド定義（5分）
+
+- [ ] `analyzeIndicators()` メソッド追加
+- [ ] 空実装（固定値返却）
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add analyzeIndicators method`
+
+##### 1-7-2. パターン選択ロジック（5分）
+
+- [ ] 言語に応じたパターン選択実装
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: implement pattern selection`
+
+##### 1-7-3. マッチング実装（5分）
+
+- [ ] 各パターンのテスト実装
+- [ ] indicators結果オブジェクト生成
+- [ ] **テスト実行**: `bun test`
+- [ ] **コミット**: `feat: implement pattern matching logic`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-7-pattern-matching`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement pattern matching functionality`
+
+#### 1-8. スコアリングロジック
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-7-pattern-matching && git checkout -b feat/orchestrator-1-8-scoring-logic`
+
+##### 1-8-1. スコア計算メソッド（5分）
+
+- [ ] `calculateComplexityScore()` メソッド追加
+- [ ] 引数と戻り値の型定義
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add score calculation method`
+
+##### 1-8-2. 基本スコアリング（5分）
+
+- [ ] multipleActionsのスコア計算
+- [ ] 理由配列への追加
+- [ ] **テスト実行**: `bun test`
+- [ ] **コミット**: `feat: implement basic scoring`
+
+##### 1-8-3. 完全スコアリング（5分）
+
+- [ ] 全indicatorsのスコア計算
+- [ ] 閾値判定（0.5）
+- [ ] **テスト実行**: `bun test`
+- [ ] **コミット**: `feat: complete scoring logic`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-8-scoring-logic`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement scoring logic for complexity analysis`
+
+#### 1-9. サブタスク生成機能
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-8-scoring-logic && git checkout -b feat/orchestrator-1-9-subtask-generation`
+
+##### 1-9-1. サブタスク生成メソッド（5分）
+
+- [ ] `generateSubtasks()` メソッド追加
+- [ ] 空配列返却
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add generateSubtasks method`
+
+##### 1-9-2. 条件付きサブタスク（5分）
+
+- [ ] isComplexチェック追加
+- [ ] 基本的なサブタスク生成
+- [ ] **テスト実行**: `bun test`
+- [ ] **コミット**: `feat: implement conditional subtask generation`
+
+##### 1-9-3. 完全サブタスク生成（5分）
+
+- [ ] 全キーワードに対応したサブタスク
+- [ ] 日本語/英語の説明切り替え
+- [ ] **全テスト実行**: `bun test`
+- [ ] **コミット**: `feat: complete subtask generation`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-9-subtask-generation`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement subtask generation functionality`
+
+#### 1-11. MCP Server基本構造
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-9-subtask-generation && git checkout -b feat/orchestrator-1-11-mcp-server-base`
+
+##### 1-11-1. 新ブランチ作成（3分）
+
+- [ ] ブランチ作成確認
+- [ ] **コミット**: ブランチ作成のみ
+
+##### 1-11-2. MCPサーバーファイル（5分）
+
+- [ ] `src/mcp/orchestrator-server.ts` 作成
+- [ ] 基本的なimport文のみ
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: create orchestrator MCP server file`
+
+##### 1-11-3. サーバー初期化（7分）
+
+- [ ] McpServer インスタンス作成
+- [ ] 基本設定（name, version）
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: initialize MCP server`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-11-mcp-server-base`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): create MCP server basic structure`
+
+#### 1-12. analyze_complexityツール
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-11-mcp-server-base && git checkout -b feat/orchestrator-1-12-analyze-complexity`
+
+##### 1-12-1. ツール定義（5分）
+
+- [ ] `server.tool()` 呼び出し追加
+- [ ] 名前と説明のみ
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: define analyze_complexity tool`
+
+##### 1-12-2. パラメータ定義（5分）
+
+- [ ] zodスキーマ定義
+- [ ] task パラメータ追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add tool parameters`
+
+##### 1-12-3. ツール実装（5分）
+
+- [ ] TaskAnalyzerインポート
+- [ ] 基本的な実行ロジック
+- [ ] **サーバー起動テスト**
+- [ ] **コミット**: `feat: implement analyze_complexity logic`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-12-analyze-complexity`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement analyze_complexity MCP tool`
+
+#### 1-13. MCPサーバーテスト
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-12-analyze-complexity && git checkout -b feat/orchestrator-1-13-mcp-tests`
+
+##### 1-13-1. テストファイル作成（5分）
 
 - [ ] `test/orchestrator-server.test.ts` 作成
-- [ ] 基本的なツール実行テスト
+- [ ] 基本的なセットアップ
+- [ ] **コミット**: `test: create MCP server test file`
+
+##### 1-13-2. サーバー起動テスト（5分）
+
+- [ ] サーバー起動確認テスト
 - [ ] **テスト実行**: `bun test orchestrator-server.test.ts`
-- [ ] **コミット**: `test: add orchestrator MCP server tests`
+- [ ] **コミット**: `test: add server startup test`
 
-#### 1-14. 状態管理ツール（15分）
+##### PR作成
 
-- [ ] `save_state` / `load_state` ツール実装
-- [ ] テストケース追加
-- [ ] **テスト実行**: `bun test orchestrator-server.test.ts`
-- [ ] **コミット**: `feat: add state management tools`
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-13-mcp-tests`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `test(orchestrator): add MCP server tests`
 
-#### 1-15. batch_promptツール（15分）
+#### 1-14. 状態管理ツール
 
-- [ ] `prepare_batch_prompt` ツール実装
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-13-mcp-tests && git checkout -b feat/orchestrator-1-14-state-management`
+
+##### 1-14-1. save_stateツール（5分）
+
+- [ ] `save_state` ツール定義
+- [ ] 基本的な保存ロジック
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add save_state tool`
+
+##### 1-14-2. load_stateツール（5分）
+
+- [ ] `load_state` ツール定義
+- [ ] 基本的な読み込みロジック
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add load_state tool`
+
+##### 1-14-3. 状態管理テスト（5分）
+
+- [ ] save/loadのテスト追加
+- [ ] **テスト実行**: `bun test`
+- [ ] **コミット**: `test: add state management tests`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-14-state-management`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement state management tools`
+
+#### 1-15. batch_promptツール
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-14-state-management && git checkout -b feat/orchestrator-1-15-batch-prompt`
+
+##### 1-15-1. ツール定義（5分）
+
+- [ ] `prepare_batch_prompt` ツール定義
+- [ ] パラメータスキーマ
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: define batch_prompt tool`
+
+##### 1-15-2. プロンプト生成（5分）
+
+- [ ] 基本的なプロンプトテンプレート
+- [ ] サブタスクのマッピング
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: implement prompt generation`
+
+##### 1-15-3. 完全実装とテスト（5分）
+
+- [ ] 全機能の統合
 - [ ] テストケース追加
 - [ ] **全テスト実行**: `bun test`
-- [ ] **コミット**: `feat: add batch prompt generation tool`
+- [ ] **コミット**: `feat: complete batch_prompt tool`
 
-#### 1-16. **PR作成**: MCP Server完了
+##### PR作成
 
-- [ ] **最終テスト**: `bun test`
-- [ ] **プッシュ**: `git push origin feat/orchestrator-mcp-server`
+- [ ] **プッシュ**: `git push origin feat/orchestrator-1-15-batch-prompt`
 - [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement batch prompt generation tool`
 
-### Phase 2: 統合とテスト（マイクロタスク版）
+### Phase 2: 統合とテスト
 
-#### 2-1. トリガー判定機能（10分）
+#### 2-1. トリガー判定機能
 
-- [ ] 新ブランチ: `feat/orchestrator-trigger`
-- [ ] `src/github/validation/trigger.ts` に関数追加
-- [ ] `shouldUseOrchestrator()` 実装
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-1-15-batch-prompt && git checkout -b feat/orchestrator-2-1-trigger-logic`
+
+##### 2-1-1. 新ブランチ作成（3分）
+
+- [ ] ブランチ作成確認
+- [ ] **コミット**: ブランチ作成のみ
+
+##### 2-1-2. trigger.ts修正準備（5分）
+
+- [ ] `src/github/validation/trigger.ts` を開く
+- [ ] 必要なimport文追加
 - [ ] **型チェック**: `bun tsc --noEmit`
-- [ ] **コミット**: `feat: add orchestrator trigger functions`
+- [ ] **コミット**: `feat: prepare trigger.ts for orchestrator`
 
-#### 2-2. タスク抽出機能（10分）
+##### 2-1-3. shouldUseOrchestrator関数（5分）
 
-- [ ] `extractTaskFromComment()` 実装
-- [ ] テストケース追加
-- [ ] **テスト実行**: `bun test trigger-validation.test.ts`
-- [ ] **コミット**: `feat: add task extraction from comments`
+- [ ] `shouldUseOrchestrator()` 関数追加
+- [ ] 常にtrueを返す実装
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add shouldUseOrchestrator function`
 
-#### 2-3. **PR作成**: トリガー機能完了
+##### PR作成
 
-- [ ] **プッシュ**: `git push origin feat/orchestrator-trigger`
+- [ ] **プッシュ**: `git push origin feat/orchestrator-2-1-trigger-logic`
 - [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement trigger detection logic`
 
-#### 2-4. MCPサーバー登録（15分）
+#### 2-2. タスク抽出機能
 
-- [ ] 新ブランチ: `feat/orchestrator-integration`
-- [ ] `src/mcp/install-mcp-server.ts` 修正
-- [ ] orchestratorサーバー設定追加
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-2-1-trigger-logic && git checkout -b feat/orchestrator-2-2-task-extraction`
+
+##### 2-2-1. extractTaskメソッド定義（5分）
+
+- [ ] `extractTaskFromComment()` 関数シグネチャ
+- [ ] 空文字列を返す実装
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add extractTaskFromComment skeleton`
+
+##### 2-2-2. タスク抽出テスト（5分）
+
+- [ ] テストケース追加（既存のtrigger-validation.test.tsに）
+- [ ] **テスト実行**: `bun test trigger-validation.test.ts`（Red確認）
+- [ ] **コミット**: `test: add task extraction tests`
+
+##### 2-2-3. タスク抽出実装（5分）
+
+- [ ] 正規表現による抽出ロジック
+- [ ] **テスト実行**: `bun test trigger-validation.test.ts`（Green確認）
+- [ ] **コミット**: `feat: implement task extraction logic`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-2-2-task-extraction`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement task extraction functionality`
+
+#### 2-4. MCPサーバー登録
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-2-2-task-extraction && git checkout -b feat/orchestrator-2-4-mcp-registration`
+
+##### 2-4-1. 新ブランチ作成（3分）
+
+- [ ] ブランチ作成確認
+- [ ] **コミット**: ブランチ作成のみ
+
+##### 2-4-2. install-mcp-server.ts準備（5分）
+
+- [ ] `src/mcp/install-mcp-server.ts` を開く
+- [ ] 既存構造の理解
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `chore: prepare MCP server integration`
+
+##### 2-4-3. orchestratorサーバー設定（5分）
+
+- [ ] baseMcpConfigにorchestrator追加
+- [ ] 基本的な設定のみ
 - [ ] **型チェック**: `bun tsc --noEmit`
 - [ ] **コミット**: `feat: add orchestrator to MCP config`
 
-#### 2-5. プロンプト生成（15分）
+##### 2-4-4. 環境変数設定（5分）
+
+- [ ] orchestrator用の環境変数追加
+- [ ] デバッグ設定の追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add orchestrator environment variables`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-2-4-mcp-registration`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): register MCP server in configuration`
+
+#### 2-5. プロンプト生成
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-2-4-mcp-registration && git checkout -b feat/orchestrator-2-5-prompt-generation`
+
+##### 2-5-1. orchestratorプロンプトファイル（5分）
 
 - [ ] `src/create-prompt/orchestrator.ts` 作成
-- [ ] 基本的なプロンプト生成機能
+- [ ] 基本的なimport文
 - [ ] **型チェック**: `bun tsc --noEmit`
-- [ ] **コミット**: `feat: add orchestrator prompt generation`
+- [ ] **コミット**: `feat: create orchestrator prompt file`
 
-#### 2-6. プロンプト統合（10分）
+##### 2-5-2. プロンプト関数定義（5分）
 
-- [ ] `src/create-prompt/index.ts` 修正
-- [ ] orchestrator分岐追加
-- [ ] **全テスト実行**: `bun test`
-- [ ] **コミット**: `feat: integrate orchestrator with prompt system`
+- [ ] `createOrchestratorPrompt()` 関数定義
+- [ ] 引数と戻り値の型
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add orchestrator prompt function`
 
-#### 2-7. **PR作成**: 統合完了
+##### 2-5-3. プロンプトテンプレート（5分）
 
-- [ ] **プッシュ**: `git push origin feat/orchestrator-integration`
+- [ ] 基本的なプロンプト構造
+- [ ] ツール説明の追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: implement orchestrator prompt template`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-2-5-prompt-generation`
 - [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): implement prompt generation functionality`
+
+#### 2-6. プロンプト統合
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-2-5-prompt-generation && git checkout -b feat/orchestrator-2-6-prompt-integration`
+
+##### 2-6-1. index.ts修正準備（5分）
+
+- [ ] `src/create-prompt/index.ts` を開く
+- [ ] orchestratorインポート追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: import orchestrator prompt`
+
+##### 2-6-2. orchestrator分岐追加（5分）
+
+- [ ] orchestratorモードのチェック
+- [ ] 条件分岐の追加
+- [ ] **型チェック**: `bun tsc --noEmit`
+- [ ] **コミット**: `feat: add orchestrator mode branching`
+
+##### 2-6-3. 統合テスト（5分）
+
+- [ ] 既存テストの確認
+- [ ] **全テスト実行**: `bun test`
+- [ ] **コミット**: `test: verify orchestrator integration`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-2-6-prompt-integration`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): integrate prompt generation with main flow`
 
 ### 【必須】各マイクロタスクでの品質ガード
 
@@ -587,21 +1033,142 @@ git commit -m "feat: specific micro change"
 git push
 ```
 
-### Phase 3: リリース準備（2-3日）
+### Phase 3: リリース準備
 
-- [ ] パフォーマンステスト
-  - [ ] 複数サブタスクの実行時間測定
-  - [ ] API使用量の確認
-- [ ] ドキュメント完成
-  - [ ] インストール手順
-  - [ ] 設定ガイド
-  - [ ] トラブルシューティング
-- [ ] サンプルワークフローの作成
-  - [ ] 基本的な使用例
-  - [ ] 高度な使用例
-- [ ] リリース作業
-  - [ ] orchestrator-alpha タグの作成
-  - [ ] リリースノートの作成
+#### 3-1. パフォーマンステスト
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-2-6-prompt-integration && git checkout -b feat/orchestrator-3-1-performance-test`
+
+##### 3-1-1. テスト環境準備（5分）
+
+- [ ] `test/performance/` ディレクトリ作成
+- [ ] 基本的なテストファイル作成
+- [ ] **コミット**: `test: create performance test directory`
+
+##### 3-1-2. 実行時間測定（10分）
+
+- [ ] 単純タスクの実行時間テスト
+- [ ] 複雑タスクの実行時間テスト
+- [ ] 結果をログに記録
+- [ ] **コミット**: `test: add execution time measurements`
+
+##### 3-1-3. API使用量測定（10分）
+
+- [ ] トークン使用量の計測コード
+- [ ] API呼び出し回数の記録
+- [ ] レポート生成
+- [ ] **コミット**: `test: add API usage tracking`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-3-1-performance-test`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `test(orchestrator): add performance testing suite`
+
+#### 3-2. ドキュメント作成
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-3-1-performance-test && git checkout -b feat/orchestrator-3-2-documentation`
+
+##### 3-2-1. README更新準備（5分）
+
+- [ ] README.mdのバックアップ
+- [ ] orchestratorセクション追加位置決定
+- [ ] **コミット**: `docs: prepare README for orchestrator`
+
+##### 3-2-2. インストール手順（10分）
+
+- [ ] orchestratorの有効化方法
+- [ ] 必要な権限の説明
+- [ ] 設定例の追加
+- [ ] **コミット**: `docs: add orchestrator installation guide`
+
+##### 3-2-3. 設定ガイド（10分）
+
+- [ ] orchestrator.yml の説明
+- [ ] カスタマイズ方法
+- [ ] ベストプラクティス
+- [ ] **コミット**: `docs: add orchestrator configuration guide`
+
+##### 3-2-4. トラブルシューティング（10分）
+
+- [ ] よくある問題と解決策
+- [ ] デバッグ方法
+- [ ] サポート情報
+- [ ] **コミット**: `docs: add troubleshooting section`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-3-2-documentation`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `docs(orchestrator): add comprehensive documentation`
+
+#### 3-3. サンプルワークフロー
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-3-2-documentation && git checkout -b feat/orchestrator-3-3-sample-workflows`
+
+##### 3-3-1. 基本サンプル作成（10分）
+
+- [ ] `examples/orchestrator-basic.yml` 作成
+- [ ] シンプルなユースケース
+- [ ] コメント付き説明
+- [ ] **コミット**: `docs: add basic orchestrator example`
+
+##### 3-3-2. 高度なサンプル（10分）
+
+- [ ] `examples/orchestrator-advanced.yml` 作成
+- [ ] 複雑なタスク分解例
+- [ ] カスタム設定例
+- [ ] **コミット**: `docs: add advanced orchestrator example`
+
+##### 3-3-3. 日本語サンプル（5分）
+
+- [ ] `examples/orchestrator-japanese.yml` 作成
+- [ ] 日本語タスクの例
+- [ ] **コミット**: `docs: add Japanese orchestrator example`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-3-3-sample-workflows`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `docs(orchestrator): add sample workflow examples`
+
+#### 3-4. リリース準備
+
+##### ブランチ作成
+
+- [ ] **新ブランチ**: `git checkout feat/orchestrator-3-3-sample-workflows && git checkout -b feat/orchestrator-3-4-release-prep`
+
+##### 3-4-1. 全機能統合テスト（15分）
+
+- [ ] 全ブランチをfeature/orchestrator-alphaにマージ
+- [ ] 統合テストの実行
+- [ ] **全テスト実行**: `bun test`
+- [ ] **コミット**: `test: final integration test`
+
+##### 3-4-2. リリースノート作成（10分）
+
+- [ ] `RELEASE_NOTES_ORCHESTRATOR.md` 作成
+- [ ] 新機能の説明
+- [ ] 既知の制限事項
+- [ ] **コミット**: `docs: add orchestrator release notes`
+
+##### 3-4-3. タグ作成準備（5分）
+
+- [ ] バージョン番号の決定
+- [ ] CHANGELOGの更新
+- [ ] **コミット**: `chore: prepare for orchestrator-alpha release`
+
+##### PR作成
+
+- [ ] **プッシュ**: `git push origin feat/orchestrator-3-4-release-prep`
+- [ ] **PR作成**: `feature/orchestrator-alpha` へのPR
+- [ ] **PRタイトル**: `feat(orchestrator): finalize release preparation`
 
 ## 6. 使用例
 
@@ -792,18 +1359,36 @@ git pull origin main
 git checkout -b feature/orchestrator-alpha
 git push -u origin feature/orchestrator-alpha
 
-# 2. 作業ブランチの作成（各実装者）
+# 2. 数珠つなぎブランチ戦略
+# 各タスクは前のタスクのブランチから新しいブランチを作成
+
+# タスク1-1（最初のタスク）
 git checkout feature/orchestrator-alpha
-git checkout -b feat/orchestrator-task-analyzer
-# または
-git checkout -b feat/orchestrator-mcp-server
+git checkout -b feat/orchestrator-1-1-types
+# 作業完了後
+git push origin feat/orchestrator-1-1-types
+# PRを作成（feature/orchestrator-alpha へ）
 
-# 3. 作業完了後
-git push origin feat/orchestrator-task-analyzer
-# feature/orchestrator-alpha へのPRを作成
+# タスク1-2（1-1のブランチから継続）
+git checkout feat/orchestrator-1-1-types
+git checkout -b feat/orchestrator-1-2-analyzer-base
+# 作業完了後
+git push origin feat/orchestrator-1-2-analyzer-base
+# PRを作成（feature/orchestrator-alpha へ）
 
-# 4. 全機能完成後
-# feature/orchestrator-alpha から main へのPRを作成
+# タスク1-3（1-2のブランチから継続）
+git checkout feat/orchestrator-1-2-analyzer-base
+git checkout -b feat/orchestrator-1-3-analyzer-tests
+# 以下同様に継続...
+
+# 3. PR管理
+# - 各タスクで個別のPRを作成
+# - PRはマージ順序を気にせず作成可能
+# - 依存関係は自動的に解決される
+
+# 4. 最終リリース
+# - 全PRがfeature/orchestrator-alphaにマージ後
+# - feature/orchestrator-alpha から main へのPRを作成
 
 # 5. mainマージ後のタグ付け
 git checkout main
@@ -811,6 +1396,14 @@ git pull origin main
 git tag -a orchestrator-alpha -m "Orchestrator Alpha Release"
 git push origin orchestrator-alpha
 ```
+
+### 数珠つなぎブランチ戦略の利点
+
+1. **並行作業可能**: PRのマージを待たずに次のタスクに進める
+2. **依存関係明確**: 各タスクの依存関係がブランチで表現される
+3. **レビュー効率**: 小さな単位でのレビューが可能
+4. **リスク分散**: 問題があっても影響範囲が限定される
+5. **進捗可視化**: 各タスクの完了状況が個別のPRで確認可能
 
 ### 9.4 エラーハンドリング実装ガイド
 
@@ -914,150 +1507,165 @@ server.tool(
 
 #### ローカル環境での確認
 
-```bash
-# 1. 依存関係のインストール
-cd claude-code-action
-bun install
+##### L-1. 環境セットアップ
 
-# 2. MCPサーバーの単体テスト
-# 別ターミナルでサーバーを起動
-bun run src/mcp/orchestrator-server.ts
+###### L-1-1. 依存関係インストール（5分）
 
-# テスト用のクライアントスクリプトを作成
-cat > test-orchestrator.js << 'EOF'
-import { spawn } from 'child_process';
+- [ ] プロジェクトディレクトリに移動
+- [ ] `bun install` 実行
+- [ ] エラーがないことを確認
+- [ ] **記録**: インストール結果
 
-const server = spawn('bun', ['run', 'src/mcp/orchestrator-server.ts']);
+###### L-1-2. MCPサーバー単体確認準備（5分）
 
-// サーバーからの出力を確認
-server.stdout.on('data', (data) => {
-  console.log(`Server: ${data}`);
+- [ ] 新しいターミナルウィンドウを開く
+- [ ] プロジェクトディレクトリに移動
+- [ ] サーバーファイルの存在確認
+- [ ] **記録**: ファイルパス確認
 
-  // 初期化完了後、テストリクエストを送信
-  if (data.includes('ready')) {
-    const testRequest = {
-      method: 'tools/call',
-      params: {
-        name: 'analyze_complexity',
-        arguments: {
-          task: 'ユーザー認証システムを実装してください'
-        }
-      }
-    };
+##### L-2. MCPサーバーテスト
 
-    server.stdin.write(JSON.stringify(testRequest) + '\n');
-  }
-});
-EOF
+###### L-2-1. テストスクリプト作成（5分）
 
-bun run test-orchestrator.js
+- [ ] `test-orchestrator.js` 作成
+- [ ] 基本的なspawnコード追加
+- [ ] **確認**: ファイル作成完了
 
-# 3. タスク分析の単体テスト
-bun test src/orchestrator/__tests__/task-analyzer.test.ts
-```
+###### L-2-2. サーバー起動テスト（5分）
+
+- [ ] orchestratorサーバーを起動
+- [ ] 起動ログを確認
+- [ ] エラーがないことを確認
+- [ ] **記録**: 起動ログ
+
+###### L-2-3. ツール実行テスト（10分）
+
+- [ ] analyze_complexityツールのテスト
+- [ ] 日本語タスクでのテスト
+- [ ] 結果の確認
+- [ ] **記録**: テスト結果
+
+##### L-3. ユニットテスト実行
+
+###### L-3-1. TaskAnalyzerテスト（5分）
+
+- [ ] `bun test task-analyzer.test.ts` 実行
+- [ ] 全テストがパスすることを確認
+- [ ] **記録**: テスト結果
+
+###### L-3-2. 統合テスト（5分）
+
+- [ ] `bun test` 実行（全テスト）
+- [ ] エラーがないことを確認
+- [ ] **記録**: カバレッジ情報
 
 #### GitHub Actions での統合テスト
 
-```yaml
-# .github/workflows/test-orchestrator.yml
-name: Test Orchestrator
-on:
-  pull_request:
-    branches: [feature/orchestrator-alpha]
-  workflow_dispatch:
+##### G-1. ワークフロー準備
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+###### G-1-1. テストワークフロー作成（5分）
 
-      - name: Setup test repository
-        run: |
-          # テスト用のIssueを作成
-          gh issue create \
-            --title "Orchestrator Test" \
-            --body "Test issue for orchestrator"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+- [ ] `.github/workflows/test-orchestrator.yml` 作成
+- [ ] 基本構造の記述
+- [ ] **コミット**: `ci: add orchestrator test workflow`
 
-      - name: Test orchestrator trigger
-        uses: ./ # ローカルアクションを使用
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+###### G-1-2. トリガー設定（5分）
 
-      - name: Post test comment
-        run: |
-          # テストコメントを投稿
-          gh issue comment ${{ env.ISSUE_NUMBER }} \
-            --body "@claude ユーザー認証システムを実装してください。JWTを使用。"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ steps.create-issue.outputs.number }}
+- [ ] PRトリガーの設定
+- [ ] workflow_dispatch追加
+- [ ] **コミット**: `ci: configure workflow triggers`
 
-      - name: Wait and check results
-        run: |
-          sleep 60  # 処理を待つ
+##### G-2. テスト実装
 
-          # コメントを確認
-          gh issue view ${{ env.ISSUE_NUMBER }} --comments
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
+###### G-2-1. Issue作成ステップ（5分）
+
+- [ ] Setup test repositoryステップ追加
+- [ ] gh issue createコマンド
+- [ ] **コミット**: `ci: add issue creation step`
+
+###### G-2-2. orchestrator実行ステップ（5分）
+
+- [ ] Test orchestrator triggerステップ追加
+- [ ] 必要な入力パラメータ設定
+- [ ] **コミット**: `ci: add orchestrator execution`
+
+###### G-2-3. 結果確認ステップ（5分）
+
+- [ ] コメント投稿ステップ追加
+- [ ] 結果確認ステップ追加
+- [ ] **コミット**: `ci: add result verification`
 
 #### 手動での動作確認手順
 
-1. **フォークしたリポジトリでの確認**
+##### M-1. リポジトリ準備
 
-   ```bash
-   # 1. リポジトリをフォーク
-   # 2. feature/orchestrator-alpha ブランチをチェックアウト
-   # 3. GitHub Actions を有効化
-   # 4. シークレットを設定 (ANTHROPIC_API_KEY)
-   ```
+###### M-1-1. フォーク作成（5分）
 
-2. **テスト用Issueでの確認**
+- [ ] GitHubでリポジトリをフォーク
+- [ ] フォークが完了したことを確認
+- [ ] **記録**: フォークURL
 
-   ```markdown
-   # Issue作成
+###### M-1-2. ブランチ準備（5分）
 
-   Title: Orchestrator機能テスト
+- [ ] feature/orchestrator-alphaをチェックアウト
+- [ ] ブランチが最新であることを確認
+- [ ] **記録**: コミットハッシュ
 
-   # コメント例1（単純タスク）
+###### M-1-3. Actions有効化（5分）
 
-   @claude README.mdのタイポを修正してください
+- [ ] Settingsタブを開く
+- [ ] Actionsを有効化
+- [ ] **記録**: 設定完了
 
-   # コメント例2（複雑タスク）
+###### M-1-4. シークレット設定（5分）
 
-   @claude ユーザー管理システムを実装してください。
-   以下の機能を含めてください：
+- [ ] Settings > Secretsを開く
+- [ ] ANTHROPIC_API_KEYを追加
+- [ ] **記録**: シークレット追加完了
 
-   - ユーザー登録
-   - ログイン/ログアウト
-   - パスワードリセット
-   - 権限管理
-   ```
+##### M-2. 機能テスト
 
-3. **期待される動作**
+###### M-2-1. 単純タスクテスト（10分）
 
-   - 単純タスク: 直接実行される
-   - 複雑タスク: サブタスクに分解されて実行
-   - 進捗がリアルタイムで更新される
+- [ ] テスト用Issue作成
+- [ ] "@claude README.mdのタイポを修正"
+- [ ] 実行結果の確認
+- [ ] **記録**: 実行ログURL
 
-4. **デバッグ方法**
+###### M-2-2. 複雑タスクテスト（10分）
 
-   ```bash
-   # GitHub Actions のログを確認
-   # 1. Actions タブを開く
-   # 2. 該当のワークフロー実行を選択
-   # 3. ステップごとのログを確認
+- [ ] 新しいIssue作成
+- [ ] 複雑なタスク例を投稿
+- [ ] サブタスク分解の確認
+- [ ] **記録**: 分解結果
 
-   # 特に以下を確認：
-   # - MCPサーバーの起動ログ
-   # - analyze_complexity の実行結果
-   # - prepare_batch_prompt の生成内容
-   ```
+###### M-2-3. 進捗更新確認（5分）
+
+- [ ] コメントの更新を監視
+- [ ] チェックボックスの更新確認
+- [ ] **記録**: 更新頻度
+
+#### デバッグ手順
+
+##### D-1. ログ確認
+
+###### D-1-1. Actionsログアクセス（5分）
+
+- [ ] Actionsタブを開く
+- [ ] 該当のワークフロー選択
+- [ ] **記録**: ワークフローURL
+
+###### D-1-2. MCPサーバーログ（5分）
+
+- [ ] MCPサーバー起動ステップを展開
+- [ ] エラーメッセージの確認
+- [ ] **記録**: エラー内容
+
+###### D-1-3. ツール実行ログ（5分）
+
+- [ ] analyze_complexity実行ログ確認
+- [ ] prepare_batch_prompt実行ログ確認
+- [ ] **記録**: 実行結果
 
 ## 10. 将来の拡張計画
 
