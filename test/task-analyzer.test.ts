@@ -10,6 +10,13 @@ describe("TaskAnalyzer.analyze", () => {
       confidence: 0,
       reason: "Analyzer not implemented",
       suggestedSubtasks: [],
+      isJapanese: false,
     });
+  });
+
+  it("detects Japanese text", () => {
+    const analyzer = new TaskAnalyzer();
+    const result = analyzer.analyze("日本語のタスクを実行してください");
+    expect(result.isJapanese).toBe(true);
   });
 });
