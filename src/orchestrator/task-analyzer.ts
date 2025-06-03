@@ -12,7 +12,7 @@ export class TaskAnalyzer {
     return {
       isComplex: false,
       confidence: 0,
-      reason: `Analysis not implemented yet (detected: ${isJapanese ? 'Japanese' : 'non-Japanese'})`,
+      reason: `Analysis not implemented yet (detected: ${isJapanese ? "Japanese" : "non-Japanese"})`,
       suggestedSubtasks: [],
     };
   }
