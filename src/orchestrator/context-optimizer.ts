@@ -1,4 +1,4 @@
-import type { ContextOptimizationResult } from './types';
+import type { ContextOptimizationResult } from "./types";
 
 export class ContextOptimizer {
   /**
@@ -11,8 +11,8 @@ export class ContextOptimizer {
     return {
       optimizedContext: context, // Currently returns the same context
       reductionPercentage: 0,
-      summary: 'Context optimization not implemented yet',
-      detectedLanguage: 'unknown'
+      summary: "Context optimization not implemented yet",
+      detectedLanguage: "unknown",
     };
   }
 }
