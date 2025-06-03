@@ -13,3 +13,21 @@ describe("TaskAnalyzer.analyze", () => {
     });
   });
 });
+
+describe("TaskAnalyzer patterns", () => {
+  it("matches Japanese keywords", () => {
+    const analyzer = new TaskAnalyzer() as any;
+    const patterns: RegExp[] = analyzer["japanesePatterns"];
+    expect(patterns.some((p) => p.test("この機能を実装する"))).toBe(true);
+    expect(patterns.some((p) => p.test("テストを追加"))).toBe(true);
+    expect(patterns.some((p) => p.test("設計を検討"))).toBe(true);
+  });
+
+  it("matches English keywords", () => {
+    const analyzer = new TaskAnalyzer() as any;
+    const patterns: RegExp[] = analyzer["englishPatterns"];
+    expect(patterns.some((p) => p.test("implement the feature"))).toBe(true);
+    expect(patterns.some((p) => p.test("write a test"))).toBe(true);
+    expect(patterns.some((p) => p.test("design the system"))).toBe(true);
+  });
+});
