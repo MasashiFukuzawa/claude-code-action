@@ -8,3 +8,10 @@ export type ComplexityAnalysis = {
   }>;
   error?: string;
 };
+
+export type ContextOptimizationResult = {
+  optimizedContext: string;
+  reductionPercentage: number;
+  summary: string;
+  detectedLanguage: string;
+};
