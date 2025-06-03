@@ -13,7 +13,7 @@ export class TaskAnalyzer {
    * @param task - The task description to analyze
    * @returns Analysis result with complexity determination
    */
-  analyze(task: string): ComplexityAnalysis {
+  analyze(_task: string): ComplexityAnalysis {
     // Fixed values for skeleton implementation
     return {
       isComplex: false,
