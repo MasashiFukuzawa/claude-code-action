@@ -126,7 +126,11 @@ export class TaskAnalyzer {
       reasons.push("シンプルなタスクです");
     }
 
-    const suggestedSubtasks = this.generateSubtasks(task, indicators, isComplex);
+    const suggestedSubtasks = this.generateSubtasks(
+      task,
+      indicators,
+      isComplex,
+    );
 
     return {
       isComplex,
@@ -175,7 +179,10 @@ export class TaskAnalyzer {
     }
 
     // Add test subtask if testing is mentioned or if it's a complex implementation
-    if (indicators.hasTestKeywords || (indicators.hasImplementKeywords && isComplex)) {
+    if (
+      indicators.hasTestKeywords ||
+      (indicators.hasImplementKeywords && isComplex)
+    ) {
       subtasks.push({
         mode: "code",
         description: isJapanese ? "テストの作成" : "Test creation",
