@@ -452,7 +452,9 @@ describe("extractTaskFromComment", () => {
         issue: { number: 1 },
       } as IssueCommentEvent,
     });
-    expect(extractTaskFromComment(context)).toBe("Fix the bug in the login form");
+    expect(extractTaskFromComment(context)).toBe(
+      "Fix the bug in the login form",
+    );
   });
 
   it("should return empty string for comment without trigger phrase", () => {

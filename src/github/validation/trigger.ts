@@ -140,7 +140,10 @@ export function extractTaskFromComment(context: ParsedGitHubContext): string {
   let commentBody = "";
 
   // Extract comment body based on event type
-  if (isIssueCommentEvent(context) || isPullRequestReviewCommentEvent(context)) {
+  if (
+    isIssueCommentEvent(context) ||
+    isPullRequestReviewCommentEvent(context)
+  ) {
     commentBody = context.payload.comment.body;
   } else if (isPullRequestReviewEvent(context)) {
     commentBody = context.payload.review.body || "";
