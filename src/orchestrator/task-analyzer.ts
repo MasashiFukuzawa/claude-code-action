@@ -32,4 +32,13 @@ export class TaskAnalyzer {
     // Empty implementation - will be implemented incrementally
     return false;
   }
+
+  /**
+   * Public wrapper for testing detectJapanese (temporary)
+   * @param text - Text to analyze
+   * @returns True if Japanese characters are detected
+   */
+  public testDetectJapanese(text: string): boolean {
+    return this.detectJapanese(text);
+  }
 }
