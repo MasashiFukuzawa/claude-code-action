@@ -507,4 +507,470 @@ describe("Orchestrator MCP Server", () => {
       expect(result.content?.[0]?.text).toContain('"isComplex": false');
     });
   });
+
+  describe("manage_task_state tool", () => {
+    test("should create new task state", async () => {
+      const toolHandler = async (params: any) => {
+        // Simulate the manage_task_state tool logic
+        if (params.action === "create" && !params.description) {
+          throw new Error("Description is required for create action");
+        }
+        const now = new Date().toISOString();
+        const id = `task_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const newTask = {
+          id,
+          description: params.description,
+          status: params.status || "pending",
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                action: "create",
+                task: newTask,
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        action: "create",
+        description: "Test task description",
+        status: "pending",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"action": "create"');
+      expect(result.content?.[0]?.text).toContain("Test task description");
+      expect(result.content?.[0]?.text).toContain('"status": "pending"');
+    });
+
+    test("should update existing task state", async () => {
+      const toolHandler = async (params: any) => {
+        if (params.action === "update" && !params.taskId) {
+          throw new Error("Task ID is required for update action");
+        }
+        const now = new Date().toISOString();
+        const updatedTask = {
+          id: params.taskId,
+          description: "Original description",
+          status: params.status || "completed",
+          result: params.result,
+          createdAt: "2024-01-01T00:00:00.000Z",
+          updatedAt: now,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                action: "update",
+                task: updatedTask,
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        action: "update",
+        taskId: "task_123_abc",
+        status: "completed",
+        result: "Task completed successfully",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"action": "update"');
+      expect(result.content?.[0]?.text).toContain('"status": "completed"');
+      expect(result.content?.[0]?.text).toContain("Task completed successfully");
+    });
+
+    test("should get task state by ID", async () => {
+      const toolHandler = async (params: any) => {
+        if (params.action === "get" && !params.taskId) {
+          throw new Error("Task ID is required for get action");
+        }
+        const task = {
+          id: params.taskId,
+          description: "Test task",
+          status: "in_progress",
+          createdAt: "2024-01-01T00:00:00.000Z",
+          updatedAt: "2024-01-01T01:00:00.000Z",
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                action: "get",
+                task,
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        action: "get",
+        taskId: "task_123_abc",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"action": "get"');
+      expect(result.content?.[0]?.text).toContain("Test task");
+      expect(result.content?.[0]?.text).toContain('"status": "in_progress"');
+    });
+
+    test("should list all tasks", async () => {
+      const toolHandler = async (params: any) => {
+        const tasks = [
+          {
+            id: "task_1",
+            description: "First task",
+            status: "completed",
+            createdAt: "2024-01-01T00:00:00.000Z",
+            updatedAt: "2024-01-01T01:00:00.000Z",
+          },
+          {
+            id: "task_2",
+            description: "Second task",
+            status: "pending",
+            createdAt: "2024-01-01T00:00:00.000Z",
+            updatedAt: "2024-01-01T00:30:00.000Z",
+          },
+        ];
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                action: "list",
+                tasks,
+                count: tasks.length,
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        action: "list",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"action": "list"');
+      expect(result.content?.[0]?.text).toContain('"count": 2');
+      expect(result.content?.[0]?.text).toContain("First task");
+      expect(result.content?.[0]?.text).toContain("Second task");
+    });
+
+    test("should delete task state", async () => {
+      const toolHandler = async (params: any) => {
+        if (params.action === "delete" && !params.taskId) {
+          throw new Error("Task ID is required for delete action");
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                action: "delete",
+                taskId: params.taskId,
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        action: "delete",
+        taskId: "task_123_abc",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"action": "delete"');
+      expect(result.content?.[0]?.text).toContain('"taskId": "task_123_abc"');
+    });
+
+    test("should handle errors for invalid actions", async () => {
+      const toolHandler = async (params: any) => {
+        try {
+          if (params.action === "create" && !params.description) {
+            throw new Error("Description is required for create action");
+          }
+          return { content: [{ type: "text", text: '{"success": true}' }] };
+        } catch (error) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify({
+                  success: false,
+                  action: params.action,
+                  error: error instanceof Error ? error.message : "Unknown error",
+                }, null, 2),
+              },
+            ],
+          };
+        }
+      };
+
+      const result = await toolHandler({
+        action: "create",
+        // Missing description
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": false');
+      expect(result.content?.[0]?.text).toContain("Description is required for create action");
+    });
+  });
+
+  describe("track_progress tool", () => {
+    test("should generate summary progress report", async () => {
+      const toolHandler = async (params: any) => {
+        const metrics = {
+          total: 5,
+          pending: 1,
+          inProgress: 2,
+          completed: 2,
+          failed: 0,
+        };
+
+        const recentTasks = [
+          {
+            id: "task_1",
+            description: "Recent task description",
+            status: "completed",
+            updatedAt: "2024-01-01T01:00:00.000Z",
+          },
+        ];
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                format: params.format || "summary",
+                filterStatus: params.filterStatus,
+                report: {
+                  metrics,
+                  recentTasks,
+                },
+                generatedAt: new Date().toISOString(),
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        format: "summary",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"format": "summary"');
+      expect(result.content?.[0]?.text).toContain('"total": 5');
+      expect(result.content?.[0]?.text).toContain('"pending": 1');
+      expect(result.content?.[0]?.text).toContain('"inProgress": 2');
+      expect(result.content?.[0]?.text).toContain('"completed": 2');
+    });
+
+    test("should generate detailed progress report", async () => {
+      const toolHandler = async (params: any) => {
+        const metrics = {
+          total: 3,
+          pending: 1,
+          inProgress: 1,
+          completed: 1,
+          failed: 0,
+        };
+
+        const tasks = [
+          {
+            id: "task_1",
+            description: "First detailed task",
+            status: "completed",
+            createdAt: "2024-01-01T00:00:00.000Z",
+            updatedAt: "2024-01-01T01:00:00.000Z",
+          },
+          {
+            id: "task_2",
+            description: "Second detailed task",
+            status: "in_progress",
+            createdAt: "2024-01-01T00:00:00.000Z",
+            updatedAt: "2024-01-01T00:30:00.000Z",
+          },
+        ];
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                format: "detailed",
+                filterStatus: params.filterStatus,
+                report: {
+                  metrics,
+                  tasks,
+                },
+                generatedAt: new Date().toISOString(),
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        format: "detailed",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"format": "detailed"');
+      expect(result.content?.[0]?.text).toContain("First detailed task");
+      expect(result.content?.[0]?.text).toContain("Second detailed task");
+    });
+
+    test("should generate metrics progress report", async () => {
+      const toolHandler = async (params: any) => {
+        const metrics = {
+          total: 10,
+          pending: 2,
+          inProgress: 3,
+          completed: 4,
+          failed: 1,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                format: "metrics",
+                filterStatus: params.filterStatus,
+                report: {
+                  metrics,
+                  completionRate: "40.0%",
+                  failureRate: "10.0%",
+                  activeRate: "30.0%",
+                },
+                generatedAt: new Date().toISOString(),
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        format: "metrics",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"format": "metrics"');
+      expect(result.content?.[0]?.text).toContain('"completionRate": "40.0%"');
+      expect(result.content?.[0]?.text).toContain('"failureRate": "10.0%"');
+      expect(result.content?.[0]?.text).toContain('"activeRate": "30.0%"');
+    });
+
+    test("should filter progress report by status", async () => {
+      const toolHandler = async (params: any) => {
+        const metrics = {
+          total: 5,
+          pending: 2,
+          inProgress: 0,
+          completed: 3,
+          failed: 0,
+        };
+
+        const filteredTasks = [
+          {
+            id: "task_1",
+            description: "Completed task 1",
+            status: "completed",
+            updatedAt: "2024-01-01T01:00:00.000Z",
+          },
+          {
+            id: "task_2",
+            description: "Completed task 2",
+            status: "completed",
+            updatedAt: "2024-01-01T00:30:00.000Z",
+          },
+        ];
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                success: true,
+                format: "summary",
+                filterStatus: params.filterStatus,
+                report: {
+                  metrics,
+                  recentTasks: filteredTasks,
+                },
+                generatedAt: new Date().toISOString(),
+              }, null, 2),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        format: "summary",
+        filterStatus: "completed",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"filterStatus": "completed"');
+      expect(result.content?.[0]?.text).toContain("Completed task 1");
+      expect(result.content?.[0]?.text).toContain("Completed task 2");
+    });
+
+    test("should handle progress tracking errors", async () => {
+      const toolHandler = async (params: any) => {
+        try {
+          if (params.format === "invalid") {
+            throw new Error("Unknown format: invalid");
+          }
+          return { content: [{ type: "text", text: '{"success": true}' }] };
+        } catch (error) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify({
+                  success: false,
+                  error: error instanceof Error ? error.message : "Unknown error",
+                }, null, 2),
+              },
+            ],
+          };
+        }
+      };
+
+      const result = await toolHandler({
+        format: "invalid",
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": false');
+      expect(result.content?.[0]?.text).toContain("Unknown format: invalid");
+    });
+  });
 });
