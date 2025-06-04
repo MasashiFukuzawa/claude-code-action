@@ -65,7 +65,8 @@ describe("Orchestrator MCP Server", () => {
                     confidence: 0,
                     reason: `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
                     suggestedSubtasks: [],
-                    error: error instanceof Error ? error.message : "Unknown error",
+                    error:
+                      error instanceof Error ? error.message : "Unknown error",
                   },
                   null,
                   2,
@@ -76,10 +77,16 @@ describe("Orchestrator MCP Server", () => {
         }
       };
 
-      const result = await toolHandler({ task: "実装とテストを行ってください" });
+      const result = await toolHandler({
+        task: "実装とテストを行ってください",
+      });
 
-      expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("実装とテストを行ってください");
-      expect(result.content[0].text).toContain(JSON.stringify(mockAnalysisResult, null, 2));
+      expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(
+        "実装とテストを行ってください",
+      );
+      expect(result.content[0].text).toContain(
+        JSON.stringify(mockAnalysisResult, null, 2),
+      );
     });
 
     test("should handle Japanese task descriptions", async () => {
@@ -105,9 +112,13 @@ describe("Orchestrator MCP Server", () => {
         };
       };
 
-      const result = await toolHandler({ task: "設計してから実装し、テストも行ってください" });
+      const result = await toolHandler({
+        task: "設計してから実装し、テストも行ってください",
+      });
 
-      expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("設計してから実装し、テストも行ってください");
+      expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(
+        "設計してから実装し、テストも行ってください",
+      );
       expect(result.content[0].text).toContain("複数の操作が含まれています");
     });
 
@@ -134,9 +145,13 @@ describe("Orchestrator MCP Server", () => {
         };
       };
 
-      const result = await toolHandler({ task: "implement and test the feature" });
+      const result = await toolHandler({
+        task: "implement and test the feature",
+      });
 
-      expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("implement and test the feature");
+      expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(
+        "implement and test the feature",
+      );
       expect(result.content[0].text).toContain("Multiple operations required");
     });
 
@@ -201,7 +216,8 @@ describe("Orchestrator MCP Server", () => {
                     confidence: 0,
                     reason: `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
                     suggestedSubtasks: [],
-                    error: error instanceof Error ? error.message : "Unknown error",
+                    error:
+                      error instanceof Error ? error.message : "Unknown error",
                   },
                   null,
                   2,
@@ -215,7 +231,9 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: "some task" });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("some task");
-      expect(result.content[0].text).toContain("Analysis failed: Analysis failed");
+      expect(result.content[0].text).toContain(
+        "Analysis failed: Analysis failed",
+      );
       expect(result.content[0].text).toContain('"isComplex": false');
       expect(result.content[0].text).toContain('"confidence": 0');
       expect(result.content[0].text).toContain('"error": "Analysis failed"');
@@ -251,7 +269,8 @@ describe("Orchestrator MCP Server", () => {
                     confidence: 0,
                     reason: `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
                     suggestedSubtasks: [],
-                    error: error instanceof Error ? error.message : "Unknown error",
+                    error:
+                      error instanceof Error ? error.message : "Unknown error",
                   },
                   null,
                   2,
@@ -264,7 +283,9 @@ describe("Orchestrator MCP Server", () => {
 
       const result = await toolHandler({ task: "some task" });
 
-      expect(result.content[0].text).toContain("Analysis failed: Unknown error");
+      expect(result.content[0].text).toContain(
+        "Analysis failed: Unknown error",
+      );
       expect(result.content[0].text).toContain('"error": "Unknown error"');
     });
 
@@ -272,7 +293,8 @@ describe("Orchestrator MCP Server", () => {
       const mockAnalysisResult = {
         isComplex: true,
         confidence: 0.85,
-        reason: "複数の操作が含まれています、設計・アーキテクチャ要素が含まれています",
+        reason:
+          "複数の操作が含まれています、設計・アーキテクチャ要素が含まれています",
         suggestedSubtasks: [],
       };
 
@@ -291,7 +313,9 @@ describe("Orchestrator MCP Server", () => {
         };
       };
 
-      const result = await toolHandler({ task: "設計して実装してテストしてください" });
+      const result = await toolHandler({
+        task: "設計して実装してテストしてください",
+      });
 
       // Verify the result structure
       expect(result).toHaveProperty("content");
@@ -338,7 +362,8 @@ describe("Orchestrator MCP Server", () => {
     });
 
     test("should handle very long task descriptions", async () => {
-      const longTask = "A".repeat(1000) + " implementation and testing required";
+      const longTask =
+        "A".repeat(1000) + " implementation and testing required";
       const mockAnalysisResult = {
         isComplex: true,
         confidence: 0.6,
@@ -438,10 +463,14 @@ describe("Orchestrator MCP Server", () => {
       await expect(toolHandler({})).rejects.toThrow("Invalid task parameter");
 
       // Test with null task parameter
-      await expect(toolHandler({ task: null })).rejects.toThrow("Invalid task parameter");
+      await expect(toolHandler({ task: null })).rejects.toThrow(
+        "Invalid task parameter",
+      );
 
       // Test with non-string task parameter
-      await expect(toolHandler({ task: 123 })).rejects.toThrow("Invalid task parameter");
+      await expect(toolHandler({ task: 123 })).rejects.toThrow(
+        "Invalid task parameter",
+      );
     });
 
     test("should accept valid task parameter", async () => {
