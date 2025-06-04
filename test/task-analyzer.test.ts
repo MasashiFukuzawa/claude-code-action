@@ -41,7 +41,8 @@ describe("TaskAnalyzer", () => {
   describe("Pattern matching", () => {
     test("should analyze indicators for Japanese text", () => {
       const analyzer = new TaskAnalyzer();
-      const result = analyzer.testAnalyzeIndicators("実装とテストを行ってください");
+      const result =
+        analyzer.testAnalyzeIndicators("実装とテストを行ってください");
 
       expect(result.hasMultipleActions).toBe(true); // "と" pattern
       expect(result.hasImplementKeywords).toBe(true); // "実装"
@@ -50,7 +51,9 @@ describe("TaskAnalyzer", () => {
 
     test("should analyze indicators for English text", () => {
       const analyzer = new TaskAnalyzer();
-      const result = analyzer.testAnalyzeIndicators("implement and test the feature");
+      const result = analyzer.testAnalyzeIndicators(
+        "implement and test the feature",
+      );
 
       expect(result.hasMultipleActions).toBe(true); // "and" pattern
       expect(result.hasImplementKeywords).toBe(true); // "implement"
@@ -70,7 +73,7 @@ describe("TaskAnalyzer", () => {
   describe("Scoring logic", () => {
     test("should calculate complexity score correctly", () => {
       const analyzer = new TaskAnalyzer();
-      
+
       // Test simple task (no indicators)
       const simpleIndicators = {
         hasMultipleActions: false,
@@ -89,7 +92,9 @@ describe("TaskAnalyzer", () => {
         hasImplementKeywords: true,
         hasTestKeywords: true,
       };
-      expect(analyzer.testCalculateComplexityScore(complexIndicators)).toBe(1.0);
+      expect(analyzer.testCalculateComplexityScore(complexIndicators)).toBe(
+        1.0,
+      );
 
       // Test medium complexity
       const mediumIndicators = {
@@ -99,7 +104,9 @@ describe("TaskAnalyzer", () => {
         hasImplementKeywords: false,
         hasTestKeywords: false,
       };
-      expect(analyzer.testCalculateComplexityScore(mediumIndicators)).toBe(0.55);
+      expect(analyzer.testCalculateComplexityScore(mediumIndicators)).toBe(
+        0.55,
+      );
     });
 
     test("should return proper analysis for complex task", () => {

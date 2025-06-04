@@ -1,4 +1,9 @@
-import type { ComplexityAnalysis, JapanesePatterns, EnglishPatterns, ComplexityIndicators } from "./types";
+import type {
+  ComplexityAnalysis,
+  JapanesePatterns,
+  EnglishPatterns,
+  ComplexityIndicators,
+} from "./types";
 
 /**
  * TaskAnalyzer class for analyzing task complexity
@@ -107,9 +112,11 @@ export class TaskAnalyzer {
     const isComplex = score > 0.5;
 
     let reasons: string[] = [];
-    if (indicators.hasMultipleActions) reasons.push("複数の操作が含まれています");
+    if (indicators.hasMultipleActions)
+      reasons.push("複数の操作が含まれています");
     if (indicators.hasConditionals) reasons.push("条件分岐が含まれています");
-    if (indicators.hasDesignKeywords) reasons.push("設計・アーキテクチャ要素が含まれています");
+    if (indicators.hasDesignKeywords)
+      reasons.push("設計・アーキテクチャ要素が含まれています");
     if (indicators.hasImplementKeywords && indicators.hasTestKeywords) {
       reasons.push("実装とテストの両方が必要です");
     }
@@ -189,16 +196,35 @@ export class TaskAnalyzer {
    */
   private analyzeIndicators(task: string): ComplexityIndicators {
     const isJapanese = this.detectJapanese(task);
-    const patterns = isJapanese ? this._japanesePatterns : this._englishPatterns;
+    const patterns = isJapanese
+      ? this._japanesePatterns
+      : this._englishPatterns;
 
     const lowerTask = task.toLowerCase();
 
     return {
-      hasMultipleActions: this.matchPatterns(lowerTask, patterns.multipleActions || []),
-      hasConditionals: this.matchPatterns(lowerTask, patterns.conditionals || []),
-      hasDesignKeywords: this.matchPatterns(lowerTask, patterns.designKeywords || []),
-      hasImplementKeywords: this.matchPatterns(lowerTask, patterns.implementKeywords || []),
-      hasTestKeywords: this.matchPatterns(lowerTask, ["test", "テスト", "testing", "spec"]),
+      hasMultipleActions: this.matchPatterns(
+        lowerTask,
+        patterns.multipleActions || [],
+      ),
+      hasConditionals: this.matchPatterns(
+        lowerTask,
+        patterns.conditionals || [],
+      ),
+      hasDesignKeywords: this.matchPatterns(
+        lowerTask,
+        patterns.designKeywords || [],
+      ),
+      hasImplementKeywords: this.matchPatterns(
+        lowerTask,
+        patterns.implementKeywords || [],
+      ),
+      hasTestKeywords: this.matchPatterns(lowerTask, [
+        "test",
+        "テスト",
+        "testing",
+        "spec",
+      ]),
     };
   }
 
@@ -209,7 +235,7 @@ export class TaskAnalyzer {
    * @returns True if any pattern matches
    */
   private matchPatterns(text: string, patterns: string[]): boolean {
-    return patterns.some(pattern => {
+    return patterns.some((pattern) => {
       try {
         const regex = new RegExp(pattern, "i");
         return regex.test(text);
@@ -234,7 +260,9 @@ export class TaskAnalyzer {
    * @param indicators - Complexity indicators
    * @returns Score between 0 and 1
    */
-  public testCalculateComplexityScore(indicators: ComplexityIndicators): number {
+  public testCalculateComplexityScore(
+    indicators: ComplexityIndicators,
+  ): number {
     return this.calculateComplexityScore(indicators);
   }
 }
