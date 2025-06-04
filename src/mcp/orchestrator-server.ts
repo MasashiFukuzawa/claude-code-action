@@ -21,13 +21,15 @@ server.tool(
   "analyze_complexity",
   "Analyze task complexity and suggest subtasks for orchestration",
   {
-    task: z.string().describe("Task description in any language (Japanese or English)"),
+    task: z
+      .string()
+      .describe("Task description in any language (Japanese or English)"),
   },
   async ({ task }) => {
     try {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze(task);
-      
+
       return {
         content: [
           {
@@ -38,18 +40,22 @@ server.tool(
       };
     } catch (error) {
       console.error("Error analyzing task complexity:", error);
-      
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify({
-              isComplex: false,
-              confidence: 0,
-              reason: `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-              suggestedSubtasks: [],
-              error: error instanceof Error ? error.message : "Unknown error",
-            }, null, 2),
+            text: JSON.stringify(
+              {
+                isComplex: false,
+                confidence: 0,
+                reason: `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+                suggestedSubtasks: [],
+                error: error instanceof Error ? error.message : "Unknown error",
+              },
+              null,
+              2,
+            ),
           },
         ],
       };
