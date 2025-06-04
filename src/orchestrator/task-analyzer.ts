@@ -8,7 +8,28 @@ export class TaskAnalyzer {
 
   constructor() {
     // Initialize TaskAnalyzer
-    this._japanesePatterns = {};
+    this._japanesePatterns = {
+      multipleActions: [
+        "と.*と",
+        "また",
+        "さらに",
+        "ついでに",
+        "合わせて",
+        "同時に",
+        ".*して.*して",
+        ".*と.*を",
+      ],
+      conditionals: [
+        "もし",
+        "場合",
+        "条件",
+        "なら",
+        "であれば",
+        "ときは",
+        "際は",
+        "状況",
+      ],
+    };
   }
 
   /**
