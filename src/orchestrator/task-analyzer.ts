@@ -1,4 +1,4 @@
-import type { ComplexityAnalysis, JapanesePatterns, EnglishPatterns } from "./types";
+import type { ComplexityAnalysis, JapanesePatterns, EnglishPatterns, ComplexityIndicators } from "./types";
 
 /**
  * TaskAnalyzer class for analyzing task complexity
@@ -148,5 +148,30 @@ export class TaskAnalyzer {
    */
   public getEnglishPatterns(): EnglishPatterns {
     return this._englishPatterns;
+  }
+
+  /**
+   * Analyze indicators for task complexity
+   * @param task - Task description to analyze
+   * @returns Complexity indicators
+   */
+  private analyzeIndicators(_task: string): ComplexityIndicators {
+    // Fixed values for skeleton implementation
+    return {
+      hasMultipleActions: false,
+      hasConditionals: false,
+      hasDesignKeywords: false,
+      hasImplementKeywords: false,
+      hasTestKeywords: false,
+    };
+  }
+
+  /**
+   * Test method for analyzeIndicators (temporary)
+   * @param task - Task description to analyze
+   * @returns Complexity indicators
+   */
+  public testAnalyzeIndicators(task: string): ComplexityIndicators {
+    return this.analyzeIndicators(task);
   }
 }
