@@ -646,7 +646,7 @@ describe("Orchestrator MCP Server", () => {
     });
 
     test("should list all tasks", async () => {
-      const toolHandler = async (params: any) => {
+      const toolHandler = async (_params: any) => {
         const tasks = [
           {
             id: "task_1",
