@@ -41,3 +41,20 @@ export type ExecutionMode =
   | "debug"
   | "ask"
   | "orchestrator";
+
+/**
+ * Japanese patterns for complexity analysis
+ */
+export interface JapanesePatterns {
+  /** Patterns indicating multiple actions */
+  multipleActions?: string[];
+
+  /** Patterns indicating conditional logic */
+  conditionals?: string[];
+
+  /** Keywords for design and architecture tasks */
+  designKeywords?: string[];
+
+  /** Keywords for implementation tasks */
+  implementKeywords?: string[];
+}
