@@ -7,16 +7,14 @@ describe("TaskAnalyzer", () => {
     expect(analyzer).toBeInstanceOf(TaskAnalyzer);
   });
 
-  test("should return fixed analysis", () => {
+  test("should return analysis with scoring logic", () => {
     const analyzer = new TaskAnalyzer();
     const result = analyzer.analyze("test task");
 
-    expect(result).toEqual({
-      isComplex: false,
-      confidence: 1.0,
-      reason: "Skeleton implementation - always returns simple task",
-      suggestedSubtasks: [],
-    });
+    expect(result.isComplex).toBe(false);
+    expect(result.confidence).toBeGreaterThan(0);
+    expect(result.reason).toContain("シンプル");
+    expect(result.suggestedSubtasks).toEqual([]);
   });
 
   describe("Japanese detection", () => {
@@ -66,6 +64,61 @@ describe("TaskAnalyzer", () => {
       expect(result.hasMultipleActions).toBe(false);
       expect(result.hasConditionals).toBe(false);
       expect(result.hasDesignKeywords).toBe(false);
+    });
+  });
+
+  describe("Scoring logic", () => {
+    test("should calculate complexity score correctly", () => {
+      const analyzer = new TaskAnalyzer();
+      
+      // Test simple task (no indicators)
+      const simpleIndicators = {
+        hasMultipleActions: false,
+        hasConditionals: false,
+        hasDesignKeywords: false,
+        hasImplementKeywords: false,
+        hasTestKeywords: false,
+      };
+      expect(analyzer.testCalculateComplexityScore(simpleIndicators)).toBe(0);
+
+      // Test complex task (all indicators)
+      const complexIndicators = {
+        hasMultipleActions: true,
+        hasConditionals: true,
+        hasDesignKeywords: true,
+        hasImplementKeywords: true,
+        hasTestKeywords: true,
+      };
+      expect(analyzer.testCalculateComplexityScore(complexIndicators)).toBe(1.0);
+
+      // Test medium complexity
+      const mediumIndicators = {
+        hasMultipleActions: true,
+        hasConditionals: false,
+        hasDesignKeywords: true,
+        hasImplementKeywords: false,
+        hasTestKeywords: false,
+      };
+      expect(analyzer.testCalculateComplexityScore(mediumIndicators)).toBe(0.55);
+    });
+
+    test("should return proper analysis for complex task", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("実装とテストを設計してください");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.5);
+      expect(result.reason).toContain("複数の操作");
+      expect(result.suggestedSubtasks).toEqual([]);
+    });
+
+    test("should return proper analysis for simple task", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("fix bug");
+
+      expect(result.isComplex).toBe(false);
+      expect(result.confidence).toBeGreaterThan(0);
+      expect(result.reason).toContain("シンプル");
     });
   });
 });

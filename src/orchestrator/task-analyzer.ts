@@ -101,14 +101,46 @@ export class TaskAnalyzer {
    * @param task - The task description to analyze
    * @returns Analysis result with complexity determination
    */
-  analyze(_task: string): ComplexityAnalysis {
-    // Fixed values for skeleton implementation
+  analyze(task: string): ComplexityAnalysis {
+    const indicators = this.analyzeIndicators(task);
+    const score = this.calculateComplexityScore(indicators);
+    const isComplex = score > 0.5;
+
+    let reasons: string[] = [];
+    if (indicators.hasMultipleActions) reasons.push("複数の操作が含まれています");
+    if (indicators.hasConditionals) reasons.push("条件分岐が含まれています");
+    if (indicators.hasDesignKeywords) reasons.push("設計・アーキテクチャ要素が含まれています");
+    if (indicators.hasImplementKeywords && indicators.hasTestKeywords) {
+      reasons.push("実装とテストの両方が必要です");
+    }
+
+    if (reasons.length === 0) {
+      reasons.push("シンプルなタスクです");
+    }
+
     return {
-      isComplex: false,
-      confidence: 1.0,
-      reason: "Skeleton implementation - always returns simple task",
+      isComplex,
+      confidence: Math.max(Math.min(score * 1.5, 1.0), 0.1),
+      reason: reasons.join("、"),
       suggestedSubtasks: [],
     };
+  }
+
+  /**
+   * Calculate complexity score based on indicators
+   * @param indicators - Complexity indicators
+   * @returns Score between 0 and 1
+   */
+  private calculateComplexityScore(indicators: ComplexityIndicators): number {
+    let score = 0;
+
+    if (indicators.hasMultipleActions) score += 0.3;
+    if (indicators.hasConditionals) score += 0.2;
+    if (indicators.hasDesignKeywords) score += 0.25;
+    if (indicators.hasImplementKeywords) score += 0.15;
+    if (indicators.hasTestKeywords) score += 0.1;
+
+    return Math.min(score, 1.0);
   }
 
   /**
@@ -195,5 +227,14 @@ export class TaskAnalyzer {
    */
   public testAnalyzeIndicators(task: string): ComplexityIndicators {
     return this.analyzeIndicators(task);
+  }
+
+  /**
+   * Test method for calculateComplexityScore (temporary)
+   * @param indicators - Complexity indicators
+   * @returns Score between 0 and 1
+   */
+  public testCalculateComplexityScore(indicators: ComplexityIndicators): number {
+    return this.calculateComplexityScore(indicators);
   }
 }
