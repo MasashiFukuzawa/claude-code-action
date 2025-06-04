@@ -28,9 +28,13 @@ export class TaskAnalyzer {
    * @param text - Text to analyze
    * @returns True if Japanese characters are detected
    */
-  private detectJapanese(_text: string): boolean {
-    // Empty implementation - will be implemented incrementally
-    return false;
+  private detectJapanese(text: string): boolean {
+    // Regular expression to match Japanese characters
+    // \u3040-\u309F: Hiragana
+    // \u30A0-\u30FF: Katakana
+    // \u4E00-\u9FAF: Kanji
+    const japanesePattern = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/;
+    return japanesePattern.test(text);
   }
 
   /**
