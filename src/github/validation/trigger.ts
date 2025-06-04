@@ -130,6 +130,12 @@ export function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+export function shouldUseOrchestrator(_context: ParsedGitHubContext): boolean {
+  // orchestratorモードは常に有効
+  // 単純なタスクでもオーケストレーターが判断して直接実行
+  return true;
+}
+
 export async function checkTriggerAction(context: ParsedGitHubContext) {
   const containsTrigger = checkContainsTrigger(context);
   core.setOutput("contains_trigger", containsTrigger.toString());
