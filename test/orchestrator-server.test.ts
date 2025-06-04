@@ -769,7 +769,7 @@ describe("Orchestrator MCP Server", () => {
   });
 
   describe("track_progress tool", () => {
-    test("should generate summary progress report", async () => {
+    test("should generate progress report", async () => {
       const toolHandler = async (params: any) => {
         const metrics = {
           total: 5,
@@ -795,7 +795,6 @@ describe("Orchestrator MCP Server", () => {
               text: JSON.stringify(
                 {
                   success: true,
-                  format: params.format || "summary",
                   filterStatus: params.filterStatus,
                   report: {
                     metrics,
@@ -811,122 +810,13 @@ describe("Orchestrator MCP Server", () => {
         };
       };
 
-      const result = await toolHandler({
-        format: "summary",
-      });
+      const result = await toolHandler({});
 
       expect(result.content?.[0]?.text).toContain('"success": true');
-      expect(result.content?.[0]?.text).toContain('"format": "summary"');
       expect(result.content?.[0]?.text).toContain('"total": 5');
       expect(result.content?.[0]?.text).toContain('"pending": 1');
       expect(result.content?.[0]?.text).toContain('"inProgress": 2');
       expect(result.content?.[0]?.text).toContain('"completed": 2');
-    });
-
-    test("should generate detailed progress report", async () => {
-      const toolHandler = async (params: any) => {
-        const metrics = {
-          total: 3,
-          pending: 1,
-          inProgress: 1,
-          completed: 1,
-          failed: 0,
-        };
-
-        const tasks = [
-          {
-            id: "task_1",
-            description: "First detailed task",
-            status: "completed",
-            createdAt: "2024-01-01T00:00:00.000Z",
-            updatedAt: "2024-01-01T01:00:00.000Z",
-          },
-          {
-            id: "task_2",
-            description: "Second detailed task",
-            status: "in_progress",
-            createdAt: "2024-01-01T00:00:00.000Z",
-            updatedAt: "2024-01-01T00:30:00.000Z",
-          },
-        ];
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  format: "detailed",
-                  filterStatus: params.filterStatus,
-                  report: {
-                    metrics,
-                    tasks,
-                  },
-                  generatedAt: new Date().toISOString(),
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
-      };
-
-      const result = await toolHandler({
-        format: "detailed",
-      });
-
-      expect(result.content?.[0]?.text).toContain('"success": true');
-      expect(result.content?.[0]?.text).toContain('"format": "detailed"');
-      expect(result.content?.[0]?.text).toContain("First detailed task");
-      expect(result.content?.[0]?.text).toContain("Second detailed task");
-    });
-
-    test("should generate metrics progress report", async () => {
-      const toolHandler = async (params: any) => {
-        const metrics = {
-          total: 10,
-          pending: 2,
-          inProgress: 3,
-          completed: 4,
-          failed: 1,
-        };
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  format: "metrics",
-                  filterStatus: params.filterStatus,
-                  report: {
-                    metrics,
-                    completionRate: "40.0%",
-                    failureRate: "10.0%",
-                    activeRate: "30.0%",
-                  },
-                  generatedAt: new Date().toISOString(),
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
-      };
-
-      const result = await toolHandler({
-        format: "metrics",
-      });
-
-      expect(result.content?.[0]?.text).toContain('"success": true');
-      expect(result.content?.[0]?.text).toContain('"format": "metrics"');
-      expect(result.content?.[0]?.text).toContain('"completionRate": "40.0%"');
-      expect(result.content?.[0]?.text).toContain('"failureRate": "10.0%"');
-      expect(result.content?.[0]?.text).toContain('"activeRate": "30.0%"');
     });
 
     test("should filter progress report by status", async () => {
@@ -961,7 +851,6 @@ describe("Orchestrator MCP Server", () => {
               text: JSON.stringify(
                 {
                   success: true,
-                  format: "summary",
                   filterStatus: params.filterStatus,
                   report: {
                     metrics,
@@ -978,7 +867,6 @@ describe("Orchestrator MCP Server", () => {
       };
 
       const result = await toolHandler({
-        format: "summary",
         filterStatus: "completed",
       });
 
@@ -993,8 +881,8 @@ describe("Orchestrator MCP Server", () => {
     test("should handle progress tracking errors", async () => {
       const toolHandler = async (params: any) => {
         try {
-          if (params.format === "invalid") {
-            throw new Error("Unknown format: invalid");
+          if (params.invalidParam) {
+            throw new Error("Invalid parameter");
           }
           return { content: [{ type: "text", text: '{"success": true}' }] };
         } catch (error) {
@@ -1018,11 +906,11 @@ describe("Orchestrator MCP Server", () => {
       };
 
       const result = await toolHandler({
-        format: "invalid",
+        invalidParam: true,
       });
 
       expect(result.content?.[0]?.text).toContain('"success": false');
-      expect(result.content?.[0]?.text).toContain("Unknown format: invalid");
+      expect(result.content?.[0]?.text).toContain("Invalid parameter");
     });
   });
 
