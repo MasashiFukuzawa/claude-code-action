@@ -279,16 +279,12 @@ server.tool(
   "track_progress",
   "Track and report progress across multiple orchestrated tasks",
   {
-    format: z
-      .enum(["summary", "detailed", "metrics"])
-      .optional()
-      .describe("Progress report format (default: summary)"),
     filterStatus: z
       .enum(["pending", "in_progress", "completed", "failed"])
       .optional()
       .describe("Filter tasks by status"),
   },
-  async ({ format = "summary", filterStatus }) => {
+  async ({ filterStatus }) => {
     try {
       const allTasks = Array.from(taskStates.values());
       const filteredTasks = filterStatus
@@ -303,62 +299,23 @@ server.tool(
         failed: allTasks.filter((t) => t.status === "failed").length,
       };
 
-      let reportData;
-      switch (format) {
-        case "summary":
-          reportData = {
-            metrics,
-            recentTasks: filteredTasks
-              .sort(
-                (a, b) =>
-                  new Date(b.updatedAt).getTime() -
-                  new Date(a.updatedAt).getTime(),
-              )
-              .slice(0, 5)
-              .map((task) => ({
-                id: task.id,
-                description:
-                  task.description.substring(0, 50) +
-                  (task.description.length > 50 ? "..." : ""),
-                status: task.status,
-                updatedAt: task.updatedAt,
-              })),
-          };
-          break;
-
-        case "detailed":
-          reportData = {
-            metrics,
-            tasks: filteredTasks.map((task) => ({
-              ...task,
-              description:
-                task.description.substring(0, 100) +
-                (task.description.length > 100 ? "..." : ""),
-            })),
-          };
-          break;
-
-        case "metrics":
-          reportData = {
-            metrics,
-            completionRate:
-              metrics.total > 0
-                ? ((metrics.completed / metrics.total) * 100).toFixed(1) + "%"
-                : "0%",
-            failureRate:
-              metrics.total > 0
-                ? ((metrics.failed / metrics.total) * 100).toFixed(1) + "%"
-                : "0%",
-            activeRate:
-              metrics.total > 0
-                ? ((metrics.inProgress / metrics.total) * 100).toFixed(1) + "%"
-                : "0%",
-          };
-          break;
-
-        default:
-          throw new Error(`Unknown format: ${format}`);
-      }
+      const reportData = {
+        metrics,
+        recentTasks: filteredTasks
+          .sort(
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+          )
+          .slice(0, 5)
+          .map((task) => ({
+            id: task.id,
+            description:
+              task.description.substring(0, 50) +
+              (task.description.length > 50 ? "..." : ""),
+            status: task.status,
+            updatedAt: task.updatedAt,
+          })),
+      };
 
       return {
         content: [
@@ -367,7 +324,6 @@ server.tool(
             text: JSON.stringify(
               {
                 success: true,
-                format,
                 filterStatus,
                 report: reportData,
                 generatedAt: new Date().toISOString(),
