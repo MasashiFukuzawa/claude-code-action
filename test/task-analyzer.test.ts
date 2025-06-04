@@ -116,7 +116,20 @@ describe("TaskAnalyzer", () => {
       expect(result.isComplex).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.5);
       expect(result.reason).toContain("複数の操作");
-      expect(result.suggestedSubtasks).toEqual([]);
+      expect(result.suggestedSubtasks).toEqual([
+        {
+          mode: "architect",
+          description: "設計とアーキテクチャの決定",
+        },
+        {
+          mode: "code",
+          description: "実装",
+        },
+        {
+          mode: "code",
+          description: "テストの作成",
+        },
+      ]);
     });
 
     test("should return proper analysis for simple task", () => {
