@@ -8,6 +8,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { TaskAnalyzer } from "../orchestrator/task-analyzer.js";
 
 // Create MCP server instance
 const server = new McpServer({
@@ -23,23 +24,36 @@ server.tool(
     task: z.string().describe("Task description in any language (Japanese or English)"),
   },
   async ({ task }) => {
-    // TODO: Implement task analysis with TaskAnalyzer
-    // For now, return placeholder based on task input
-    const hasComplexIndicators = task.includes("と") || task.includes("and") || task.length > 50;
-    
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify({
-            isComplex: hasComplexIndicators,
-            confidence: hasComplexIndicators ? 0.7 : 0.3,
-            reason: hasComplexIndicators ? "Complex indicators detected" : "Simple task detected",
-            suggestedSubtasks: [],
-          }, null, 2),
-        },
-      ],
-    };
+    try {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze(task);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      console.error("Error analyzing task complexity:", error);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({
+              isComplex: false,
+              confidence: 0,
+              reason: `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+              suggestedSubtasks: [],
+              error: error instanceof Error ? error.message : "Unknown error",
+            }, null, 2),
+          },
+        ],
+      };
+    }
   },
 );
 
