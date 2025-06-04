@@ -136,6 +136,11 @@ export function shouldUseOrchestrator(_context: ParsedGitHubContext): boolean {
   return true;
 }
 
+export function extractTaskFromComment(_context: ParsedGitHubContext): string {
+  // TODO: Implement task extraction logic
+  return "";
+}
+
 export async function checkTriggerAction(context: ParsedGitHubContext) {
   const containsTrigger = checkContainsTrigger(context);
   core.setOutput("contains_trigger", containsTrigger.toString());
