@@ -149,9 +149,9 @@ describe("TaskAnalyzer", () => {
 
       expect(result.isComplex).toBe(true);
       expect(result.suggestedSubtasks).toHaveLength(3);
-      expect(result.suggestedSubtasks[0].mode).toBe("architect");
-      expect(result.suggestedSubtasks[1].mode).toBe("code");
-      expect(result.suggestedSubtasks[2].mode).toBe("code");
+      expect(result.suggestedSubtasks[0]?.mode).toBe("architect");
+      expect(result.suggestedSubtasks[1]?.mode).toBe("code");
+      expect(result.suggestedSubtasks[2]?.mode).toBe("code");
     });
 
     test("should generate English subtasks for English input", () => {
