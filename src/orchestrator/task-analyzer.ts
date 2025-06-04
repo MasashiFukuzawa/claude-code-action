@@ -155,15 +155,37 @@ export class TaskAnalyzer {
    * @param task - Task description to analyze
    * @returns Complexity indicators
    */
-  private analyzeIndicators(_task: string): ComplexityIndicators {
-    // Fixed values for skeleton implementation
+  private analyzeIndicators(task: string): ComplexityIndicators {
+    const isJapanese = this.detectJapanese(task);
+    const patterns = isJapanese ? this._japanesePatterns : this._englishPatterns;
+
+    const lowerTask = task.toLowerCase();
+
     return {
-      hasMultipleActions: false,
-      hasConditionals: false,
-      hasDesignKeywords: false,
-      hasImplementKeywords: false,
-      hasTestKeywords: false,
+      hasMultipleActions: this.matchPatterns(lowerTask, patterns.multipleActions || []),
+      hasConditionals: this.matchPatterns(lowerTask, patterns.conditionals || []),
+      hasDesignKeywords: this.matchPatterns(lowerTask, patterns.designKeywords || []),
+      hasImplementKeywords: this.matchPatterns(lowerTask, patterns.implementKeywords || []),
+      hasTestKeywords: this.matchPatterns(lowerTask, ["test", "テスト", "testing", "spec"]),
     };
+  }
+
+  /**
+   * Match patterns against text
+   * @param text - Text to match against
+   * @param patterns - Patterns to test
+   * @returns True if any pattern matches
+   */
+  private matchPatterns(text: string, patterns: string[]): boolean {
+    return patterns.some(pattern => {
+      try {
+        const regex = new RegExp(pattern, "i");
+        return regex.test(text);
+      } catch {
+        // If pattern is invalid regex, use simple includes
+        return text.includes(pattern.toLowerCase());
+      }
+    });
   }
 
   /**
