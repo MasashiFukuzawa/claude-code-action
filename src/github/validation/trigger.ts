@@ -158,7 +158,7 @@ export function extractTaskFromComment(context: ParsedGitHubContext): string {
   const regex = new RegExp(`${escapeRegExp(triggerPhrase)}\\s*(.+)`, "is");
   const match = commentBody.match(regex);
 
-  return match ? match[1].trim() : "";
+  return match && match[1] ? match[1].trim() : "";
 }
 
 export async function checkTriggerAction(context: ParsedGitHubContext) {
