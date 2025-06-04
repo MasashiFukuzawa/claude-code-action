@@ -1,4 +1,4 @@
-import type { ComplexityAnalysis, JapanesePatterns, EnglishPatterns } from "./types";
+import type { ComplexityAnalysis, JapanesePatterns, EnglishPatterns, ComplexityIndicators } from "./types";
 
 /**
  * TaskAnalyzer class for analyzing task complexity
@@ -148,5 +148,52 @@ export class TaskAnalyzer {
    */
   public getEnglishPatterns(): EnglishPatterns {
     return this._englishPatterns;
+  }
+
+  /**
+   * Analyze indicators for task complexity
+   * @param task - Task description to analyze
+   * @returns Complexity indicators
+   */
+  private analyzeIndicators(task: string): ComplexityIndicators {
+    const isJapanese = this.detectJapanese(task);
+    const patterns = isJapanese ? this._japanesePatterns : this._englishPatterns;
+
+    const lowerTask = task.toLowerCase();
+
+    return {
+      hasMultipleActions: this.matchPatterns(lowerTask, patterns.multipleActions || []),
+      hasConditionals: this.matchPatterns(lowerTask, patterns.conditionals || []),
+      hasDesignKeywords: this.matchPatterns(lowerTask, patterns.designKeywords || []),
+      hasImplementKeywords: this.matchPatterns(lowerTask, patterns.implementKeywords || []),
+      hasTestKeywords: this.matchPatterns(lowerTask, ["test", "テスト", "testing", "spec"]),
+    };
+  }
+
+  /**
+   * Match patterns against text
+   * @param text - Text to match against
+   * @param patterns - Patterns to test
+   * @returns True if any pattern matches
+   */
+  private matchPatterns(text: string, patterns: string[]): boolean {
+    return patterns.some(pattern => {
+      try {
+        const regex = new RegExp(pattern, "i");
+        return regex.test(text);
+      } catch {
+        // If pattern is invalid regex, use simple includes
+        return text.includes(pattern.toLowerCase());
+      }
+    });
+  }
+
+  /**
+   * Test method for analyzeIndicators (temporary)
+   * @param task - Task description to analyze
+   * @returns Complexity indicators
+   */
+  public testAnalyzeIndicators(task: string): ComplexityIndicators {
+    return this.analyzeIndicators(task);
   }
 }

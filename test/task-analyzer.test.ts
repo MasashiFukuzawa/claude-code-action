@@ -39,4 +39,33 @@ describe("TaskAnalyzer", () => {
       expect(analyzer.testDetectJapanese("123 test")).toBe(false);
     });
   });
+
+  describe("Pattern matching", () => {
+    test("should analyze indicators for Japanese text", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.testAnalyzeIndicators("実装とテストを行ってください");
+
+      expect(result.hasMultipleActions).toBe(true); // "と" pattern
+      expect(result.hasImplementKeywords).toBe(true); // "実装"
+      expect(result.hasTestKeywords).toBe(true); // "テスト"
+    });
+
+    test("should analyze indicators for English text", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.testAnalyzeIndicators("implement and test the feature");
+
+      expect(result.hasMultipleActions).toBe(true); // "and" pattern
+      expect(result.hasImplementKeywords).toBe(true); // "implement"
+      expect(result.hasTestKeywords).toBe(true); // "test"
+    });
+
+    test("should return false for simple tasks", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.testAnalyzeIndicators("fix bug");
+
+      expect(result.hasMultipleActions).toBe(false);
+      expect(result.hasConditionals).toBe(false);
+      expect(result.hasDesignKeywords).toBe(false);
+    });
+  });
 });

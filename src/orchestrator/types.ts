@@ -75,3 +75,23 @@ export interface EnglishPatterns {
   /** Keywords for implementation tasks */
   implementKeywords?: string[];
 }
+
+/**
+ * Indicators for task complexity analysis
+ */
+export interface ComplexityIndicators {
+  /** Task contains multiple actions */
+  hasMultipleActions: boolean;
+
+  /** Task contains conditional logic */
+  hasConditionals: boolean;
+
+  /** Task contains design keywords */
+  hasDesignKeywords: boolean;
+
+  /** Task contains implementation keywords */
+  hasImplementKeywords: boolean;
+
+  /** Task contains test keywords */
+  hasTestKeywords: boolean;
+}
