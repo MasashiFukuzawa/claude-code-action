@@ -428,10 +428,7 @@ server.tool(
       .optional()
       .describe("Timeout per prompt in milliseconds (default: 30000)"),
   },
-  async ({
-    prompts,
-    timeout = 30000,
-  }) => {
+  async ({ prompts, timeout = 30000 }) => {
     try {
       const results = [];
       const startTime = Date.now();
@@ -494,8 +491,7 @@ server.tool(
               taskStates.set(prompt.taskId, {
                 ...task,
                 status: "failed",
-                error:
-                  error instanceof Error ? error.message : "Unknown error",
+                error: error instanceof Error ? error.message : "Unknown error",
                 updatedAt: new Date().toISOString(),
               });
             }

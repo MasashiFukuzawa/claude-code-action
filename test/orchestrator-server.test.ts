@@ -1094,7 +1094,6 @@ describe("Orchestrator MCP Server", () => {
       expect(result.content?.[0]?.text).toContain("Test prompt content 2");
     });
 
-
     test("should handle empty prompts array", async () => {
       const toolHandler = async (params: any) => {
         if (!params.prompts || params.prompts.length === 0) {
@@ -1191,7 +1190,6 @@ describe("Orchestrator MCP Server", () => {
       expect(result.content?.[0]?.text).toContain('"failed": 1');
       expect(result.content?.[0]?.text).toContain("Processing timeout");
     });
-
 
     test("should validate timeout parameter", async () => {
       const toolHandler = async (params: any) => {

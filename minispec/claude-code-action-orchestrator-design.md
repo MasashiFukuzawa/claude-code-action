@@ -284,14 +284,18 @@ server.tool(
       content: [
         {
           type: "text",
-          text: JSON.stringify({
-            success: true,
-            results: processQueue.map(p => ({
-              id: p.id,
-              status: "completed",
-              response: `Processed prompt: ${p.content}`
-            }))
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              success: true,
+              results: processQueue.map((p) => ({
+                id: p.id,
+                status: "completed",
+                response: `Processed prompt: ${p.content}`,
+              })),
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
