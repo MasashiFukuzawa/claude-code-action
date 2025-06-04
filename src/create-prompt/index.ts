@@ -361,7 +361,7 @@ export function generatePrompt(
   // TODO: Check if orchestrator mode should be used
   // Note: This requires ParsedGitHubContext, but we have PreparedContext
   // For now, skip orchestrator mode until we can properly convert context types
-  
+
   const {
     contextData,
     comments,
