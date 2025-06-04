@@ -1029,7 +1029,7 @@ describe("Orchestrator MCP Server", () => {
   describe("batch_prompt tool", () => {
     test("should process sequential batch successfully", async () => {
       const toolHandler = async (params: any) => {
-        // Simulate batch_prompt tool logic
+        // Simulate batch_prompt tool logic (sequential only)
         if (!params.prompts || params.prompts.length === 0) {
           throw new Error("At least one prompt is required");
         }
@@ -1059,8 +1059,6 @@ describe("Orchestrator MCP Server", () => {
               text: JSON.stringify(
                 {
                   success: true,
-                  processingMode: params.processingMode || "sequential",
-                  maxConcurrency: params.maxConcurrency || 3,
                   timeout: params.timeout || 30000,
                   summary,
                   results,
@@ -1080,155 +1078,22 @@ describe("Orchestrator MCP Server", () => {
             id: "prompt_1",
             content: "Test prompt content 1",
             taskId: "task_123",
-            priority: "medium",
             metadata: { type: "test" },
           },
           {
             id: "prompt_2",
             content: "Test prompt content 2",
-            priority: "high",
           },
         ],
-        processingMode: "sequential",
       });
 
       expect(result.content?.[0]?.text).toContain('"success": true');
-      expect(result.content?.[0]?.text).toContain(
-        '"processingMode": "sequential"',
-      );
       expect(result.content?.[0]?.text).toContain('"total": 2');
       expect(result.content?.[0]?.text).toContain('"completed": 2');
       expect(result.content?.[0]?.text).toContain("Test prompt content 1");
       expect(result.content?.[0]?.text).toContain("Test prompt content 2");
     });
 
-    test("should process parallel batch successfully", async () => {
-      const toolHandler = async (params: any) => {
-        const results = params.prompts.map((prompt: any) => ({
-          id: prompt.id,
-          status: "completed",
-          response: `Processed prompt: ${prompt.content}`,
-          processingTimeMs: 600,
-          taskId: prompt.taskId,
-          metadata: prompt.metadata,
-        }));
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  processingMode: "parallel",
-                  maxConcurrency: 5,
-                  summary: {
-                    total: results.length,
-                    completed: results.length,
-                    failed: 0,
-                    averageProcessingTime: 600,
-                    totalProcessingTime: 1200,
-                  },
-                  results,
-                  processedAt: new Date().toISOString(),
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
-      };
-
-      const result = await toolHandler({
-        prompts: [
-          { id: "prompt_1", content: "First prompt" },
-          { id: "prompt_2", content: "Second prompt" },
-          { id: "prompt_3", content: "Third prompt" },
-        ],
-        processingMode: "parallel",
-        maxConcurrency: 5,
-      });
-
-      expect(result.content?.[0]?.text).toContain(
-        '"processingMode": "parallel"',
-      );
-      expect(result.content?.[0]?.text).toContain('"maxConcurrency": 5');
-      expect(result.content?.[0]?.text).toContain('"total": 3');
-      expect(result.content?.[0]?.text).toContain("First prompt");
-      expect(result.content?.[0]?.text).toContain("Third prompt");
-    });
-
-    test("should process priority batch successfully", async () => {
-      const toolHandler = async (params: any) => {
-        // Sort by priority like the actual implementation
-        const priorityOrder: { [key: string]: number } = {
-          high: 3,
-          medium: 2,
-          low: 1,
-        };
-        const sortedPrompts = [...params.prompts].sort(
-          (a: any, b: any) =>
-            (priorityOrder[b.priority || "medium"] || 2) -
-            (priorityOrder[a.priority || "medium"] || 2),
-        );
-
-        const results = sortedPrompts.map((prompt: any) => ({
-          id: prompt.id,
-          status: "completed",
-          response: `Processed ${prompt.priority || "medium"} priority prompt: ${prompt.content}`,
-          processingTimeMs: 800,
-          priority: prompt.priority || "medium",
-          taskId: prompt.taskId,
-          metadata: prompt.metadata,
-        }));
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  processingMode: "priority",
-                  summary: {
-                    total: results.length,
-                    completed: results.length,
-                    failed: 0,
-                    averageProcessingTime: 800,
-                    totalProcessingTime: 2400,
-                  },
-                  results,
-                  processedAt: new Date().toISOString(),
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
-      };
-
-      const result = await toolHandler({
-        prompts: [
-          { id: "prompt_1", content: "Low priority task", priority: "low" },
-          { id: "prompt_2", content: "High priority task", priority: "high" },
-          {
-            id: "prompt_3",
-            content: "Medium priority task",
-            priority: "medium",
-          },
-        ],
-        processingMode: "priority",
-      });
-
-      expect(result.content?.[0]?.text).toContain(
-        '"processingMode": "priority"',
-      );
-      expect(result.content?.[0]?.text).toContain("High priority task");
-      expect(result.content?.[0]?.text).toContain("Medium priority task");
-      expect(result.content?.[0]?.text).toContain("Low priority task");
-    });
 
     test("should handle empty prompts array", async () => {
       const toolHandler = async (params: any) => {
@@ -1292,7 +1157,7 @@ describe("Orchestrator MCP Server", () => {
               text: JSON.stringify(
                 {
                   success: true,
-                  processingMode: "sequential",
+                  timeout: params.timeout || 30000,
                   summary: {
                     total: results.length,
                     completed: results.filter(
@@ -1319,7 +1184,6 @@ describe("Orchestrator MCP Server", () => {
           { id: "prompt_1", content: "Success prompt" },
           { id: "prompt_2", content: "Failure prompt" },
         ],
-        processingMode: "sequential",
       });
 
       expect(result.content?.[0]?.text).toContain('"success": true');
@@ -1328,66 +1192,6 @@ describe("Orchestrator MCP Server", () => {
       expect(result.content?.[0]?.text).toContain("Processing timeout");
     });
 
-    test("should validate maxConcurrency parameter", async () => {
-      const toolHandler = async (params: any) => {
-        // Simulate zod validation for maxConcurrency
-        if (
-          typeof params.maxConcurrency === "number" &&
-          (params.maxConcurrency < 1 || params.maxConcurrency > 10)
-        ) {
-          throw new Error("maxConcurrency must be between 1 and 10");
-        }
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  processingMode: "parallel",
-                  maxConcurrency: params.maxConcurrency || 3,
-                  summary: { total: 1, completed: 1, failed: 0 },
-                  results: [
-                    {
-                      id: "prompt_1",
-                      status: "completed",
-                      response: "Processed",
-                      processingTimeMs: 500,
-                    },
-                  ],
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
-      };
-
-      // Valid concurrency
-      const validResult = await toolHandler({
-        prompts: [{ id: "prompt_1", content: "test" }],
-        maxConcurrency: 5,
-      });
-      expect(validResult.content?.[0]?.text).toContain('"maxConcurrency": 5');
-
-      // Invalid concurrency - too high
-      await expect(
-        toolHandler({
-          prompts: [{ id: "prompt_1", content: "test" }],
-          maxConcurrency: 15,
-        }),
-      ).rejects.toThrow("maxConcurrency must be between 1 and 10");
-
-      // Invalid concurrency - too low
-      await expect(
-        toolHandler({
-          prompts: [{ id: "prompt_1", content: "test" }],
-          maxConcurrency: 0,
-        }),
-      ).rejects.toThrow("maxConcurrency must be between 1 and 10");
-    });
 
     test("should validate timeout parameter", async () => {
       const toolHandler = async (params: any) => {
@@ -1468,7 +1272,7 @@ describe("Orchestrator MCP Server", () => {
               text: JSON.stringify(
                 {
                   success: true,
-                  processingMode: "sequential",
+                  timeout: params.timeout || 30000,
                   summary: {
                     total: results.length,
                     completed: results.length,
@@ -1501,7 +1305,6 @@ describe("Orchestrator MCP Server", () => {
             metadata: { source: "system", urgency: "high" },
           },
         ],
-        processingMode: "sequential",
       });
 
       expect(result.content?.[0]?.text).toContain('"success": true');
@@ -1525,8 +1328,6 @@ describe("Orchestrator MCP Server", () => {
                     success: false,
                     error:
                       error instanceof Error ? error.message : "Unknown error",
-                    processingMode: "sequential",
-                    maxConcurrency: 3,
                     timeout: 30000,
                   },
                   null,
