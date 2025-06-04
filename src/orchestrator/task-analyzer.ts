@@ -3,6 +3,7 @@ import type {
   JapanesePatterns,
   EnglishPatterns,
   ComplexityIndicators,
+  SubTask,
 } from "./types";
 
 /**
@@ -125,12 +126,37 @@ export class TaskAnalyzer {
       reasons.push("シンプルなタスクです");
     }
 
+    const suggestedSubtasks = this.generateSubtasks(task, indicators, isComplex);
+
     return {
       isComplex,
       confidence: Math.max(Math.min(score * 1.5, 1.0), 0.1),
       reason: reasons.join("、"),
-      suggestedSubtasks: [],
+      suggestedSubtasks,
     };
+  }
+
+  /**
+   * Generate subtasks for complex tasks
+   * @param task - Original task description
+   * @param indicators - Complexity indicators
+   * @param isComplex - Whether the task is complex
+   * @returns Array of suggested subtasks
+   */
+  private generateSubtasks(
+    _task: string,
+    _indicators: ComplexityIndicators,
+    isComplex: boolean,
+  ): SubTask[] {
+    // For simple tasks, return empty array
+    if (!isComplex) {
+      return [];
+    }
+
+    const subtasks: SubTask[] = [];
+
+    // TODO: Implement subtask generation logic
+    return subtasks;
   }
 
   /**
