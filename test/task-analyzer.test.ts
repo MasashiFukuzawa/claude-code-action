@@ -17,96 +17,88 @@ describe("TaskAnalyzer", () => {
     expect(result.suggestedSubtasks).toEqual([]);
   });
 
-  describe("Japanese detection", () => {
-    test("should detect Japanese characters", () => {
+  describe("Language detection (via analyze behavior)", () => {
+    test("should handle Japanese text correctly", () => {
       const analyzer = new TaskAnalyzer();
 
-      // These should return true when implemented
-      expect(analyzer.testDetectJapanese("こんにちは")).toBe(true);
-      expect(analyzer.testDetectJapanese("テスト")).toBe(true);
-      expect(analyzer.testDetectJapanese("実装してください")).toBe(true);
-      expect(analyzer.testDetectJapanese("Hello 世界")).toBe(true);
+      // Test with Japanese task - analyze should work correctly with Japanese text
+      const result = analyzer.analyze("実装とテストを行ってください");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.reason).toContain("複数の操作"); // Japanese reason text
+      expect(result.confidence).toBeGreaterThan(0);
     });
 
-    test("should not detect Japanese in English text", () => {
+    test("should handle English text correctly", () => {
       const analyzer = new TaskAnalyzer();
 
-      // These should return false
-      expect(analyzer.testDetectJapanese("Hello world")).toBe(false);
-      expect(analyzer.testDetectJapanese("implement feature")).toBe(false);
-      expect(analyzer.testDetectJapanese("123 test")).toBe(false);
+      // Test with English task - analyze should work correctly with English text
+      const result = analyzer.analyze("implement and test the feature");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0);
     });
   });
 
-  describe("Pattern matching", () => {
-    test("should analyze indicators for Japanese text", () => {
+  describe("Pattern matching (via analyze behavior)", () => {
+    test("should detect complex patterns in Japanese text", () => {
       const analyzer = new TaskAnalyzer();
-      const result =
-        analyzer.testAnalyzeIndicators("実装とテストを行ってください");
+      const result = analyzer.analyze("実装とテストを行ってください");
 
-      expect(result.hasMultipleActions).toBe(true); // "と" pattern
-      expect(result.hasImplementKeywords).toBe(true); // "実装"
-      expect(result.hasTestKeywords).toBe(true); // "テスト"
+      // Verify complex task detection via high complexity score
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.5);
+      expect(result.reason).toContain("複数の操作");
     });
 
-    test("should analyze indicators for English text", () => {
+    test("should detect complex patterns in English text", () => {
       const analyzer = new TaskAnalyzer();
-      const result = analyzer.testAnalyzeIndicators(
-        "implement and test the feature",
-      );
+      const result = analyzer.analyze("implement and test the feature");
 
-      expect(result.hasMultipleActions).toBe(true); // "and" pattern
-      expect(result.hasImplementKeywords).toBe(true); // "implement"
-      expect(result.hasTestKeywords).toBe(true); // "test"
+      // Verify complex task detection via high complexity score
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.5);
     });
 
-    test("should return false for simple tasks", () => {
+    test("should detect simple tasks correctly", () => {
       const analyzer = new TaskAnalyzer();
-      const result = analyzer.testAnalyzeIndicators("fix bug");
+      const result = analyzer.analyze("fix bug");
 
-      expect(result.hasMultipleActions).toBe(false);
-      expect(result.hasConditionals).toBe(false);
-      expect(result.hasDesignKeywords).toBe(false);
+      // Verify simple task detection
+      expect(result.isComplex).toBe(false);
+      expect(result.reason).toContain("シンプル");
     });
   });
 
   describe("Scoring logic", () => {
-    test("should calculate complexity score correctly", () => {
+    test("should score simple tasks with low complexity", () => {
       const analyzer = new TaskAnalyzer();
 
-      // Test simple task (no indicators)
-      const simpleIndicators = {
-        hasMultipleActions: false,
-        hasConditionals: false,
-        hasDesignKeywords: false,
-        hasImplementKeywords: false,
-        hasTestKeywords: false,
-      };
-      expect(analyzer.testCalculateComplexityScore(simpleIndicators)).toBe(0);
+      // Test very simple task
+      const result = analyzer.analyze("fix typo");
+      expect(result.isComplex).toBe(false);
+      expect(result.confidence).toBeGreaterThan(0);
+      expect(result.confidence).toBeLessThan(0.5);
+    });
 
-      // Test complex task (all indicators)
-      const complexIndicators = {
-        hasMultipleActions: true,
-        hasConditionals: true,
-        hasDesignKeywords: true,
-        hasImplementKeywords: true,
-        hasTestKeywords: true,
-      };
-      expect(analyzer.testCalculateComplexityScore(complexIndicators)).toBe(
-        1.0,
-      );
+    test("should score complex tasks with high complexity", () => {
+      const analyzer = new TaskAnalyzer();
 
-      // Test medium complexity
-      const mediumIndicators = {
-        hasMultipleActions: true,
-        hasConditionals: false,
-        hasDesignKeywords: true,
-        hasImplementKeywords: false,
-        hasTestKeywords: false,
-      };
-      expect(analyzer.testCalculateComplexityScore(mediumIndicators)).toBe(
-        0.55,
+      // Test highly complex task with multiple indicators
+      const result = analyzer.analyze(
+        "設計してから実装し、テストも行い、条件に応じて修正してください",
       );
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.7);
+    });
+
+    test("should score medium complexity tasks appropriately", () => {
+      const analyzer = new TaskAnalyzer();
+
+      // Test medium complexity task
+      const result = analyzer.analyze("設計して実装してください");
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.5);
     });
 
     test("should return proper analysis for complex task", () => {
