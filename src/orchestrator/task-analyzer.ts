@@ -22,4 +22,14 @@ export class TaskAnalyzer {
       suggestedSubtasks: [],
     };
   }
+
+  /**
+   * Detect if the given text contains Japanese characters
+   * @param text - Text to analyze
+   * @returns True if Japanese characters are detected
+   */
+  private detectJapanese(_text: string): boolean {
+    // Empty implementation - will be implemented incrementally
+    return false;
+  }
 }
