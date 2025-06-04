@@ -1,11 +1,14 @@
-import type { ComplexityAnalysis } from "./types";
+import type { ComplexityAnalysis, JapanesePatterns } from "./types";
 
 /**
  * TaskAnalyzer class for analyzing task complexity
  */
 export class TaskAnalyzer {
+  private _japanesePatterns: JapanesePatterns;
+
   constructor() {
     // Initialize TaskAnalyzer
+    this._japanesePatterns = {};
   }
 
   /**
@@ -44,5 +47,13 @@ export class TaskAnalyzer {
    */
   public testDetectJapanese(text: string): boolean {
     return this.detectJapanese(text);
+  }
+
+  /**
+   * Get Japanese patterns (temporary for testing)
+   * @returns Japanese patterns object
+   */
+  public getJapanesePatterns(): JapanesePatterns {
+    return this._japanesePatterns;
   }
 }
