@@ -3,6 +3,7 @@ import type {
   JapanesePatterns,
   EnglishPatterns,
   ComplexityIndicators,
+  SubTask,
 } from "./types";
 
 /**
@@ -125,12 +126,70 @@ export class TaskAnalyzer {
       reasons.push("シンプルなタスクです");
     }
 
+    const suggestedSubtasks = this.generateSubtasks(
+      task,
+      indicators,
+      isComplex,
+    );
+
     return {
       isComplex,
       confidence: Math.max(Math.min(score * 1.5, 1.0), 0.1),
       reason: reasons.join("、"),
-      suggestedSubtasks: [],
+      suggestedSubtasks,
     };
+  }
+
+  /**
+   * Generate subtasks for complex tasks
+   * @param task - Original task description
+   * @param indicators - Complexity indicators
+   * @param isComplex - Whether the task is complex
+   * @returns Array of suggested subtasks
+   */
+  private generateSubtasks(
+    task: string,
+    indicators: ComplexityIndicators,
+    isComplex: boolean,
+  ): SubTask[] {
+    // For simple tasks, return empty array
+    if (!isComplex) {
+      return [];
+    }
+
+    const isJapanese = this.detectJapanese(task);
+    const subtasks: SubTask[] = [];
+
+    // Add design/architecture subtask if needed
+    if (indicators.hasDesignKeywords) {
+      subtasks.push({
+        mode: "architect",
+        description: isJapanese
+          ? "設計とアーキテクチャの決定"
+          : "Design and architecture decisions",
+      });
+    }
+
+    // Add implementation subtask if needed
+    if (indicators.hasImplementKeywords) {
+      subtasks.push({
+        mode: "code",
+        description: isJapanese ? "実装" : "Implementation",
+      });
+    }
+
+    // Add test subtask if testing is mentioned or if it's a complex implementation
+    if (
+      indicators.hasTestKeywords ||
+      (indicators.hasImplementKeywords && isComplex)
+    ) {
+      subtasks.push({
+        mode: "code",
+        description: isJapanese ? "テストの作成" : "Test creation",
+      });
+    }
+
+    return subtasks;
   }
 
   /**

@@ -116,7 +116,20 @@ describe("TaskAnalyzer", () => {
       expect(result.isComplex).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.5);
       expect(result.reason).toContain("複数の操作");
-      expect(result.suggestedSubtasks).toEqual([]);
+      expect(result.suggestedSubtasks).toEqual([
+        {
+          mode: "architect",
+          description: "設計とアーキテクチャの決定",
+        },
+        {
+          mode: "code",
+          description: "実装",
+        },
+        {
+          mode: "code",
+          description: "テストの作成",
+        },
+      ]);
     });
 
     test("should return proper analysis for simple task", () => {
@@ -126,6 +139,46 @@ describe("TaskAnalyzer", () => {
       expect(result.isComplex).toBe(false);
       expect(result.confidence).toBeGreaterThan(0);
       expect(result.reason).toContain("シンプル");
+    });
+  });
+
+  describe("Subtask generation", () => {
+    test("should generate subtasks for design and implementation", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("設計してから実装してください");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.suggestedSubtasks).toHaveLength(3);
+      expect(result.suggestedSubtasks[0]?.mode).toBe("architect");
+      expect(result.suggestedSubtasks[1]?.mode).toBe("code");
+      expect(result.suggestedSubtasks[2]?.mode).toBe("code");
+    });
+
+    test("should generate English subtasks for English input", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("design and implement the feature");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.suggestedSubtasks).toContainEqual({
+        mode: "architect",
+        description: "Design and architecture decisions",
+      });
+      expect(result.suggestedSubtasks).toContainEqual({
+        mode: "code",
+        description: "Implementation",
+      });
+      expect(result.suggestedSubtasks).toContainEqual({
+        mode: "code",
+        description: "Test creation",
+      });
+    });
+
+    test("should return empty subtasks for simple tasks", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("fix typo");
+
+      expect(result.isComplex).toBe(false);
+      expect(result.suggestedSubtasks).toEqual([]);
     });
   });
 });
