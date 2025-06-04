@@ -10,7 +10,7 @@ describe("TaskAnalyzer", () => {
   test("should return fixed analysis", () => {
     const analyzer = new TaskAnalyzer();
     const result = analyzer.analyze("test task");
-    
+
     expect(result).toEqual({
       isComplex: false,
       confidence: 1.0,
