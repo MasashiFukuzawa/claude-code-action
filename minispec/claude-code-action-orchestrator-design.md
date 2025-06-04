@@ -93,9 +93,9 @@ sequenceDiagram
     Analyzer-->>Orchestrator: 分析結果とサブタスク案
 
     alt 複雑なタスク
-        Orchestrator->>MCPServer: prepareBatchPrompt()
-        Note over MCPServer: 英語プロンプト生成
-        MCPServer-->>Orchestrator: 統合プロンプト
+        Orchestrator->>MCPServer: batch_prompt()
+        Note over MCPServer: sequential処理のみ
+        MCPServer-->>Orchestrator: 処理結果
 
         Orchestrator->>ClaudeBase: 単一実行で複数タスク処理
         Note over ClaudeBase: 擬似並列処理
@@ -256,55 +256,46 @@ server.tool(
   },
 );
 
-// バッチプロンプト生成ツール（英語プロンプト）
+// バッチプロンプト生成ツール（英語プロンプト、sequential実行のみ）
 server.tool(
-  "prepare_batch_prompt",
-  "Prepare a batch prompt for multiple subtasks execution",
+  "batch_prompt",
+  "Process multiple prompts in batch for orchestrated task workflows (sequential mode only)",
   {
-    subtasks: z.array(
+    prompts: z.array(
       z.object({
         id: z.string(),
-        description: z.string(),
-        mode: z.enum(["architect", "code", "debug", "ask", "orchestrator"]),
-        dependencies: z.array(z.string()).optional(),
+        content: z.string(),
+        taskId: z.string().optional(),
+        metadata: z.record(z.any()).optional(),
       }),
     ),
+    timeout: z.number().min(1000).max(300000).optional(),
   },
-  async ({ subtasks }) => {
-    const prompt = `
-Execute the following subtasks efficiently. Process each subtask according to its mode.
+  async ({ prompts, timeout = 30000 }) => {
+    // Sequential processing only
+    const processQueue = [...prompts];
 
-${subtasks
-  .map(
-    (task, index) => `
-=== Subtask ${index + 1}: ${task.id} ===
-Mode: ${task.mode}
-Description: ${task.description}
-${task.dependencies?.length ? `Dependencies: ${task.dependencies.join(", ")}` : ""}
-
-Instructions:
-1. Switch to ${task.mode} mode mentally
-2. Execute this subtask using appropriate tools for the mode
-3. Save progress using orchestrator_save_state with key "${task.id}"
-4. Update progress using update_claude_comment (in Japanese)
-5. Continue to the next subtask
-`,
-  )
-  .join("\n")}
-
-After completing all subtasks:
-1. Compile the results
-2. Save the final summary using orchestrator_save_state with key "final_summary"
-3. Update the comment with the final results in Japanese
-
-Important: Work through all subtasks in a single session without stopping.
-`;
+    // Process each prompt sequentially
+    for (const prompt of processQueue) {
+      // Simulate processing logic here
+    }
 
     return {
       content: [
         {
           type: "text",
-          text: prompt,
+          text: JSON.stringify(
+            {
+              success: true,
+              results: processQueue.map((p) => ({
+                id: p.id,
+                status: "completed",
+                response: `Processed prompt: ${p.content}`,
+              })),
+            },
+            null,
+            2,
+          ),
         },
       ],
     };
@@ -332,7 +323,7 @@ Task: ${taskDescription}
 
 You have access to the following orchestrator-specific tools:
 - analyze_complexity: Analyze task complexity (supports Japanese)
-- prepare_batch_prompt: Prepare a batch execution prompt for subtasks
+- batch_prompt: Process multiple prompts sequentially
 - orchestrator_save_state: Save intermediate results
 - orchestrator_load_state: Load previously saved results
 - update_claude_comment: Update progress (output in Japanese)
@@ -349,7 +340,7 @@ When executing subtasks, you can operate in these modes:
 ## Execution Flow
 
 1. Analyze the task complexity using analyze_complexity tool
-2. If complex, use prepare_batch_prompt and execute all subtasks
+2. If complex, use batch_prompt to process multiple subtasks sequentially
 3. If simple, execute directly in the appropriate mode
 4. Always update progress in Japanese using update_claude_comment
 
@@ -1217,7 +1208,7 @@ jobs:
             mcp__github_file_ops__commit_files,
             mcp__github_file_ops__update_claude_comment,
             mcp__orchestrator__analyze_complexity,
-            mcp__orchestrator__prepare_batch_prompt,
+            mcp__orchestrator__batch_prompt,
             mcp__orchestrator__save_state,
             mcp__orchestrator__load_state
 

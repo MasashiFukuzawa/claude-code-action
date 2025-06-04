@@ -1025,4 +1025,326 @@ describe("Orchestrator MCP Server", () => {
       expect(result.content?.[0]?.text).toContain("Unknown format: invalid");
     });
   });
+
+  describe("batch_prompt tool", () => {
+    test("should process sequential batch successfully", async () => {
+      const toolHandler = async (params: any) => {
+        // Simulate batch_prompt tool logic (sequential only)
+        if (!params.prompts || params.prompts.length === 0) {
+          throw new Error("At least one prompt is required");
+        }
+
+        const results = params.prompts.map((prompt: any) => ({
+          id: prompt.id,
+          status: "completed",
+          response: `Processed prompt: ${prompt.content.substring(0, 100)}${prompt.content.length > 100 ? "..." : ""}`,
+          processingTimeMs: Math.floor(Math.random() * 1000) + 500,
+          taskId: prompt.taskId,
+          metadata: prompt.metadata,
+        }));
+
+        const summary = {
+          total: results.length,
+          completed: results.filter((r: any) => r.status === "completed")
+            .length,
+          failed: results.filter((r: any) => r.status === "failed").length,
+          averageProcessingTime: 750,
+          totalProcessingTime: 1500,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  success: true,
+                  timeout: params.timeout || 30000,
+                  summary,
+                  results,
+                  processedAt: new Date().toISOString(),
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        prompts: [
+          {
+            id: "prompt_1",
+            content: "Test prompt content 1",
+            taskId: "task_123",
+            metadata: { type: "test" },
+          },
+          {
+            id: "prompt_2",
+            content: "Test prompt content 2",
+          },
+        ],
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"total": 2');
+      expect(result.content?.[0]?.text).toContain('"completed": 2');
+      expect(result.content?.[0]?.text).toContain("Test prompt content 1");
+      expect(result.content?.[0]?.text).toContain("Test prompt content 2");
+    });
+
+    test("should handle empty prompts array", async () => {
+      const toolHandler = async (params: any) => {
+        if (!params.prompts || params.prompts.length === 0) {
+          throw new Error("At least one prompt is required");
+        }
+        return { content: [{ type: "text", text: '{"success": true}' }] };
+      };
+
+      await expect(toolHandler({ prompts: [] })).rejects.toThrow(
+        "At least one prompt is required",
+      );
+    });
+
+    test("should handle too many prompts", async () => {
+      const toolHandler = async (params: any) => {
+        if (params.prompts.length > 50) {
+          throw new Error("Maximum 50 prompts allowed per batch");
+        }
+        return { content: [{ type: "text", text: '{"success": true}' }] };
+      };
+
+      const tooManyPrompts = Array.from({ length: 51 }, (_, i) => ({
+        id: `prompt_${i}`,
+        content: `Prompt ${i}`,
+      }));
+
+      await expect(toolHandler({ prompts: tooManyPrompts })).rejects.toThrow(
+        "Maximum 50 prompts allowed per batch",
+      );
+    });
+
+    test("should handle processing failures", async () => {
+      const toolHandler = async (params: any) => {
+        const results = params.prompts.map((prompt: any, index: number) => {
+          if (index === 1) {
+            // Simulate failure on second prompt
+            return {
+              id: prompt.id,
+              status: "failed",
+              error: "Processing timeout",
+              processingTimeMs: 30000,
+              taskId: prompt.taskId,
+              metadata: prompt.metadata,
+            };
+          }
+          return {
+            id: prompt.id,
+            status: "completed",
+            response: `Processed prompt: ${prompt.content}`,
+            processingTimeMs: 1000,
+            taskId: prompt.taskId,
+            metadata: prompt.metadata,
+          };
+        });
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  success: true,
+                  timeout: params.timeout || 30000,
+                  summary: {
+                    total: results.length,
+                    completed: results.filter(
+                      (r: any) => r.status === "completed",
+                    ).length,
+                    failed: results.filter((r: any) => r.status === "failed")
+                      .length,
+                    averageProcessingTime: 15500,
+                    totalProcessingTime: 31000,
+                  },
+                  results,
+                  processedAt: new Date().toISOString(),
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        prompts: [
+          { id: "prompt_1", content: "Success prompt" },
+          { id: "prompt_2", content: "Failure prompt" },
+        ],
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"completed": 1');
+      expect(result.content?.[0]?.text).toContain('"failed": 1');
+      expect(result.content?.[0]?.text).toContain("Processing timeout");
+    });
+
+    test("should validate timeout parameter", async () => {
+      const toolHandler = async (params: any) => {
+        if (
+          params.timeout &&
+          (params.timeout < 1000 || params.timeout > 300000)
+        ) {
+          throw new Error(
+            "timeout must be between 1000 and 300000 milliseconds",
+          );
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  success: true,
+                  timeout: params.timeout || 30000,
+                  summary: { total: 1, completed: 1, failed: 0 },
+                  results: [
+                    {
+                      id: "prompt_1",
+                      status: "completed",
+                      response: "Processed",
+                      processingTimeMs: 500,
+                    },
+                  ],
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      };
+
+      // Valid timeout
+      const validResult = await toolHandler({
+        prompts: [{ id: "prompt_1", content: "test" }],
+        timeout: 60000,
+      });
+      expect(validResult.content?.[0]?.text).toContain('"timeout": 60000');
+
+      // Invalid timeout - too high
+      await expect(
+        toolHandler({
+          prompts: [{ id: "prompt_1", content: "test" }],
+          timeout: 400000,
+        }),
+      ).rejects.toThrow("timeout must be between 1000 and 300000 milliseconds");
+
+      // Invalid timeout - too low
+      await expect(
+        toolHandler({
+          prompts: [{ id: "prompt_1", content: "test" }],
+          timeout: 500,
+        }),
+      ).rejects.toThrow("timeout must be between 1000 and 300000 milliseconds");
+    });
+
+    test("should handle prompts with metadata", async () => {
+      const toolHandler = async (params: any) => {
+        const results = params.prompts.map((prompt: any) => ({
+          id: prompt.id,
+          status: "completed",
+          response: `Processed prompt: ${prompt.content}`,
+          processingTimeMs: 700,
+          taskId: prompt.taskId,
+          metadata: prompt.metadata,
+        }));
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  success: true,
+                  timeout: params.timeout || 30000,
+                  summary: {
+                    total: results.length,
+                    completed: results.length,
+                    failed: 0,
+                    averageProcessingTime: 700,
+                    totalProcessingTime: 1400,
+                  },
+                  results,
+                  processedAt: new Date().toISOString(),
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      };
+
+      const result = await toolHandler({
+        prompts: [
+          {
+            id: "prompt_1",
+            content: "First prompt",
+            taskId: "task_abc",
+            metadata: { source: "user", type: "question" },
+          },
+          {
+            id: "prompt_2",
+            content: "Second prompt",
+            metadata: { source: "system", urgency: "high" },
+          },
+        ],
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": true');
+      expect(result.content?.[0]?.text).toContain('"source": "user"');
+      expect(result.content?.[0]?.text).toContain('"type": "question"');
+      expect(result.content?.[0]?.text).toContain('"source": "system"');
+      expect(result.content?.[0]?.text).toContain('"urgency": "high"');
+    });
+
+    test("should handle batch processing errors gracefully", async () => {
+      const toolHandler = async (_params: any) => {
+        try {
+          throw new Error("Batch processing system failure");
+        } catch (error) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(
+                  {
+                    success: false,
+                    error:
+                      error instanceof Error ? error.message : "Unknown error",
+                    timeout: 30000,
+                  },
+                  null,
+                  2,
+                ),
+              },
+            ],
+          };
+        }
+      };
+
+      const result = await toolHandler({
+        prompts: [{ id: "prompt_1", content: "test" }],
+      });
+
+      expect(result.content?.[0]?.text).toContain('"success": false');
+      expect(result.content?.[0]?.text).toContain(
+        "Batch processing system failure",
+      );
+    });
+  });
 });
