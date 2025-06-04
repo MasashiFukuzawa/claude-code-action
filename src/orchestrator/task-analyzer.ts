@@ -1,10 +1,11 @@
-import type { ComplexityAnalysis, JapanesePatterns } from "./types";
+import type { ComplexityAnalysis, JapanesePatterns, EnglishPatterns } from "./types";
 
 /**
  * TaskAnalyzer class for analyzing task complexity
  */
 export class TaskAnalyzer {
   private _japanesePatterns: JapanesePatterns;
+  private _englishPatterns: EnglishPatterns;
 
   constructor() {
     // Initialize TaskAnalyzer
@@ -48,6 +49,49 @@ export class TaskAnalyzer {
         "コンポーネント",
         "機能",
         "追加",
+      ],
+    };
+
+    this._englishPatterns = {
+      multipleActions: [
+        "and.*and",
+        "also",
+        "additionally",
+        "furthermore",
+        "moreover",
+        "as well as",
+        "along with",
+        ".*and.*",
+      ],
+      conditionals: [
+        "if",
+        "when",
+        "unless",
+        "provided",
+        "assuming",
+        "in case",
+        "should",
+        "depending",
+      ],
+      designKeywords: [
+        "design",
+        "architecture",
+        "structure",
+        "pattern",
+        "framework",
+        "library",
+        "approach",
+        "strategy",
+      ],
+      implementKeywords: [
+        "implement",
+        "code",
+        "function",
+        "method",
+        "class",
+        "component",
+        "feature",
+        "add",
       ],
     };
   }
@@ -96,5 +140,13 @@ export class TaskAnalyzer {
    */
   public getJapanesePatterns(): JapanesePatterns {
     return this._japanesePatterns;
+  }
+
+  /**
+   * Get English patterns (temporary for testing)
+   * @returns English patterns object
+   */
+  public getEnglishPatterns(): EnglishPatterns {
+    return this._englishPatterns;
   }
 }
