@@ -12,7 +12,6 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 const server = new McpServer({
   name: "Orchestrator Server",
   version: "0.1.0",
-  description: "MCP server for Claude Code Action orchestration functionality",
 });
 
 // Start the server
