@@ -97,14 +97,8 @@ server.tool(
       .enum(["pending", "in_progress", "completed", "failed"])
       .optional()
       .describe("Task status (for create/update actions)"),
-    result: z
-      .string()
-      .optional()
-      .describe("Task result (for update action)"),
-    error: z
-      .string()
-      .optional()
-      .describe("Error message (for update action)"),
+    result: z.string().optional().describe("Task result (for update action)"),
+    error: z.string().optional().describe("Error message (for update action)"),
   },
   async ({ action, taskId, description, status, result, error }) => {
     try {
@@ -124,16 +118,20 @@ server.tool(
             updatedAt: now,
           };
           taskStates.set(id, newTask);
-          
+
           return {
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: true,
-                  action: "create",
-                  task: newTask,
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: true,
+                    action: "create",
+                    task: newTask,
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -161,11 +159,15 @@ server.tool(
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: true,
-                  action: "update",
-                  task: updatedTask,
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: true,
+                    action: "update",
+                    task: updatedTask,
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -184,11 +186,15 @@ server.tool(
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: true,
-                  action: "get",
-                  task,
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: true,
+                    action: "get",
+                    task,
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -200,12 +206,16 @@ server.tool(
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: true,
-                  action: "list",
-                  tasks,
-                  count: tasks.length,
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: true,
+                    action: "list",
+                    tasks,
+                    count: tasks.length,
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -224,11 +234,15 @@ server.tool(
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: true,
-                  action: "delete",
-                  taskId,
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: true,
+                    action: "delete",
+                    taskId,
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -244,11 +258,15 @@ server.tool(
         content: [
           {
             type: "text",
-            text: JSON.stringify({
-              success: false,
-              action,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }, null, 2),
+            text: JSON.stringify(
+              {
+                success: false,
+                action,
+                error: error instanceof Error ? error.message : "Unknown error",
+              },
+              null,
+              2,
+            ),
           },
         ],
       };
@@ -274,15 +292,15 @@ server.tool(
     try {
       const allTasks = Array.from(taskStates.values());
       const filteredTasks = filterStatus
-        ? allTasks.filter(task => task.status === filterStatus)
+        ? allTasks.filter((task) => task.status === filterStatus)
         : allTasks;
 
       const metrics = {
         total: allTasks.length,
-        pending: allTasks.filter(t => t.status === "pending").length,
-        inProgress: allTasks.filter(t => t.status === "in_progress").length,
-        completed: allTasks.filter(t => t.status === "completed").length,
-        failed: allTasks.filter(t => t.status === "failed").length,
+        pending: allTasks.filter((t) => t.status === "pending").length,
+        inProgress: allTasks.filter((t) => t.status === "in_progress").length,
+        completed: allTasks.filter((t) => t.status === "completed").length,
+        failed: allTasks.filter((t) => t.status === "failed").length,
       };
 
       let reportData;
@@ -291,11 +309,17 @@ server.tool(
           reportData = {
             metrics,
             recentTasks: filteredTasks
-              .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+              .sort(
+                (a, b) =>
+                  new Date(b.updatedAt).getTime() -
+                  new Date(a.updatedAt).getTime(),
+              )
               .slice(0, 5)
-              .map(task => ({
+              .map((task) => ({
                 id: task.id,
-                description: task.description.substring(0, 50) + (task.description.length > 50 ? "..." : ""),
+                description:
+                  task.description.substring(0, 50) +
+                  (task.description.length > 50 ? "..." : ""),
                 status: task.status,
                 updatedAt: task.updatedAt,
               })),
@@ -305,9 +329,11 @@ server.tool(
         case "detailed":
           reportData = {
             metrics,
-            tasks: filteredTasks.map(task => ({
+            tasks: filteredTasks.map((task) => ({
               ...task,
-              description: task.description.substring(0, 100) + (task.description.length > 100 ? "..." : ""),
+              description:
+                task.description.substring(0, 100) +
+                (task.description.length > 100 ? "..." : ""),
             })),
           };
           break;
@@ -315,9 +341,18 @@ server.tool(
         case "metrics":
           reportData = {
             metrics,
-            completionRate: metrics.total > 0 ? (metrics.completed / metrics.total * 100).toFixed(1) + "%" : "0%",
-            failureRate: metrics.total > 0 ? (metrics.failed / metrics.total * 100).toFixed(1) + "%" : "0%",
-            activeRate: metrics.total > 0 ? (metrics.inProgress / metrics.total * 100).toFixed(1) + "%" : "0%",
+            completionRate:
+              metrics.total > 0
+                ? ((metrics.completed / metrics.total) * 100).toFixed(1) + "%"
+                : "0%",
+            failureRate:
+              metrics.total > 0
+                ? ((metrics.failed / metrics.total) * 100).toFixed(1) + "%"
+                : "0%",
+            activeRate:
+              metrics.total > 0
+                ? ((metrics.inProgress / metrics.total) * 100).toFixed(1) + "%"
+                : "0%",
           };
           break;
 
@@ -329,13 +364,17 @@ server.tool(
         content: [
           {
             type: "text",
-            text: JSON.stringify({
-              success: true,
-              format,
-              filterStatus,
-              report: reportData,
-              generatedAt: new Date().toISOString(),
-            }, null, 2),
+            text: JSON.stringify(
+              {
+                success: true,
+                format,
+                filterStatus,
+                report: reportData,
+                generatedAt: new Date().toISOString(),
+              },
+              null,
+              2,
+            ),
           },
         ],
       };
@@ -346,10 +385,14 @@ server.tool(
         content: [
           {
             type: "text",
-            text: JSON.stringify({
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            }, null, 2),
+            text: JSON.stringify(
+              {
+                success: false,
+                error: error instanceof Error ? error.message : "Unknown error",
+              },
+              null,
+              2,
+            ),
           },
         ],
       };

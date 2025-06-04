@@ -529,11 +529,15 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                action: "create",
-                task: newTask,
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  success: true,
+                  action: "create",
+                  task: newTask,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -570,11 +574,15 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                action: "update",
-                task: updatedTask,
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  success: true,
+                  action: "update",
+                  task: updatedTask,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -590,7 +598,9 @@ describe("Orchestrator MCP Server", () => {
       expect(result.content?.[0]?.text).toContain('"success": true');
       expect(result.content?.[0]?.text).toContain('"action": "update"');
       expect(result.content?.[0]?.text).toContain('"status": "completed"');
-      expect(result.content?.[0]?.text).toContain("Task completed successfully");
+      expect(result.content?.[0]?.text).toContain(
+        "Task completed successfully",
+      );
     });
 
     test("should get task state by ID", async () => {
@@ -610,11 +620,15 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                action: "get",
-                task,
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  success: true,
+                  action: "get",
+                  task,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -654,12 +668,16 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                action: "list",
-                tasks,
-                count: tasks.length,
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  success: true,
+                  action: "list",
+                  tasks,
+                  count: tasks.length,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -686,11 +704,15 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                action: "delete",
-                taskId: params.taskId,
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  success: true,
+                  action: "delete",
+                  taskId: params.taskId,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -718,11 +740,16 @@ describe("Orchestrator MCP Server", () => {
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: false,
-                  action: params.action,
-                  error: error instanceof Error ? error.message : "Unknown error",
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: false,
+                    action: params.action,
+                    error:
+                      error instanceof Error ? error.message : "Unknown error",
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -735,7 +762,9 @@ describe("Orchestrator MCP Server", () => {
       });
 
       expect(result.content?.[0]?.text).toContain('"success": false');
-      expect(result.content?.[0]?.text).toContain("Description is required for create action");
+      expect(result.content?.[0]?.text).toContain(
+        "Description is required for create action",
+      );
     });
   });
 
@@ -763,16 +792,20 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                format: params.format || "summary",
-                filterStatus: params.filterStatus,
-                report: {
-                  metrics,
-                  recentTasks,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  format: params.format || "summary",
+                  filterStatus: params.filterStatus,
+                  report: {
+                    metrics,
+                    recentTasks,
+                  },
+                  generatedAt: new Date().toISOString(),
                 },
-                generatedAt: new Date().toISOString(),
-              }, null, 2),
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -821,16 +854,20 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                format: "detailed",
-                filterStatus: params.filterStatus,
-                report: {
-                  metrics,
-                  tasks,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  format: "detailed",
+                  filterStatus: params.filterStatus,
+                  report: {
+                    metrics,
+                    tasks,
+                  },
+                  generatedAt: new Date().toISOString(),
                 },
-                generatedAt: new Date().toISOString(),
-              }, null, 2),
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -860,18 +897,22 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                format: "metrics",
-                filterStatus: params.filterStatus,
-                report: {
-                  metrics,
-                  completionRate: "40.0%",
-                  failureRate: "10.0%",
-                  activeRate: "30.0%",
+              text: JSON.stringify(
+                {
+                  success: true,
+                  format: "metrics",
+                  filterStatus: params.filterStatus,
+                  report: {
+                    metrics,
+                    completionRate: "40.0%",
+                    failureRate: "10.0%",
+                    activeRate: "30.0%",
+                  },
+                  generatedAt: new Date().toISOString(),
                 },
-                generatedAt: new Date().toISOString(),
-              }, null, 2),
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -917,16 +958,20 @@ describe("Orchestrator MCP Server", () => {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                success: true,
-                format: "summary",
-                filterStatus: params.filterStatus,
-                report: {
-                  metrics,
-                  recentTasks: filteredTasks,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  format: "summary",
+                  filterStatus: params.filterStatus,
+                  report: {
+                    metrics,
+                    recentTasks: filteredTasks,
+                  },
+                  generatedAt: new Date().toISOString(),
                 },
-                generatedAt: new Date().toISOString(),
-              }, null, 2),
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -938,7 +983,9 @@ describe("Orchestrator MCP Server", () => {
       });
 
       expect(result.content?.[0]?.text).toContain('"success": true');
-      expect(result.content?.[0]?.text).toContain('"filterStatus": "completed"');
+      expect(result.content?.[0]?.text).toContain(
+        '"filterStatus": "completed"',
+      );
       expect(result.content?.[0]?.text).toContain("Completed task 1");
       expect(result.content?.[0]?.text).toContain("Completed task 2");
     });
@@ -955,10 +1002,15 @@ describe("Orchestrator MCP Server", () => {
             content: [
               {
                 type: "text",
-                text: JSON.stringify({
-                  success: false,
-                  error: error instanceof Error ? error.message : "Unknown error",
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    success: false,
+                    error:
+                      error instanceof Error ? error.message : "Unknown error",
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
