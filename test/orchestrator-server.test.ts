@@ -1,10 +1,9 @@
 import { describe, test, expect, jest, beforeEach } from "bun:test";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ComplexityAnalysis } from "../src/orchestrator/types";
 
 describe("Orchestrator MCP Server", () => {
   let mockTaskAnalyzer: {
-    analyze: jest.Mock<ComplexityAnalysis, [string]>;
+    analyze: jest.Mock;
   };
   let server: McpServer;
 
@@ -84,7 +83,7 @@ describe("Orchestrator MCP Server", () => {
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(
         "実装とテストを行ってください",
       );
-      expect(result.content[0].text).toContain(
+      expect(result.content?.[0]?.text).toContain(
         JSON.stringify(mockAnalysisResult, null, 2),
       );
     });
@@ -119,7 +118,7 @@ describe("Orchestrator MCP Server", () => {
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(
         "設計してから実装し、テストも行ってください",
       );
-      expect(result.content[0].text).toContain("複数の操作が含まれています");
+      expect(result.content?.[0]?.text).toContain("複数の操作が含まれています");
     });
 
     test("should handle English task descriptions", async () => {
@@ -152,7 +151,9 @@ describe("Orchestrator MCP Server", () => {
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(
         "implement and test the feature",
       );
-      expect(result.content[0].text).toContain("Multiple operations required");
+      expect(result.content?.[0]?.text).toContain(
+        "Multiple operations required",
+      );
     });
 
     test("should handle simple tasks", async () => {
@@ -181,8 +182,8 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: "fix typo" });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("fix typo");
-      expect(result.content[0].text).toContain("シンプルなタスクです");
-      expect(result.content[0].text).toContain('"isComplex": false');
+      expect(result.content?.[0]?.text).toContain("シンプルなタスクです");
+      expect(result.content?.[0]?.text).toContain('"isComplex": false');
     });
 
     test("should handle analysis errors gracefully", async () => {
@@ -231,12 +232,12 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: "some task" });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("some task");
-      expect(result.content[0].text).toContain(
+      expect(result.content?.[0]?.text).toContain(
         "Analysis failed: Analysis failed",
       );
-      expect(result.content[0].text).toContain('"isComplex": false');
-      expect(result.content[0].text).toContain('"confidence": 0');
-      expect(result.content[0].text).toContain('"error": "Analysis failed"');
+      expect(result.content?.[0]?.text).toContain('"isComplex": false');
+      expect(result.content?.[0]?.text).toContain('"confidence": 0');
+      expect(result.content?.[0]?.text).toContain('"error": "Analysis failed"');
     });
 
     test("should handle non-Error exceptions", async () => {
@@ -283,10 +284,10 @@ describe("Orchestrator MCP Server", () => {
 
       const result = await toolHandler({ task: "some task" });
 
-      expect(result.content[0].text).toContain(
+      expect(result.content?.[0]?.text).toContain(
         "Analysis failed: Unknown error",
       );
-      expect(result.content[0].text).toContain('"error": "Unknown error"');
+      expect(result.content?.[0]?.text).toContain('"error": "Unknown error"');
     });
 
     test("should return properly structured JSON output", async () => {
@@ -320,11 +321,11 @@ describe("Orchestrator MCP Server", () => {
       // Verify the result structure
       expect(result).toHaveProperty("content");
       expect(result.content).toHaveLength(1);
-      expect(result.content[0]).toHaveProperty("type", "text");
-      expect(result.content[0]).toHaveProperty("text");
+      expect(result.content?.[0]).toHaveProperty("type", "text");
+      expect(result.content?.[0]).toHaveProperty("text");
 
       // Verify the JSON can be parsed
-      const parsedResult = JSON.parse(result.content[0].text);
+      const parsedResult = JSON.parse(result.content?.[0]?.text || "{}");
       expect(parsedResult).toHaveProperty("isComplex", true);
       expect(parsedResult).toHaveProperty("confidence", 0.85);
       expect(parsedResult).toHaveProperty("reason");
@@ -358,7 +359,7 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: "" });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("");
-      expect(result.content[0].text).toContain('"isComplex": false');
+      expect(result.content?.[0]?.text).toContain('"isComplex": false');
     });
 
     test("should handle very long task descriptions", async () => {
@@ -389,7 +390,7 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: longTask });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(longTask);
-      expect(result.content[0].text).toContain('"isComplex": true');
+      expect(result.content?.[0]?.text).toContain('"isComplex": true');
     });
 
     test("should handle mixed language task descriptions", async () => {
@@ -419,7 +420,7 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: mixedTask });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith(mixedTask);
-      expect(result.content[0].text).toContain('"isComplex": true');
+      expect(result.content?.[0]?.text).toContain('"isComplex": true');
     });
   });
 
@@ -503,7 +504,7 @@ describe("Orchestrator MCP Server", () => {
       const result = await toolHandler({ task: "valid task" });
 
       expect(mockTaskAnalyzer.analyze).toHaveBeenCalledWith("valid task");
-      expect(result.content[0].text).toContain('"isComplex": false');
+      expect(result.content?.[0]?.text).toContain('"isComplex": false');
     });
   });
 });
