@@ -1,6 +1,7 @@
 import {
   checkContainsTrigger,
   escapeRegExp,
+  extractTaskFromComment,
 } from "../src/github/validation/trigger";
 import { describe, it, expect } from "bun:test";
 import {
@@ -427,5 +428,78 @@ describe("escapeRegExp", () => {
   it("should handle mixed characters", () => {
     expect(escapeRegExp("hello.world")).toBe("hello\\.world");
     expect(escapeRegExp("test[123]")).toBe("test\\[123\\]");
+  });
+});
+
+describe("extractTaskFromComment", () => {
+  it("should extract task from issue comment", () => {
+    const context = createMockContext({
+      eventName: "issue_comment",
+      eventAction: "created",
+      inputs: {
+        triggerPhrase: "@claude",
+        assigneeTrigger: "",
+        directPrompt: "",
+        allowedTools: "",
+        disallowedTools: "",
+        customInstructions: "",
+      },
+      payload: {
+        action: "created",
+        comment: {
+          body: "@claude Fix the bug in the login form",
+        },
+        issue: { number: 1 },
+      } as IssueCommentEvent,
+    });
+    expect(extractTaskFromComment(context)).toBe(
+      "Fix the bug in the login form",
+    );
+  });
+
+  it("should return empty string for comment without trigger phrase", () => {
+    const context = createMockContext({
+      eventName: "issue_comment",
+      eventAction: "created",
+      inputs: {
+        triggerPhrase: "@claude",
+        assigneeTrigger: "",
+        directPrompt: "",
+        allowedTools: "",
+        disallowedTools: "",
+        customInstructions: "",
+      },
+      payload: {
+        action: "created",
+        comment: {
+          body: "This is a regular comment",
+        },
+        issue: { number: 1 },
+      } as IssueCommentEvent,
+    });
+    expect(extractTaskFromComment(context)).toBe("");
+  });
+
+  it("should handle custom trigger phrase", () => {
+    const context = createMockContext({
+      eventName: "issue_comment",
+      eventAction: "created",
+      inputs: {
+        triggerPhrase: "/claude",
+        assigneeTrigger: "",
+        directPrompt: "",
+        allowedTools: "",
+        disallowedTools: "",
+        customInstructions: "",
+      },
+      payload: {
+        action: "created",
+        comment: {
+          body: "/claude Update the documentation",
+        },
+        issue: { number: 1 },
+      } as IssueCommentEvent,
+    });
+    expect(extractTaskFromComment(context)).toBe("Update the documentation");
   });
 });
