@@ -17,9 +17,16 @@ import {
   isPullRequestReviewEvent,
   isPullRequestReviewCommentEvent,
 } from "../github/context";
+// TODO: Import orchestrator functions when context type compatibility is resolved
+// import {
+//   shouldUseOrchestrator,
+//   extractTaskFromComment,
+// } from "../github/validation/trigger";
 import type { ParsedGitHubContext } from "../github/context";
 import type { CommonFields, PreparedContext, EventData } from "./types";
 import { GITHUB_SERVER_URL } from "../github/api/config";
+// TODO: Import orchestrator prompt when context integration is complete
+// import { createOrchestratorPrompt } from "./orchestrator";
 export type { CommonFields, PreparedContext } from "./types";
 
 const BASE_ALLOWED_TOOLS = [
@@ -351,6 +358,10 @@ export function generatePrompt(
   context: PreparedContext,
   githubData: FetchDataResult,
 ): string {
+  // TODO: Check if orchestrator mode should be used
+  // Note: This requires ParsedGitHubContext, but we have PreparedContext
+  // For now, skip orchestrator mode until we can properly convert context types
+
   const {
     contextData,
     comments,
