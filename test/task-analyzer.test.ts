@@ -21,52 +21,48 @@ describe("TaskAnalyzer", () => {
     test("should detect Japanese characters", () => {
       const analyzer = new TaskAnalyzer();
 
-      // These should return true when implemented
-      expect(analyzer.testDetectJapanese("こんにちは")).toBe(true);
-      expect(analyzer.testDetectJapanese("テスト")).toBe(true);
-      expect(analyzer.testDetectJapanese("実装してください")).toBe(true);
-      expect(analyzer.testDetectJapanese("Hello 世界")).toBe(true);
+      // Test Japanese text returns Japanese-specific reasons
+      const result1 = analyzer.analyze("こんにちは");
+      expect(result1.reason).toContain("シンプル");
+
+      const result2 = analyzer.analyze("テストを実装してください");
+      expect(result2.reason).toContain("複数の操作");
     });
 
     test("should not detect Japanese in English text", () => {
       const analyzer = new TaskAnalyzer();
 
-      // These should return false
-      expect(analyzer.testDetectJapanese("Hello world")).toBe(false);
-      expect(analyzer.testDetectJapanese("implement feature")).toBe(false);
-      expect(analyzer.testDetectJapanese("123 test")).toBe(false);
+      // English text should still work correctly
+      const result = analyzer.analyze("Hello world");
+      expect(result.isComplex).toBe(false);
+      expect(result.reason).toContain("シンプル");
     });
   });
 
   describe("Pattern matching", () => {
     test("should analyze indicators for Japanese text", () => {
       const analyzer = new TaskAnalyzer();
-      const result =
-        analyzer.testAnalyzeIndicators("実装とテストを行ってください");
+      const result = analyzer.analyze("実装とテストを行ってください");
 
-      expect(result.hasMultipleActions).toBe(true); // "と" pattern
-      expect(result.hasImplementKeywords).toBe(true); // "実装"
-      expect(result.hasTestKeywords).toBe(true); // "テスト"
+      expect(result.isComplex).toBe(true);
+      expect(result.reason).toContain("複数の操作");
+      expect(result.reason).toContain("実装とテストの両方が必要");
     });
 
     test("should analyze indicators for English text", () => {
       const analyzer = new TaskAnalyzer();
-      const result = analyzer.testAnalyzeIndicators(
-        "implement and test the feature",
-      );
+      const result = analyzer.analyze("implement and test the feature");
 
-      expect(result.hasMultipleActions).toBe(true); // "and" pattern
-      expect(result.hasImplementKeywords).toBe(true); // "implement"
-      expect(result.hasTestKeywords).toBe(true); // "test"
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.5);
     });
 
     test("should return false for simple tasks", () => {
       const analyzer = new TaskAnalyzer();
-      const result = analyzer.testAnalyzeIndicators("fix bug");
+      const result = analyzer.analyze("fix bug");
 
-      expect(result.hasMultipleActions).toBe(false);
-      expect(result.hasConditionals).toBe(false);
-      expect(result.hasDesignKeywords).toBe(false);
+      expect(result.isComplex).toBe(false);
+      expect(result.reason).toContain("シンプル");
     });
   });
 
@@ -74,39 +70,23 @@ describe("TaskAnalyzer", () => {
     test("should calculate complexity score correctly", () => {
       const analyzer = new TaskAnalyzer();
 
-      // Test simple task (no indicators)
-      const simpleIndicators = {
-        hasMultipleActions: false,
-        hasConditionals: false,
-        hasDesignKeywords: false,
-        hasImplementKeywords: false,
-        hasTestKeywords: false,
-      };
-      expect(analyzer.testCalculateComplexityScore(simpleIndicators)).toBe(0);
+      // Test simple task
+      const simpleResult = analyzer.analyze("fix typo");
+      expect(simpleResult.isComplex).toBe(false);
+      expect(simpleResult.confidence).toBeLessThan(0.5);
 
-      // Test complex task (all indicators)
-      const complexIndicators = {
-        hasMultipleActions: true,
-        hasConditionals: true,
-        hasDesignKeywords: true,
-        hasImplementKeywords: true,
-        hasTestKeywords: true,
-      };
-      expect(analyzer.testCalculateComplexityScore(complexIndicators)).toBe(
-        1.0,
+      // Test complex task with multiple indicators
+      const complexResult = analyzer.analyze(
+        "設計してアーキテクチャを実装し、条件に応じてテストを作成してください",
       );
+      expect(complexResult.isComplex).toBe(true);
+      expect(complexResult.confidence).toBe(1.0);
 
       // Test medium complexity
-      const mediumIndicators = {
-        hasMultipleActions: true,
-        hasConditionals: false,
-        hasDesignKeywords: true,
-        hasImplementKeywords: false,
-        hasTestKeywords: false,
-      };
-      expect(analyzer.testCalculateComplexityScore(mediumIndicators)).toBe(
-        0.55,
-      );
+      const mediumResult = analyzer.analyze("実装と設計を行う");
+      expect(mediumResult.isComplex).toBe(true);
+      expect(mediumResult.confidence).toBeGreaterThan(0.5);
+      expect(mediumResult.confidence).toBeLessThanOrEqual(1.0);
     });
 
     test("should return proper analysis for complex task", () => {

@@ -196,31 +196,6 @@ export class TaskAnalyzer {
   }
 
   /**
-   * Public wrapper for testing detectJapanese (temporary)
-   * @param text - Text to analyze
-   * @returns True if Japanese characters are detected
-   */
-  public testDetectJapanese(text: string): boolean {
-    return this.detectJapanese(text);
-  }
-
-  /**
-   * Get Japanese patterns (temporary for testing)
-   * @returns Japanese patterns object
-   */
-  public getJapanesePatterns(): JapanesePatterns {
-    return this._japanesePatterns;
-  }
-
-  /**
-   * Get English patterns (temporary for testing)
-   * @returns English patterns object
-   */
-  public getEnglishPatterns(): EnglishPatterns {
-    return this._englishPatterns;
-  }
-
-  /**
    * Analyze indicators for task complexity
    * @param task - Task description to analyze
    * @returns Complexity indicators
@@ -275,25 +250,5 @@ export class TaskAnalyzer {
         return text.includes(pattern.toLowerCase());
       }
     });
-  }
-
-  /**
-   * Test method for analyzeIndicators (temporary)
-   * @param task - Task description to analyze
-   * @returns Complexity indicators
-   */
-  public testAnalyzeIndicators(task: string): ComplexityIndicators {
-    return this.analyzeIndicators(task);
-  }
-
-  /**
-   * Test method for calculateComplexityScore (temporary)
-   * @param indicators - Complexity indicators
-   * @returns Score between 0 and 1
-   */
-  public testCalculateComplexityScore(
-    indicators: ComplexityIndicators,
-  ): number {
-    return this.calculateComplexityScore(indicators);
   }
 }
