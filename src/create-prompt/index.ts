@@ -44,38 +44,35 @@ const BASE_ALLOWED_TOOLS = [
 ];
 const DISALLOWED_TOOLS = ["WebSearch", "WebFetch"];
 
-export function buildAllowedToolsString(customAllowedTools?: string): string {
+export function buildAllowedToolsString(customAllowedTools?: string[]): string {
   let baseTools = [...BASE_ALLOWED_TOOLS];
 
   let allAllowedTools = baseTools.join(",");
-  if (customAllowedTools) {
-    allAllowedTools = `${allAllowedTools},${customAllowedTools}`;
+  if (customAllowedTools && customAllowedTools.length > 0) {
+    allAllowedTools = `${allAllowedTools},${customAllowedTools.join(",")}`;
   }
   return allAllowedTools;
 }
 
 export function buildDisallowedToolsString(
-  customDisallowedTools?: string,
-  allowedTools?: string,
+  customDisallowedTools?: string[],
+  allowedTools?: string[],
 ): string {
   let disallowedTools = [...DISALLOWED_TOOLS];
 
   // If user has explicitly allowed some hardcoded disallowed tools, remove them from disallowed list
-  if (allowedTools) {
-    const allowedToolsArray = allowedTools
-      .split(",")
-      .map((tool) => tool.trim());
+  if (allowedTools && allowedTools.length > 0) {
     disallowedTools = disallowedTools.filter(
-      (tool) => !allowedToolsArray.includes(tool),
+      (tool) => !allowedTools.includes(tool),
     );
   }
 
   let allDisallowedTools = disallowedTools.join(",");
-  if (customDisallowedTools) {
+  if (customDisallowedTools && customDisallowedTools.length > 0) {
     if (allDisallowedTools) {
-      allDisallowedTools = `${allDisallowedTools},${customDisallowedTools}`;
+      allDisallowedTools = `${allDisallowedTools},${customDisallowedTools.join(",")}`;
     } else {
-      allDisallowedTools = customDisallowedTools;
+      allDisallowedTools = customDisallowedTools.join(",");
     }
   }
   return allDisallowedTools;
@@ -129,8 +126,10 @@ export function prepareContext(
     triggerPhrase,
     ...(triggerUsername && { triggerUsername }),
     ...(customInstructions && { customInstructions }),
-    ...(allowedTools && { allowedTools }),
-    ...(disallowedTools && { disallowedTools }),
+    ...(allowedTools.length > 0 && { allowedTools: allowedTools.join(",") }),
+    ...(disallowedTools.length > 0 && {
+      disallowedTools: disallowedTools.join(","),
+    }),
     ...(directPrompt && { directPrompt }),
     ...(claudeBranch && { claudeBranch }),
   };
@@ -630,7 +629,9 @@ export async function createPrompt(
       claudeBranch,
     );
 
-    await mkdir("/tmp/claude-prompts", { recursive: true });
+    await mkdir(`${process.env.RUNNER_TEMP}/claude-prompts`, {
+      recursive: true,
+    });
 
     let promptContent: string;
 
@@ -659,15 +660,18 @@ export async function createPrompt(
     console.log("=======================");
 
     // Write the prompt file
-    await writeFile("/tmp/claude-prompts/claude-prompt.txt", promptContent);
+    await writeFile(
+      `${process.env.RUNNER_TEMP}/claude-prompts/claude-prompt.txt`,
+      promptContent,
+    );
 
     // Set allowed tools
     const allAllowedTools = buildAllowedToolsString(
-      preparedContext.allowedTools,
+      context.inputs.allowedTools,
     );
     const allDisallowedTools = buildDisallowedToolsString(
-      preparedContext.disallowedTools,
-      preparedContext.allowedTools,
+      context.inputs.disallowedTools,
+      context.inputs.allowedTools,
     );
 
     core.exportVariable("ALLOWED_TOOLS", allAllowedTools);
