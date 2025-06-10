@@ -34,8 +34,12 @@ export function adaptPreparedToGitHubContext(
         eventData.eventName === "issues" && eventData.eventAction === "assigned"
           ? eventData.assigneeTrigger
           : "",
-      allowedTools: preparedContext.allowedTools || "",
-      disallowedTools: preparedContext.disallowedTools || "",
+      allowedTools: preparedContext.allowedTools
+        ? preparedContext.allowedTools.split(",").map((s) => s.trim())
+        : [],
+      disallowedTools: preparedContext.disallowedTools
+        ? preparedContext.disallowedTools.split(",").map((s) => s.trim())
+        : [],
       customInstructions: preparedContext.customInstructions || "",
       directPrompt: preparedContext.directPrompt || "",
       baseBranch: eventData.baseBranch,

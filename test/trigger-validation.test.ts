@@ -440,8 +440,8 @@ describe("extractTaskFromComment", () => {
         triggerPhrase: "@claude",
         assigneeTrigger: "",
         directPrompt: "",
-        allowedTools: "",
-        disallowedTools: "",
+        allowedTools: [],
+        disallowedTools: [],
         customInstructions: "",
       },
       payload: {
@@ -465,8 +465,8 @@ describe("extractTaskFromComment", () => {
         triggerPhrase: "@claude",
         assigneeTrigger: "",
         directPrompt: "",
-        allowedTools: "",
-        disallowedTools: "",
+        allowedTools: [],
+        disallowedTools: [],
         customInstructions: "",
       },
       payload: {
@@ -488,8 +488,8 @@ describe("extractTaskFromComment", () => {
         triggerPhrase: "/claude",
         assigneeTrigger: "",
         directPrompt: "",
-        allowedTools: "",
-        disallowedTools: "",
+        allowedTools: [],
+        disallowedTools: [],
         customInstructions: "",
       },
       payload: {
