@@ -17,8 +17,8 @@ describe("TaskAnalyzer", () => {
     expect(result.suggestedSubtasks).toEqual([]);
   });
 
-  describe("Japanese detection", () => {
-    test("should detect Japanese characters", () => {
+  describe("Language detection (via analyze behavior)", () => {
+    test("should handle Japanese text correctly", () => {
       const analyzer = new TaskAnalyzer();
 
       // Test Japanese text returns Japanese-specific reasons
@@ -29,7 +29,7 @@ describe("TaskAnalyzer", () => {
       expect(result2.reason).toContain("複数の操作");
     });
 
-    test("should not detect Japanese in English text", () => {
+    test("should handle English text correctly", () => {
       const analyzer = new TaskAnalyzer();
 
       // English text should still work correctly
@@ -39,8 +39,8 @@ describe("TaskAnalyzer", () => {
     });
   });
 
-  describe("Pattern matching", () => {
-    test("should analyze indicators for Japanese text", () => {
+  describe("Pattern matching (via analyze behavior)", () => {
+    test("should detect complex patterns in Japanese text", () => {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze("実装とテストを行ってください");
 
@@ -49,7 +49,7 @@ describe("TaskAnalyzer", () => {
       expect(result.reason).toContain("実装とテストの両方が必要");
     });
 
-    test("should analyze indicators for English text", () => {
+    test("should detect complex patterns in English text", () => {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze("implement and test the feature");
 
@@ -57,7 +57,7 @@ describe("TaskAnalyzer", () => {
       expect(result.confidence).toBeGreaterThan(0.5);
     });
 
-    test("should return false for simple tasks", () => {
+    test("should detect simple tasks correctly", () => {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze("fix bug");
 
@@ -67,26 +67,34 @@ describe("TaskAnalyzer", () => {
   });
 
   describe("Scoring logic", () => {
-    test("should calculate complexity score correctly", () => {
+    test("should score simple tasks with low complexity", () => {
       const analyzer = new TaskAnalyzer();
 
       // Test simple task
       const simpleResult = analyzer.analyze("fix typo");
       expect(simpleResult.isComplex).toBe(false);
       expect(simpleResult.confidence).toBeLessThan(0.5);
+    });
 
-      // Test complex task with multiple indicators
-      const complexResult = analyzer.analyze(
+    test("should score complex tasks with high complexity", () => {
+      const analyzer = new TaskAnalyzer();
+
+      // Test highly complex task with multiple indicators
+      const result = analyzer.analyze(
         "設計してアーキテクチャを実装し、条件に応じてテストを作成してください",
       );
-      expect(complexResult.isComplex).toBe(true);
-      expect(complexResult.confidence).toBe(1.0);
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBe(1.0);
+    });
 
-      // Test medium complexity
-      const mediumResult = analyzer.analyze("実装と設計を行う");
-      expect(mediumResult.isComplex).toBe(true);
-      expect(mediumResult.confidence).toBeGreaterThan(0.5);
-      expect(mediumResult.confidence).toBeLessThanOrEqual(1.0);
+    test("should score medium complexity tasks appropriately", () => {
+      const analyzer = new TaskAnalyzer();
+
+      // Test medium complexity task
+      const result = analyzer.analyze("実装と設計を行う");
+      expect(result.isComplex).toBe(true);
+      expect(result.confidence).toBeGreaterThan(0.5);
+      expect(result.confidence).toBeLessThanOrEqual(1.0);
     });
 
     test("should return proper analysis for complex task", () => {
@@ -96,7 +104,20 @@ describe("TaskAnalyzer", () => {
       expect(result.isComplex).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.5);
       expect(result.reason).toContain("複数の操作");
-      expect(result.suggestedSubtasks).toEqual([]);
+      expect(result.suggestedSubtasks).toEqual([
+        {
+          mode: "architect",
+          description: "設計とアーキテクチャの決定",
+        },
+        {
+          mode: "code",
+          description: "実装",
+        },
+        {
+          mode: "code",
+          description: "テストの作成",
+        },
+      ]);
     });
 
     test("should return proper analysis for simple task", () => {
@@ -106,6 +127,46 @@ describe("TaskAnalyzer", () => {
       expect(result.isComplex).toBe(false);
       expect(result.confidence).toBeGreaterThan(0);
       expect(result.reason).toContain("シンプル");
+    });
+  });
+
+  describe("Subtask generation", () => {
+    test("should generate subtasks for design and implementation", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("設計してから実装してください");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.suggestedSubtasks).toHaveLength(3);
+      expect(result.suggestedSubtasks[0]?.mode).toBe("architect");
+      expect(result.suggestedSubtasks[1]?.mode).toBe("code");
+      expect(result.suggestedSubtasks[2]?.mode).toBe("code");
+    });
+
+    test("should generate English subtasks for English input", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("design and implement the feature");
+
+      expect(result.isComplex).toBe(true);
+      expect(result.suggestedSubtasks).toContainEqual({
+        mode: "architect",
+        description: "Design and architecture decisions",
+      });
+      expect(result.suggestedSubtasks).toContainEqual({
+        mode: "code",
+        description: "Implementation",
+      });
+      expect(result.suggestedSubtasks).toContainEqual({
+        mode: "code",
+        description: "Test creation",
+      });
+    });
+
+    test("should return empty subtasks for simple tasks", () => {
+      const analyzer = new TaskAnalyzer();
+      const result = analyzer.analyze("fix typo");
+
+      expect(result.isComplex).toBe(false);
+      expect(result.suggestedSubtasks).toEqual([]);
     });
   });
 });
