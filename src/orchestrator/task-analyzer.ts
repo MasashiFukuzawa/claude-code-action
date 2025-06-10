@@ -25,6 +25,10 @@ export class TaskAnalyzer {
         "同時に",
         ".*して.*して",
         ".*と.*を",
+        ".*、.*、",
+        ".*と.*と.*",
+        ".*を.*し",
+        ".*含む",
       ],
       conditionals: [
         "もし",
@@ -45,6 +49,12 @@ export class TaskAnalyzer {
         "ライブラリ",
         "技術選定",
         "方針",
+        "システム",
+        "構築",
+        "管理",
+        "認証",
+        "スキーマ",
+        "データベース",
       ],
       implementKeywords: [
         "実装",
@@ -55,6 +65,10 @@ export class TaskAnalyzer {
         "コンポーネント",
         "機能",
         "追加",
+        "作成",
+        "開発",
+        "構築",
+        "作る",
       ],
     };
 
@@ -68,6 +82,10 @@ export class TaskAnalyzer {
         "as well as",
         "along with",
         ".*and.*",
+        ".*with.*and.*",
+        ",.*,.*",
+        "including.*and.*",
+        ".*,.*functionality",
       ],
       conditionals: [
         "if",
@@ -88,6 +106,15 @@ export class TaskAnalyzer {
         "library",
         "approach",
         "strategy",
+        "system",
+        "management",
+        "authentication",
+        "authorization",
+        "permissions",
+        "integration",
+        "database",
+        "schema",
+        "complete",
       ],
       implementKeywords: [
         "implement",
@@ -98,6 +125,10 @@ export class TaskAnalyzer {
         "component",
         "feature",
         "add",
+        "create",
+        "build",
+        "develop",
+        "construct",
       ],
     };
   }

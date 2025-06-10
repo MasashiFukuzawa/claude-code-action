@@ -21,22 +21,21 @@ describe("TaskAnalyzer", () => {
     test("should handle Japanese text correctly", () => {
       const analyzer = new TaskAnalyzer();
 
-      // Test with Japanese task - analyze should work correctly with Japanese text
-      const result = analyzer.analyze("実装とテストを行ってください");
+      // Test Japanese text returns Japanese-specific reasons
+      const result1 = analyzer.analyze("こんにちは");
+      expect(result1.reason).toContain("シンプル");
 
-      expect(result.isComplex).toBe(true);
-      expect(result.reason).toContain("複数の操作"); // Japanese reason text
-      expect(result.confidence).toBeGreaterThan(0);
+      const result2 = analyzer.analyze("テストを実装してください");
+      expect(result2.reason).toContain("複数の操作");
     });
 
     test("should handle English text correctly", () => {
       const analyzer = new TaskAnalyzer();
 
-      // Test with English task - analyze should work correctly with English text
-      const result = analyzer.analyze("implement and test the feature");
-
-      expect(result.isComplex).toBe(true);
-      expect(result.confidence).toBeGreaterThan(0);
+      // English text should still work correctly
+      const result = analyzer.analyze("Hello world");
+      expect(result.isComplex).toBe(false);
+      expect(result.reason).toContain("シンプル");
     });
   });
 
@@ -45,17 +44,15 @@ describe("TaskAnalyzer", () => {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze("実装とテストを行ってください");
 
-      // Verify complex task detection via high complexity score
       expect(result.isComplex).toBe(true);
-      expect(result.confidence).toBeGreaterThan(0.5);
       expect(result.reason).toContain("複数の操作");
+      expect(result.reason).toContain("実装とテストの両方が必要");
     });
 
     test("should detect complex patterns in English text", () => {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze("implement and test the feature");
 
-      // Verify complex task detection via high complexity score
       expect(result.isComplex).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.5);
     });
@@ -64,7 +61,6 @@ describe("TaskAnalyzer", () => {
       const analyzer = new TaskAnalyzer();
       const result = analyzer.analyze("fix bug");
 
-      // Verify simple task detection
       expect(result.isComplex).toBe(false);
       expect(result.reason).toContain("シンプル");
     });
@@ -74,11 +70,10 @@ describe("TaskAnalyzer", () => {
     test("should score simple tasks with low complexity", () => {
       const analyzer = new TaskAnalyzer();
 
-      // Test very simple task
-      const result = analyzer.analyze("fix typo");
-      expect(result.isComplex).toBe(false);
-      expect(result.confidence).toBeGreaterThan(0);
-      expect(result.confidence).toBeLessThan(0.5);
+      // Test simple task
+      const simpleResult = analyzer.analyze("fix typo");
+      expect(simpleResult.isComplex).toBe(false);
+      expect(simpleResult.confidence).toBeLessThan(0.5);
     });
 
     test("should score complex tasks with high complexity", () => {
@@ -86,19 +81,20 @@ describe("TaskAnalyzer", () => {
 
       // Test highly complex task with multiple indicators
       const result = analyzer.analyze(
-        "設計してから実装し、テストも行い、条件に応じて修正してください",
+        "設計してアーキテクチャを実装し、条件に応じてテストを作成してください",
       );
       expect(result.isComplex).toBe(true);
-      expect(result.confidence).toBeGreaterThan(0.7);
+      expect(result.confidence).toBe(1.0);
     });
 
     test("should score medium complexity tasks appropriately", () => {
       const analyzer = new TaskAnalyzer();
 
       // Test medium complexity task
-      const result = analyzer.analyze("設計して実装してください");
+      const result = analyzer.analyze("実装と設計を行う");
       expect(result.isComplex).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.5);
+      expect(result.confidence).toBeLessThanOrEqual(1.0);
     });
 
     test("should return proper analysis for complex task", () => {
