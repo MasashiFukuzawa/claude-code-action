@@ -57,7 +57,7 @@ jobs:
   claude-response:
     runs-on: ubuntu-latest
     steps:
-      - uses: anthropics/claude-code-action@beta
+      - uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -106,7 +106,7 @@ The `mcp_config` input allows you to add custom MCP (Model Context Protocol) ser
 #### Basic Example: Adding a Sequential Thinking Server
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     mcp_config: |
@@ -130,7 +130,7 @@ The `mcp_config` input allows you to add custom MCP (Model Context Protocol) ser
 For MCP servers that require sensitive information like API keys or tokens, use GitHub Secrets in the environment variables:
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     mcp_config: |
@@ -228,7 +228,7 @@ on:
       - "src/api/**/*.ts"
 
 steps:
-  - uses: anthropics/claude-code-action@beta
+  - uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
     with:
       direct_prompt: |
         Update the API documentation in README.md to reflect
@@ -252,7 +252,7 @@ jobs:
       github.event.pull_request.user.login == 'developer1' ||
       github.event.pull_request.user.login == 'external-contributor'
     steps:
-      - uses: anthropics/claude-code-action@beta
+      - uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
         with:
           direct_prompt: |
             Please provide a thorough review of this pull request.
@@ -303,7 +303,7 @@ This action is built on top of [`anthropics/claude-code-base-action`](https://gi
 You can pass custom environment variables to Claude Code execution using the `claude_env` input. This is useful for CI/test setups that require specific environment variables:
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     claude_env: |
       NODE_ENV: test
@@ -323,7 +323,7 @@ You can use the `max_turns` parameter to limit the number of back-and-forth exch
 - Ensuring predictable behavior in CI/CD pipelines
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     max_turns: "5" # Limit to 5 conversation turns
@@ -345,7 +345,7 @@ Claude does **not** have access to execute arbitrary Bash commands by default. I
 **Note**: If your repository has a `.mcp.json` file in the root directory, Claude will automatically detect and use the MCP server tools defined there. However, these tools still need to be explicitly allowed via the `allowed_tools` configuration.
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     allowed_tools: "Bash(npm install),Bash(npm run test),Edit,Replace,NotebookEditCell"
     disallowed_tools: "TaskOutput,KillTask"
@@ -359,7 +359,7 @@ Claude does **not** have access to execute arbitrary Bash commands by default. I
 Use a specific Claude model:
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     # model: "claude-3-5-sonnet-20241022"  # Optional: specify a different model
     # ... other inputs
@@ -387,20 +387,20 @@ Use provider-specific model names based on your chosen provider:
 
 ```yaml
 # For direct Anthropic API (default)
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     # ... other inputs
 
 # For Amazon Bedrock with OIDC
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     model: "anthropic.claude-3-7-sonnet-20250219-beta:0" # Cross-region inference
     use_bedrock: "true"
     # ... other inputs
 
 # For Google Vertex AI with OIDC
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     model: "claude-3-7-sonnet@20250219"
     use_vertex: "true"
@@ -426,7 +426,7 @@ Both AWS Bedrock and GCP Vertex AI require OIDC authentication.
     app-id: ${{ secrets.APP_ID }}
     private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     model: "anthropic.claude-3-7-sonnet-20250219-beta:0"
     use_bedrock: "true"
@@ -451,7 +451,7 @@ Both AWS Bedrock and GCP Vertex AI require OIDC authentication.
     app-id: ${{ secrets.APP_ID }}
     private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-- uses: anthropics/claude-code-action@beta
+- uses: MasashiFukuzawa/claude-code-action@orchestrator-alpha
   with:
     model: "claude-3-7-sonnet@20250219"
     use_vertex: "true"
