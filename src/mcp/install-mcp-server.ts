@@ -50,6 +50,19 @@ export async function prepareMcpConfig(
             GITHUB_API_URL: GITHUB_API_URL,
           },
         },
+        orchestrator: {
+          command: "bun",
+          args: [
+            "run",
+            `${process.env.GITHUB_ACTION_PATH}/src/mcp/orchestrator-server.ts`,
+          ],
+          env: {
+            ORCHESTRATOR_STATE_DIR:
+              process.env.GITHUB_WORKSPACE || process.cwd(),
+            DEBUG: process.env.ORCHESTRATOR_DEBUG || "false",
+            USER_LANGUAGE: "ja",
+          },
+        },
       },
     };
 

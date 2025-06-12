@@ -130,6 +130,37 @@ export function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+export function shouldUseOrchestrator(_context: ParsedGitHubContext): boolean {
+  // orchestratorモードは常に有効
+  // 単純なタスクでもオーケストレーターが判断して直接実行
+  return true;
+}
+
+export function extractTaskFromComment(context: ParsedGitHubContext): string {
+  let commentBody = "";
+
+  // Extract comment body based on event type
+  if (
+    isIssueCommentEvent(context) ||
+    isPullRequestReviewCommentEvent(context)
+  ) {
+    commentBody = context.payload.comment.body;
+  } else if (isPullRequestReviewEvent(context)) {
+    commentBody = context.payload.review.body || "";
+  } else if (isIssuesEvent(context)) {
+    commentBody = context.payload.issue.body || "";
+  } else if (isPullRequestEvent(context)) {
+    commentBody = context.payload.pull_request.body || "";
+  }
+
+  // Extract task from comment body
+  const triggerPhrase = context.inputs.triggerPhrase || "@claude";
+  const regex = new RegExp(`${escapeRegExp(triggerPhrase)}\\s*(.+)`, "is");
+  const match = commentBody.match(regex);
+
+  return match && match[1] ? match[1].trim() : "";
+}
+
 export async function checkTriggerAction(context: ParsedGitHubContext) {
   const containsTrigger = checkContainsTrigger(context);
   core.setOutput("contains_trigger", containsTrigger.toString());

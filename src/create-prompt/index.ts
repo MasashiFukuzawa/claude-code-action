@@ -20,6 +20,15 @@ import {
 import type { ParsedGitHubContext } from "../github/context";
 import type { CommonFields, PreparedContext, EventData } from "./types";
 import { GITHUB_SERVER_URL } from "../github/api/config";
+import {
+  shouldUseOrchestrator,
+  extractTaskFromComment,
+} from "../github/validation/trigger";
+import { createOrchestratorPrompt } from "./orchestrator";
+import {
+  adaptPreparedToGitHubContext,
+  canAdaptContext,
+} from "./context-adapter";
 export type { CommonFields, PreparedContext } from "./types";
 
 const BASE_ALLOWED_TOOLS = [
@@ -625,8 +634,26 @@ export async function createPrompt(
       recursive: true,
     });
 
-    // Generate the prompt
-    const promptContent = generatePrompt(preparedContext, githubData);
+    let promptContent: string;
+
+    // Check if orchestrator mode should be used
+    if (canAdaptContext(preparedContext)) {
+      const adaptedContext = adaptPreparedToGitHubContext(preparedContext);
+      if (shouldUseOrchestrator(adaptedContext)) {
+        const taskDescription = extractTaskFromComment(adaptedContext);
+        promptContent = await createOrchestratorPrompt(
+          preparedContext,
+          taskDescription,
+        );
+        console.log("Using orchestrator mode for complex task handling");
+      } else {
+        // Generate standard prompt
+        promptContent = generatePrompt(preparedContext, githubData);
+      }
+    } else {
+      // Generate standard prompt if context cannot be adapted
+      promptContent = generatePrompt(preparedContext, githubData);
+    }
 
     // Log the final prompt to console
     console.log("===== FINAL PROMPT =====");
